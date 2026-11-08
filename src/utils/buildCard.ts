@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { FONT_STACK } from './fonts';
 import path from 'path';
 import { createCanvas, Image, loadImage, SKRSContext2D } from '@napi-rs/canvas';
 import { BUILD_SLOTS, getItem, isTwoHanded, itemIconUrl } from '../data/items';
@@ -83,13 +84,13 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   ctx.lineWidth = 2;
   ctx.strokeRect(6, 6, width - 12, height - 12);
 
-  ctx.font = 'bold 22px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 22px ${FONT_STACK}`;
   ctx.fillStyle = '#D4AF37';
   ctx.textBaseline = 'middle';
   ctx.fillText(truncate(ctx, `BUILDS · ${title.toUpperCase()}`, width - PAD * 2), PAD, 36);
 
   // Cabecera de huecos
-  ctx.font = '11px "Segoe UI", Arial, sans-serif';
+  ctx.font = `11px ${FONT_STACK}`;
   ctx.fillStyle = '#8f8a7e';
   ctx.textAlign = 'center';
   BUILD_SLOTS.forEach((s, i) => {
@@ -112,10 +113,10 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
     }
 
     const { name } = splitRoleLabel(role.label);
-    ctx.font = 'bold 17px "Segoe UI", Arial, sans-serif';
+    ctx.font = `bold 17px ${FONT_STACK}`;
     ctx.fillStyle = '#F2EEE3';
     ctx.fillText(truncate(ctx, name, NAME_W - 16), PAD, y + ICON / 2 - 8);
-    ctx.font = '13px "Segoe UI", Arial, sans-serif';
+    ctx.font = `13px ${FONT_STACK}`;
     ctx.fillStyle = '#a39e92';
     ctx.fillText(role.maxSlots > 0 ? `${role.maxSlots} ${role.maxSlots === 1 ? 'cupo' : 'cupos'}` : 'sin límite', PAD, y + ICON / 2 + 14);
 

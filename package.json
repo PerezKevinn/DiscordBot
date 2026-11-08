@@ -7,14 +7,14 @@
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc",
-    "preview:card": "tsx src/utils/previewCard.ts",
     "start:prod": "node dist/index.js",
     "avatar": "tsx scripts/generateAvatar.ts",
     "banner": "tsx scripts/generateBanner.ts",
     "panel:install": "npm --prefix dashboard ci",
     "panel:build": "npm --prefix dashboard run build",
     "panel:dev": "npm --prefix dashboard run dev",
-    "items:update": "tsx scripts/buildItemCatalog.ts"
+    "items:update": "tsx scripts/buildItemCatalog.ts",
+    "samples": "tsx scripts/renderSamples.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",

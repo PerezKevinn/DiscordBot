@@ -13,3 +13,4 @@ dashboard/dist/
 data/cache/
 !web/img/*.png
 !dashboard/public/*.png
+samples/

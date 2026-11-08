@@ -139,4 +139,4 @@ Cookies firmadas `HttpOnly` + `SameSite=Lax` (+ `Secure` con HTTPS), comprobaci√
 
 ## Vista previa del banner
 
-`npm run preview:card -- "NOMBRE DEL GREMIO" "[TAG]"` genera `data/preview_banner.png`.
+`npm run samples` genera en `samples/` un banner y una tarjeta de builds de ejemplo (sirve para comprobar fuentes e iconos en un servidor nuevo).

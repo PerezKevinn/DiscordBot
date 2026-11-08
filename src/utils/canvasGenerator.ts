@@ -1,4 +1,5 @@
 import { createCanvas, Image, SKRSContext2D } from '@napi-rs/canvas';
+import { FONT_STACK } from './fonts';
 import { getGuildLogo } from './logo';
 import { ActivePing, ContentTypeConfig, GuildConfig } from '../types/ping';
 
@@ -108,7 +109,7 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.fillRect(cx - cw * 0.42, cyCrown + ch * 0.46, cw * 0.84, ch * 0.14);
 
   // Siglas debajo de la corona
-  ctx.font = 'bold 20px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 20px ${FONT_STACK}`;
   ctx.fillStyle = '#FFE57F';
   ctx.textAlign = 'center';
   ctx.fillText(initials.split('').join(' '), cx, cy + radius * 0.56);
@@ -215,20 +216,27 @@ export async function generatePingBanner(
 
   // 6. Encabezado del Gremio y Estado del Ping
   ctx.textAlign = 'left';
-  ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 16px ${FONT_STACK}`;
   ctx.fillStyle = '#D4AF37';
   ctx.fillText(`${guildConfig.guildName}  •  ARMANDO PARTY / MASS UP`, 172, 62);
 
   // Título Principal (Nombre del Contenido / Actividad)
-  ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
+  // El título se achica (de 36 a 24 px) para caber entero; solo si aun así no cabe se recorta
+  const titleText = ping.title.toUpperCase();
+  let titleSize = 36;
+  ctx.font = `bold ${titleSize}px ${FONT_STACK}`;
+  while (titleSize > 24 && ctx.measureText(titleText).width > 560) {
+    titleSize -= 2;
+    ctx.font = `bold ${titleSize}px ${FONT_STACK}`;
+  }
   ctx.fillStyle = '#FFFFFF';
-  const mainTitle = truncateText(ctx, ping.title.toUpperCase(), 560);
+  const mainTitle = truncateText(ctx, titleText, 560);
   ctx.fillText(mainTitle, 172, 104);
 
   // Subtítulo de la categoría con barra de acento
   ctx.fillStyle = contentConfig.accentColor;
   ctx.fillRect(172, 118, 5, 22);
-  ctx.font = 'bold 17px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 17px ${FONT_STACK}`;
   ctx.fillStyle = '#FFE57F';
   ctx.fillText(truncateText(ctx, contentConfig.subtitle, 550), 186, 135);
 
@@ -252,22 +260,22 @@ export async function generatePingBanner(
   ctx.stroke();
 
   ctx.textAlign = 'center';
-  ctx.font = 'bold 13px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 13px ${FONT_STACK}`;
   ctx.fillStyle = '#FFE57F';
   ctx.fillText(st.label, width - 137, 66);
 
-  ctx.font = 'bold 32px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 32px ${FONT_STACK}`;
   ctx.fillStyle = '#FFFFFF';
   const countStr = totalMax > 0 ? `${totalJoined} / ${totalMax}` : `${totalJoined}`;
   ctx.fillText(countStr, width - 137, 102);
 
-  ctx.font = '12px "Segoe UI", Arial, sans-serif';
+  ctx.font = `12px ${FONT_STACK}`;
   ctx.fillStyle = '#B8B8C8';
   ctx.fillText('EN LA PARTY', width - 137, 119);
 
   // 10. Pie de tarjeta con lema del gremio e ID
   ctx.textAlign = 'center';
-  ctx.font = 'bold 12px "Segoe UI", Arial, sans-serif';
+  ctx.font = `bold 12px ${FONT_STACK}`;
   ctx.fillStyle = 'rgba(255, 229, 127, 0.75)';
   ctx.fillText(
     guildConfig.motto || 'ANÓTATE EN TU ROL CON EL MENÚ DE ABAJO',
