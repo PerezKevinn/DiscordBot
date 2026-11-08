@@ -76,7 +76,13 @@ export async function getGuildLogo(config: GuildConfig): Promise<Image | null> {
  * en cuadrado a 256x256 PNG (re-codificarla también limpia cualquier dato raro del archivo).
  */
 export async function saveCustomLogo(guildId: string, url: string): Promise<void> {
-  const img = await loadImage(await download(url));
+  await saveCustomLogoBuffer(guildId, await download(url));
+}
+
+/** Igual que saveCustomLogo pero con la imagen ya en memoria (subida desde el panel web). */
+export async function saveCustomLogoBuffer(guildId: string, data: Buffer): Promise<void> {
+  if (data.length > MAX_UPLOAD_BYTES) throw new Error('Imagen demasiado grande');
+  const img = await loadImage(data);
   if (img.width < 32 || img.height < 32) throw new Error('La imagen es demasiado pequeña (mínimo 32x32)');
   if (img.width > 4096 || img.height > 4096) throw new Error('La imagen es demasiado grande (máximo 4096x4096)');
 

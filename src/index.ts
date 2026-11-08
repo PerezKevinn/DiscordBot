@@ -8,6 +8,7 @@ import { ConfigManager } from './utils/configManager';
 import { botBrandName } from './utils/plans';
 import { startPingSweeper } from './utils/pingSweeper';
 import { startDataRetention } from './utils/dataRetention';
+import { startPanel } from './panel/server';
 
 /** Permisos mínimos que necesita el bot (nada de Administrador en un bot público). */
 const BOT_PERMISSIONS = [
@@ -77,6 +78,7 @@ async function main() {
     console.log(`🔗 Enlace de invitación: ${invite}`);
     startPingSweeper(readyClient);
     startDataRetention(readyClient);
+    startPanel(readyClient).catch((err) => console.error('❌ No se pudo arrancar el panel web:', err));
     try {
       await registerSlashCommands(token, clientId, ownerGuildId);
     } catch (err) {

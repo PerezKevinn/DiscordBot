@@ -8,3 +8,8 @@ data/active_pings.json
 *.png
 !assets/*.png
 data/logos/
+dashboard/node_modules/
+dashboard/dist/
+data/cache/
+!web/img/*.png
+!dashboard/public/*.png

@@ -1,0 +1,6 @@
+# HTTPS automático para el panel (Caddy pide y renueva el certificado solo).
+# Se instala en /etc/caddy/Caddyfile con deploy/setup-vps.sh
+panel.massup.shop {
+	encode gzip
+	reverse_proxy 127.0.0.1:3000
+}

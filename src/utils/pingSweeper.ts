@@ -74,6 +74,15 @@ async function editPingMessage(guild: Guild, ping: ActivePing) {
   }
 }
 
+/** Cierra un ping desde el panel web: borra voz e hilo y actualiza el mensaje. */
+export async function closePingExternally(guild: Guild, ping: ActivePing, status: 'CLOSED' | 'CANCELLED') {
+  ping.status = status;
+  ping.closedAt = Date.now();
+  await cleanupPingChannels(guild, ping, status === 'CLOSED' ? 'Cerrado desde el panel' : 'Cancelado desde el panel');
+  ConfigManager.savePing(guild.id, ping);
+  await editPingMessage(guild, ping);
+}
+
 /** Cierra un ping desde fuera de una interacción (auto-cierre). */
 async function autoClose(guild: Guild, ping: ActivePing, why: string) {
   ping.status = 'CLOSED';

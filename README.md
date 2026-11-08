@@ -103,6 +103,40 @@ Luego pon en el Developer Portal (General Information) las URLs `https://massup.
 La política promete que los registros técnicos duran como máximo 14 días. En el VPS:
 `pm2 install pm2-logrotate && pm2 set pm2-logrotate:retain 14`.
 
+## Panel web (panel.massup.shop)
+
+Corre **dentro del proceso del bot** (Fastify) y comparte su configuración en memoria: lo que se cambia en el panel se ve al instante en Discord. La interfaz es una app React en `dashboard/`.
+
+- Login con Discord (scopes `identify` y `guilds`). Solo ves los servidores donde tienes **Gestionar servidor** y el bot está dentro; el permiso se comprueba de nuevo con los datos reales del servidor en cada petición.
+- Pestañas: pings activos (cerrar / cancelar), contenidos con su compo y **builds por rol** (buscador con los ítems e iconos oficiales), ajustes (rol de Caller, avisos por contenido, canal, categoría de voz) y marca/logo (Premium).
+- Las builds salen en Discord como imagen en el hilo de cada ping y con el botón **📋 Builds**.
+
+### Puesta en marcha
+
+1. **Developer Portal → OAuth2**: añade el redirect `https://panel.massup.shop/auth/callback` y copia el *Client Secret*.
+2. **.env** del VPS: `PANEL_URL`, `PANEL_PORT=3000`, `DISCORD_CLIENT_SECRET` y `SESSION_SECRET` (ver `.env.example`). Sin ellas el panel simplemente no arranca.
+3. **Compila el panel** (y repite al actualizar):
+   ```bash
+   npm run panel:install && npm run panel:build
+   ```
+4. **DNS**: registro `A` `panel` → IP del VPS (en Hostinger o donde gestiones el dominio).
+5. **HTTPS con Caddy** en el VPS (certificado automático). `/etc/caddy/Caddyfile`:
+   ```
+   panel.massup.shop {
+       reverse_proxy 127.0.0.1:3000
+   }
+   ```
+   El panel solo escucha en `127.0.0.1`: no es accesible desde fuera sin Caddy.
+
+### Seguridad del panel
+Cookies firmadas `HttpOnly` + `SameSite=Lax` (+ `Secure` con HTTPS), comprobación de `Origin` en toda petición que cambia datos (CSRF), límite de peticiones, cabeceras CSP/HSTS, validación estricta con Zod (ítems del catálogo en su hueco, roles/canales que existan en el servidor, textos limpiados) y sesiones solo en memoria.
+
+### Desarrollo
+`npm run panel:dev` levanta la interfaz en http://localhost:5173 con recarga en caliente (redirige `/api` y `/auth` al bot en el puerto 3000; pon `PANEL_URL=http://localhost:5173` y ese redirect en el portal).
+
+### Catálogo de ítems
+`src/data/itemCatalog.json` sale de los datos públicos del juego. Para actualizarlo tras un parche: `npm run items:update`.
+
 ## Vista previa del banner
 
 `npm run preview:card -- "NOMBRE DEL GREMIO" "[TAG]"` genera `data/preview_banner.png`.

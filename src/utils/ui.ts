@@ -84,3 +84,10 @@ export function fitEmbed(embed: EmbedBuilder, limit = 5900): EmbedBuilder {
   if (removed > 0) embed.addFields({ name: '​', value: `-# …y ${removed} más (no caben en un mensaje)` });
   return embed;
 }
+
+/** Une nombre y armas sugeridas en la etiqueta de un rol: "Tanque (Maza / Martillo)". */
+export function composeRoleLabel(name: string, weapons?: string): string {
+  const n = name.replace(/[()]/g, '').trim().slice(0, 60) || 'Rol';
+  const w = (weapons ?? '').replace(/[()]/g, '').trim().slice(0, 80);
+  return (w ? `${n} (${w})` : n).slice(0, 100);
+}

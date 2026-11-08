@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
@@ -16,7 +17,7 @@ import {
   TextInputStyle,
   MessageFlags,
 } from 'discord.js';
-import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, MentionType } from '../types/ping';
+import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, MentionType, RoleTemplate } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
 import {
   buildDetailsModal,
@@ -25,6 +26,7 @@ import {
   resolvePingRoleId,
 } from '../utils/panelBuilder';
 import { buildPingMessagePayload } from '../utils/pingBuilder';
+import { generateBuildCard } from '../utils/buildCard';
 import { cleanupPingChannels } from '../utils/pingSweeper';
 import { getLimits, PREMIUM_UPSELL } from '../utils/plans';
 import { baseEmbed, fitEmbed, formatCompoInline, hexToInt, splitRoleLabel, UI_COLORS } from '../utils/ui';
@@ -610,7 +612,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   const contentConfig = ConfigManager.getContentType(config.guildId, draft.contentTypeId) || config.contentTypes[0];
 
   const pingId = `${Date.now().toString(36).toUpperCase()}`;
-  const rolesToUse = draft.customRoles || contentConfig.roles;
+  const rolesToUse: RoleTemplate[] = JSON.parse(JSON.stringify(draft.customRoles || contentConfig.roles));
   const initialRoster: ActivePing['roster'] = {};
   for (const r of rolesToUse) initialRoster[r.id] = [];
 
@@ -717,7 +719,9 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
       });
       newPing.threadId = thread.id;
 
+      const buildCard = await generateBuildCard(newPing.title, newPing.roles).catch(() => null);
       await thread.send({
+        files: buildCard ? [new AttachmentBuilder(buildCard, { name: 'builds.png' })] : [],
         embeds: [
           baseEmbed(config, 'Hilo de la party')
             .setColor(hexToInt(contentConfig.accentColor))
@@ -769,6 +773,21 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
 
   if (!ping) {
     await interaction.reply({ content: '⚠️ Este ping ya no está activo.', flags: MessageFlags.Ephemeral });
+    return;
+  }
+
+  if (action === 'ping_btn_builds') {
+    if (takeCooldown(`builds:${interaction.user.id}`, 3000) > 0) {
+      await interaction.reply({ content: '⏳ Un momento…', flags: MessageFlags.Ephemeral });
+      return;
+    }
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    const card = await generateBuildCard(ping.title, ping.roles).catch(() => null);
+    await interaction.editReply(
+      card
+        ? { files: [new AttachmentBuilder(card, { name: 'builds.png' })] }
+        : { content: 'Esta salida no tiene builds definidas.' }
+    );
     return;
   }
 

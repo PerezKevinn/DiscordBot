@@ -1,9 +1,13 @@
+/** Build de un rol: id de ítem del catálogo por hueco (ver src/data/items.ts). */
+export type RoleBuild = Partial<Record<'weapon' | 'offhand' | 'head' | 'armor' | 'shoes' | 'cape' | 'mount' | 'food' | 'potion', string>>;
+
 export interface RoleTemplate {
   id: string;
   label: string;
   emoji: string;
   maxSlots: number; // 0 = ilimitado
   description?: string;
+  build?: RoleBuild;
 }
 
 export interface ContentTypeConfig {

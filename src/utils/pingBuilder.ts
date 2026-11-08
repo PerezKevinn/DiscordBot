@@ -11,6 +11,8 @@ import { ActivePing, ContentTypeConfig, GuildConfig, RoleTemplate, RosterSlotUse
 import { generatePingBanner } from './canvasGenerator';
 import { botBrandName, brandForRender, getLimits } from './plans';
 import { fitEmbed, splitRoleLabel } from './ui';
+import { getItem, isTwoHanded } from '../data/items';
+import { hasAnyBuild } from './buildCard';
 
 /** Barra de progreso de la party con caracteres finos (se ve bien en modo claro y oscuro). */
 function buildProgressBar(current: number, max: number, length = 10): string {
@@ -24,7 +26,11 @@ function formatPlayer(u: RosterSlotUser, idx: number): string {
 }
 
 function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[]) {
-  const { name, weapons } = splitRoleLabel(role.label);
+  const { name, weapons: labelWeapons } = splitRoleLabel(role.label);
+  // Si el rol tiene build, se muestra su arma (nombre oficial) cuando el nombre no trae armas
+  const buildWeapon = getItem(role.build?.weapon)?.name;
+  const buildOff = isTwoHanded(role.build?.weapon) ? undefined : getItem(role.build?.offhand)?.name;
+  const weapons = labelWeapons || (buildWeapon ? (buildOff ? `${buildWeapon} + ${buildOff}` : buildWeapon) : undefined);
   const count = role.maxSlots > 0 ? `${signed.length}/${role.maxSlots}` : `${signed.length}`;
   const isFull = role.maxSlots > 0 && signed.length >= role.maxSlots;
   const free = role.maxSlots > 0 ? role.maxSlots - signed.length : 0;
@@ -176,11 +182,16 @@ export async function buildPingMessagePayload(
     .setEmoji('👑')
     .setStyle(ButtonStyle.Success);
 
-  const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    btnNote,
+  const btnBuilds = new ButtonBuilder()
+    .setCustomId(`ping_btn_builds:${ping.id}`)
+    .setLabel('Builds')
+    .setEmoji('📋')
+    .setStyle(ButtonStyle.Secondary);
+
+  const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(btnNote,
     btnLeave,
-    btnCallerManage
-  );
+    btnCallerManage);
+  if (hasAnyBuild(ping.roles)) rowButtons.addComponents(btnBuilds);
 
   return {
     embeds: [fitEmbed(embed)],

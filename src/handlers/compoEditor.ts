@@ -19,7 +19,7 @@ import { ConfigManager } from '../utils/configManager';
 import { buildWizardStepMessage } from '../utils/panelBuilder';
 import { canCreatePings, isGuildManager } from '../utils/permissions';
 import { cleanUserText } from '../utils/security';
-import { baseEmbed, fitEmbed, hexToInt, splitRoleLabel, totalSlots, UI_COLORS } from '../utils/ui';
+import { baseEmbed, composeRoleLabel, fitEmbed, hexToInt, splitRoleLabel, totalSlots, UI_COLORS } from '../utils/ui';
 
 /**
  * Editor visual de la compo (roles y cupos) para:
@@ -76,10 +76,7 @@ export function sanitizeEmoji(raw: string, fallback = '⚔️'): string {
 }
 
 function joinLabel(name: string, weapons: string): string {
-  // Sin paréntesis en el nombre: se usan para separar las armas sugeridas
-  const n = cleanUserText(name.replace(/[()]/g, ''), 60) || 'Rol';
-  const w = cleanUserText(weapons.replace(/[()]/g, ''), 80);
-  return (w ? `${n} (${w})` : n).slice(0, 100);
+  return composeRoleLabel(cleanUserText(name, 60), cleanUserText(weapons, 80));
 }
 
 function newRoleId(name: string): string {
@@ -166,6 +163,7 @@ export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): 
           label: joinLabel(name, weapons),
           maxSlots: slots,
           description: cleanUserText(description ?? prev?.description ?? '', 100),
+          ...(prev?.build ? { build: prev.build } : {}),
         },
       ];
     });
@@ -212,7 +210,8 @@ function buildEditorView(config: GuildConfig, s: CompoSession) {
     const { name, weapons } = splitRoleLabel(r.label);
     const slots = r.maxSlots > 0 ? `×${r.maxSlots}` : '×∞';
     const marker = i === s.selected ? '▶' : `\`${i + 1}.\``;
-    return `${marker} ${r.emoji} **${name}** ${slots}${weapons ? `\n-# ${weapons}` : ''}`;
+    const hasBuild = Boolean(r.build && Object.values(r.build).some(Boolean));
+    return `${marker} ${r.emoji} **${name}** ${slots}${hasBuild ? ' · 🧩' : ''}${weapons ? `\n-# ${weapons}` : ''}`;
   });
 
   const embed = baseEmbed(config, isTemplate ? 'Plantilla de contenido' : 'Compo de este ping')
@@ -226,6 +225,9 @@ function buildEditorView(config: GuildConfig, s: CompoSession) {
         isTemplate
           ? '-# Los cambios se guardan en la plantilla y valen para los próximos pings.'
           : '-# Los cambios solo valen para este ping.',
+        s.roles.some((r) => r.build && Object.values(r.build).some(Boolean))
+          ? '-# 🧩 = el rol tiene build. Las builds se editan desde el panel web.'
+          : '',
       ].join('\n')
     );
 
