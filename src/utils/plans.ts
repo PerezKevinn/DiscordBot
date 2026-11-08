@@ -67,6 +67,29 @@ export function premiumStoreUrl(): string | null {
   return sku && app ? `https://discord.com/application-directory/${app}/store/${sku}` : null;
 }
 
+/**
+ * Paquetes de Premium prepagado (ePayco). Precio en pesos colombianos, sin decimales.
+ * Se pueden cambiar con PREMIUM_PRICE_1M / _3M / _12M en el .env.
+ */
+export interface PremiumPackage {
+  id: '1m' | '3m' | '12m';
+  label: string;
+  days: number;
+  priceCop: number;
+}
+
+export function premiumPackages(): PremiumPackage[] {
+  const price = (env: string | undefined, fallback: number) => {
+    const n = Number(env);
+    return Number.isInteger(n) && n >= 1000 ? n : fallback;
+  };
+  return [
+    { id: '1m', label: '1 mes', days: 30, priceCop: price(process.env.PREMIUM_PRICE_1M, 15000) },
+    { id: '3m', label: '3 meses', days: 90, priceCop: price(process.env.PREMIUM_PRICE_3M, 40000) },
+    { id: '12m', label: '12 meses', days: 365, priceCop: price(process.env.PREMIUM_PRICE_12M, 150000) },
+  ];
+}
+
 /** SKU de la suscripción Premium de servidor (Developer Portal -> Monetización). */
 export function premiumSkuId(): string | null {
   const sku = process.env.PREMIUM_SKU_ID;

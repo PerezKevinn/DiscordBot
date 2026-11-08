@@ -71,7 +71,7 @@ export interface GuildConfig {
   leftAt?: number;
   premiumUntil?: number; // ms epoch. Sin valor + plan premium = de por vida
   /** De dónde salió el Premium por tiempo (plan/premiumUntil) */
-  premiumSource?: 'manual' | 'code';
+  premiumSource?: 'manual' | 'code' | 'payment';
   /** Suscripción de Discord (entitlement del SKU Premium). Convive con el Premium por tiempo. */
   subscription?: GuildSubscription;
   /** Avisos de vencimiento ya enviados (por fecha de fin, para no repetirlos) */

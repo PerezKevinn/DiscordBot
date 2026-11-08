@@ -9,6 +9,7 @@ import {
 import { GuildConfig } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
 import { grantPremium, MembershipError, redeemCode, revokePremium } from '../utils/memberships';
+import { epaycoEnv } from '../payments/epayco';
 import { getEffectiveTier, hasActiveSubscription, hasTimedPremium, PLAN_LIMITS, botBrandName, premiumSkuId } from '../utils/plans';
 import { panelButtonRow, panelUrl } from '../utils/panelLink';
 import { baseEmbed, fitEmbed } from '../utils/ui';
@@ -58,7 +59,7 @@ function membershipSummary(config: GuildConfig): string {
     );
   }
   if (hasTimedPremium(config)) {
-    const origin = config.premiumSource === 'code' ? 'Código canjeado' : 'Premium concedido';
+    const origin = { code: 'Código canjeado', payment: 'Premium pagado', manual: 'Premium concedido' }[config.premiumSource ?? 'manual'];
     lines.push(
       config.premiumUntil
         ? `🎟️ ${origin}: hasta <t:${Math.floor(config.premiumUntil / 1000)}:D>`
@@ -74,7 +75,16 @@ function planComponents(guildId: string, showBuy: boolean) {
   const sku = premiumSkuId();
   if (showBuy && sku) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Premium).setSKUId(sku));
   const url = panelUrl(guildId, 'plan');
-  if (url) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(url).setLabel('Ver en el panel').setEmoji('🖥️'));
+  if (url) {
+    const sells = Boolean(epaycoEnv());
+    row.addComponents(
+      new ButtonBuilder()
+        .setStyle(ButtonStyle.Link)
+        .setURL(url)
+        .setLabel(sells ? 'Comprar Premium' : 'Ver en el panel')
+        .setEmoji(sells ? '💎' : '🖥️')
+    );
+  }
   return row.components.length ? [row] : [];
 }
 

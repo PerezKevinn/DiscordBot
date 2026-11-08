@@ -1,4 +1,4 @@
-import type { AdminGuild, AdminOverview, CatalogItem, Content, GuildData, Me, MembershipEvent, RedeemCode } from './types';
+import type { AdminGuild, AdminOverview, CatalogItem, Content, GuildData, Me, MembershipEvent, PaymentOrder, RedeemCode } from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -40,6 +40,10 @@ export const api = {
   closePing: (id: string, pingId: string, status: 'CLOSED' | 'CANCELLED') =>
     request<GuildData>('POST', `/api/guilds/${id}/pings/${encodeURIComponent(pingId)}/close`, { status }),
   redeem: (id: string, code: string) => request<GuildData>('POST', `/api/guilds/${id}/redeem`, { code }),
+  checkout: (id: string, packageId: string) =>
+    request<{ sessionId: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
+  order: (id: string, invoice: string) =>
+    request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
 
   // Administración (solo el dueño del bot)
   adminOverview: () => request<AdminOverview>('GET', '/api/admin/overview'),

@@ -154,3 +154,5 @@ export const createCodesSchema = z.object({
 });
 
 export const codeUpdateSchema = z.object({ disabled: z.boolean() });
+
+export const checkoutSchema = z.object({ packageId: z.enum(['1m', '3m', '12m']) });

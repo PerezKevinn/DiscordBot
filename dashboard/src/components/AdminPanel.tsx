@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
-import { EVENT_LABELS, fmtDate, type AdminGuild, type AdminOverview, type RedeemCode } from '../types';
+import { cop, EVENT_LABELS, fmtDate, type AdminGuild, type AdminOverview, type PaymentOrder, type RedeemCode } from '../types';
 import { GuildIcon } from './GuildPicker';
 import { useToast } from './Toast';
 
@@ -18,7 +18,7 @@ const CODE_STATUS: Record<RedeemCode['status'], { label: string; cls: string }> 
 export function AdminPanel() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'servidores' | 'codigos' | 'historial'>('servidores');
+  const [tab, setTab] = useState<'servidores' | 'pagos' | 'codigos' | 'historial'>('servidores');
   const toast = useToast();
 
   const load = () => api.adminOverview().then(setData, (e: Error) => setError(e.message));
@@ -70,6 +70,7 @@ export function AdminPanel() {
         {(
           [
             ['servidores', 'Servidores'],
+            ['pagos', 'Pagos'],
             ['codigos', `Códigos (${data.codes.filter((c) => c.status === 'active').length})`],
             ['historial', 'Historial'],
           ] as const
@@ -111,12 +112,13 @@ export function AdminPanel() {
           }
         />
       )}
+      {tab === 'pagos' && <PaymentsSection payments={data.payments} />}
       {tab === 'historial' && <HistorySection history={data.history} />}
     </div>
   );
 }
 
-function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+function Stat({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
     <div className={`card stat${accent ? ' accent' : ''}`}>
       <div className="stat-value">{value}</div>
@@ -179,7 +181,7 @@ function GuildsSection({
                   {g.id}
                   {g.members !== null && ` · ${g.members} miembros`}
                   {g.subscription?.active && ` · 💳 suscripción${g.subscription.endsAt ? ` (cancelada, hasta ${fmtDate(g.subscription.endsAt)})` : ''}`}
-                  {g.timed && ` · 🎟️ ${g.timed.source === 'code' ? 'código' : 'manual'} ${g.timed.until ? `hasta ${fmtDate(g.timed.until)}` : 'de por vida'}`}
+                  {g.timed && ` · 🎟️ ${{ code: 'código', manual: 'manual', payment: 'pagado' }[g.timed.source]} ${g.timed.until ? `hasta ${fmtDate(g.timed.until)}` : 'de por vida'}`}
                 </div>
               </div>
               <button className="btn-sm" onClick={() => setOpen(open === g.id ? null : g.id)}>
@@ -379,6 +381,62 @@ function CodesSection({
                 {c.uses.length === 0 && (
                   <button className="btn-sm btn-danger" onClick={() => onDelete(c)}>Borrar</button>
                 )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Pagos ----------
+const ORDER_STATUS: Record<PaymentOrder['status'], { label: string; cls: string }> = {
+  created: { label: 'Iniciado', cls: 'badge' },
+  pending: { label: 'Pendiente', cls: 'badge' },
+  paid: { label: 'Aprobado', cls: 'badge ok' },
+  rejected: { label: 'Rechazado', cls: 'badge danger' },
+  reversed: { label: 'Reversado', cls: 'badge danger' },
+};
+
+function PaymentsSection({ payments }: { payments: AdminOverview['payments'] }) {
+  if (!payments.enabled) {
+    return (
+      <p className="notice">
+        Los pagos con ePayco están desactivados. Pon <code>EPAYCO_PUBLIC_KEY</code>, <code>EPAYCO_PRIVATE_KEY</code>,{' '}
+        <code>EPAYCO_CUST_ID</code> y <code>EPAYCO_P_KEY</code> en el <code>.env</code>.
+      </p>
+    );
+  }
+  return (
+    <div className="stack">
+      <div className="stats">
+        <Stat label="Ingresos 30 días (sin pruebas)" value={`$${payments.revenue30d.toLocaleString('es-CO')}`} accent />
+        <Stat label="Pagos aprobados" value={payments.orders.filter((o) => o.status === 'paid').length} />
+        <Stat label="Pendientes" value={payments.orders.filter((o) => o.status === 'pending').length} />
+      </div>
+      {payments.test && (
+        <p className="notice">
+          Modo prueba activo (<code>EPAYCO_TEST</code>): los pagos son simulados. Pon <code>EPAYCO_TEST=false</code> para cobrar de verdad.
+        </p>
+      )}
+      <div className="card">
+        <h2>Pagos</h2>
+        {payments.orders.length === 0 ? (
+          <p className="empty">Todavía no hay pagos.</p>
+        ) : (
+          <div className="list">
+            {payments.orders.map((o) => (
+              <div key={o.invoice} className="list-item">
+                <div style={{ flex: 1, minWidth: 240 }}>
+                  <strong>{cop(o.amount)}</strong> <span className={ORDER_STATUS[o.status].cls}>{ORDER_STATUS[o.status].label}</span>
+                  {o.test && <span className="badge"> Prueba</span>}
+                  <div className="muted small">
+                    {o.guildName ?? o.guildId} · {o.days} días · {o.invoice}
+                    {o.refPayco && ` · ref ePayco ${o.refPayco}`} · usuario {o.userId}
+                  </div>
+                </div>
+                <span className="muted small">{fmtDate(o.paidAt ?? o.updatedAt, true)}</span>
               </div>
             ))}
           </div>

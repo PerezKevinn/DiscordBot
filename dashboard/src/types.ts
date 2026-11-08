@@ -48,9 +48,10 @@ export interface GuildData {
     premiumUntil: number | null;
     /** Fin del Premium (null = no vence o gratis: mirar tier) */
     endsAt: number | null;
-    timed: { source: 'manual' | 'code'; until: number | null } | null;
+    timed: { source: 'manual' | 'code' | 'payment'; until: number | null } | null;
     subscription: { endsAt: number | null } | null;
     storeUrl: string | null;
+    payments: { test: boolean; packages: PremiumPackage[] } | null;
     history: Array<{ at: number; type: MembershipEventType; days?: number | null; until?: number | null; code?: string }>;
   };
   settings: {
@@ -81,7 +82,35 @@ export interface GuildData {
   }>;
 }
 
+export interface PremiumPackage {
+  id: '1m' | '3m' | '12m';
+  label: string;
+  days: number;
+  priceCop: number;
+}
+
+export interface PaymentOrder {
+  invoice: string;
+  guildId: string;
+  guildName?: string;
+  userId: string;
+  packageId: string;
+  days: number;
+  amount: number;
+  currency: 'COP';
+  status: 'created' | 'pending' | 'paid' | 'rejected' | 'reversed';
+  test: boolean;
+  createdAt: number;
+  updatedAt: number;
+  refPayco?: string;
+  paidAt?: number;
+}
+
+export const cop = (n: number) => `$${n.toLocaleString('es-CO')} COP`;
+
 export type MembershipEventType =
+  | 'payment'
+  | 'payment_reversed'
   | 'grant'
   | 'extend'
   | 'revoke'
@@ -113,7 +142,7 @@ export interface AdminGuild {
   tier: 'free' | 'premium';
   endsAt: number | null;
   lifetime: boolean;
-  timed: { source: 'manual' | 'code'; until: number | null } | null;
+  timed: { source: 'manual' | 'code' | 'payment'; until: number | null } | null;
   subscription: { active: boolean; endsAt: number | null; userId: string } | null;
 }
 
@@ -136,6 +165,7 @@ export interface AdminOverview {
   guilds: AdminGuild[];
   codes: RedeemCode[];
   history: MembershipEvent[];
+  payments: { enabled: boolean; test: boolean; orders: PaymentOrder[]; revenue30d: number };
 }
 
 export const EVENT_LABELS: Record<MembershipEventType, string> = {
@@ -147,6 +177,8 @@ export const EVENT_LABELS: Record<MembershipEventType, string> = {
   subscription_updated: 'Suscripción actualizada',
   subscription_ended: 'Suscripción terminada',
   expired: 'Premium vencido',
+  payment: 'Pago aprobado',
+  payment_reversed: 'Pago reversado',
 };
 
 export function fmtDate(ms: number | null | undefined, withTime = false) {

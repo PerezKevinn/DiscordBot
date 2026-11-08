@@ -73,7 +73,7 @@
         <tr><td>Pings y la lista de jugadores anotados</td><td>Hasta 3 días después de que el ping se cierre (los pings abiertos se cierran solos 6 horas después de la hora de salida).</td></tr>
         <tr><td>Configuración, plantillas y logo de un servidor</td><td>Mientras el bot esté en ese servidor.</td></tr>
         <tr><td>Todos los datos de un servidor que expulsa al bot</td><td>30 días. Si el bot vuelve antes, se conservan; si no, se borran automáticamente.</td></tr>
-        <tr><td>Historial del plan Premium y códigos canjeados</td><td>2 años desde cada movimiento.</td></tr>
+        <tr><td>Historial del plan Premium, códigos canjeados y registro de pagos</td><td>2 años desde cada movimiento. Los pagos que se inician y no se completan se borran a los 7 días.</td></tr>
         <tr><td>Borradores y contadores en memoria</td><td>De 30 a 45 minutos, o hasta que el bot se reinicia.</td></tr>
         <tr><td>Sesión del panel web (tu usuario, tus servidores y la llave de acceso de Discord, solo en memoria)</td><td>Hasta que cierras sesión, tras 24 horas sin usarlo o como máximo 7 días. También se borra al reiniciar el bot.</td></tr>
         <tr><td>Registros técnicos del servidor (errores, entradas y salidas del bot)</td><td>Como máximo 14 días.</td></tr>
@@ -84,7 +84,8 @@
     <ul>
       <li><strong>Discord</strong>: el bot funciona dentro de Discord y le envía los mensajes que publica. Discord trata los datos según su propia <a href="https://discord.com/privacy" rel="noopener">política de privacidad</a>.</li>
       <li><strong>Proveedor de alojamiento</strong>: los datos se guardan en un servidor de <span class="todo">Hostinger</span> ubicado en <span class="todo">Estados Unidos</span>.</li>
-      <li>El cobro de Premium lo gestiona Discord. MassUp solo recibe de Discord si un servidor tiene la suscripción activa y quién la paga (su ID); no recibe ni guarda datos de tarjetas.</li>
+      <li><strong>ePayco</strong> (Colombia): procesa los pagos de Premium. Los datos de pago (tarjeta, cuenta, documento, correo) los recibe y trata ePayco según su propia política de privacidad. MassUp solo guarda la referencia de la transacción, el importe, el estado del pago y el ID de Discord de quien lo inició; no guarda datos de tarjetas ni del pagador.</li>
+      <li>Si un servidor se suscribe a Premium desde Discord, MassUp solo recibe de Discord que la suscripción está activa y quién la paga (su ID).</li>
     </ul>
 
     <h2>6. Base legal</h2>

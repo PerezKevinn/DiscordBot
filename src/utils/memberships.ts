@@ -41,7 +41,9 @@ export type MembershipEventType =
   | 'subscription_started'
   | 'subscription_updated'
   | 'subscription_ended'
-  | 'expired'; // se acabó el tiempo concedido
+  | 'expired' // se acabó el tiempo concedido
+  | 'payment' // pago aprobado (ePayco)
+  | 'payment_reversed'; // pago reversado: se descuentan sus días
 
 export interface MembershipEvent {
   at: number;
@@ -67,9 +69,31 @@ export interface RedeemCode {
   disabled?: boolean;
 }
 
+export type OrderStatus = 'created' | 'pending' | 'paid' | 'rejected' | 'reversed';
+
+/** Compra de un paquete de Premium. Solo guardamos lo necesario: nada de datos del pagador. */
+export interface PaymentOrder {
+  invoice: string; // nuestra referencia (x_id_invoice)
+  guildId: string;
+  guildName?: string;
+  userId: string; // quien inició el pago en el panel
+  packageId: string;
+  days: number;
+  amount: number;
+  currency: 'COP';
+  status: OrderStatus;
+  test: boolean;
+  createdAt: number;
+  updatedAt: number;
+  refPayco?: string;
+  transactionId?: string;
+  paidAt?: number;
+}
+
 interface Store {
   codes: Record<string, RedeemCode>;
   history: MembershipEvent[];
+  orders: Record<string, PaymentOrder>;
 }
 
 export class MembershipError extends Error {}
@@ -81,9 +105,9 @@ function load(): Store {
   if (store) return store;
   try {
     const raw = JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8')) as Partial<Store>;
-    store = { codes: raw.codes ?? {}, history: raw.history ?? [] };
+    store = { codes: raw.codes ?? {}, history: raw.history ?? [], orders: raw.orders ?? {} };
   } catch {
-    store = { codes: {}, history: [] };
+    store = { codes: {}, history: [], orders: {} };
   }
   return store;
 }
@@ -92,6 +116,11 @@ function persist() {
   const s = load();
   const cutoff = Date.now() - HISTORY_RETENTION_MS;
   s.history = s.history.filter((e) => e.at >= cutoff).slice(-MAX_HISTORY);
+  // Órdenes que nunca se pagaron: fuera a los 7 días. Las pagadas, como el historial.
+  for (const [k, o] of Object.entries(s.orders)) {
+    const stale = o.status === 'created' && Date.now() - o.createdAt > 7 * DAY_MS;
+    if (stale || o.updatedAt < cutoff) delete s.orders[k];
+  }
   fs.mkdirSync(path.dirname(STORE_PATH), { recursive: true });
   const tmp = `${STORE_PATH}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(s, null, 2), 'utf-8');
@@ -271,6 +300,82 @@ export function redeemCode(input: string, config: GuildConfig, userId: string): 
   return { days: entry.days, until: config.premiumUntil ?? null };
 }
 
+// ---------- Pagos (paquetes prepagados) ----------
+
+export function createOrder(o: Omit<PaymentOrder, 'invoice' | 'status' | 'createdAt' | 'updatedAt'>): PaymentOrder {
+  const s = load();
+  let invoice = `MU-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+  while (s.orders[invoice]) invoice = `MU-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+  const now = Date.now();
+  const order: PaymentOrder = { ...o, invoice, status: 'created', createdAt: now, updatedAt: now };
+  s.orders[invoice] = order;
+  persist();
+  return order;
+}
+
+export function getOrder(invoice: string): PaymentOrder | undefined {
+  return load().orders[invoice];
+}
+
+export function listOrders(opts: { guildId?: string; limit?: number } = {}): PaymentOrder[] {
+  return Object.values(load().orders)
+    .filter((o) => !opts.guildId || o.guildId === opts.guildId)
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .slice(0, opts.limit ?? 100);
+}
+
+const money = (n: number) => `$${n.toLocaleString('es-CO')} COP`;
+
+/**
+ * Aplica el estado que confirma la pasarela a una orden. Idempotente: ePayco reintenta
+ * la confirmación y un mismo pago nunca suma días dos veces.
+ */
+export function settleOrder(
+  invoice: string,
+  next: Exclude<OrderStatus, 'created'>,
+  ref: { refPayco?: string; transactionId?: string }
+): { order: PaymentOrder; changed: boolean } {
+  const order = load().orders[invoice];
+  if (!order) throw new MembershipError(`Orden desconocida: ${invoice}`);
+  const prev = order.status;
+  // Estados finales: un pagado solo puede pasar a reversado; reversado/rechazado no cambian
+  const allowed =
+    prev === 'created' || prev === 'pending' ? true : prev === 'paid' ? next === 'reversed' : false;
+  if (!allowed || prev === next) return { order, changed: false };
+
+  order.status = next;
+  order.updatedAt = Date.now();
+  order.refPayco = ref.refPayco ?? order.refPayco;
+  order.transactionId = ref.transactionId ?? order.transactionId;
+
+  const config = ConfigManager.getConfig(order.guildId, order.guildName);
+  if (next === 'paid') {
+    order.paidAt = Date.now();
+    if (hasTimedPremium(config) && !config.premiumUntil) {
+      // Ya era de por vida: el pago se registra pero no hay días que sumar
+      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'} · ya tenía Premium de por vida` });
+    } else {
+      addDays(config, order.days);
+      config.premiumSource = 'payment';
+      ConfigManager.saveConfig(config);
+      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'}${order.test ? ' · PRUEBA' : ''}` });
+    }
+  } else if (next === 'reversed') {
+    if (hasTimedPremium(config) && config.premiumUntil) {
+      config.premiumUntil -= order.days * DAY_MS;
+      if (config.premiumUntil <= Date.now()) {
+        config.plan = 'free';
+        config.premiumUntil = undefined;
+        config.premiumSource = undefined;
+      }
+      ConfigManager.saveConfig(config);
+    }
+    log({ guildId: order.guildId, guildName: config.guildName, type: 'payment_reversed', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'}` });
+  }
+  persist();
+  return { order, changed: true };
+}
+
 // ---------- Suscripciones de Discord ----------
 
 function isPremiumEntitlement(e: Entitlement): e is Entitlement & { guildId: string } {
@@ -361,7 +466,12 @@ function noticeComponents(guildId: string) {
   const store = premiumStoreUrl();
   if (store) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(store).setLabel('Suscribirse a Premium').setEmoji('💎'));
   const panel = panelUrl(guildId, 'plan');
-  if (panel) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(panel).setLabel('Ver el plan').setEmoji('🖥️'));
+  if (panel) {
+    const sells = Boolean(process.env.EPAYCO_PUBLIC_KEY);
+    row.addComponents(
+      new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(panel).setLabel(sells ? 'Renovar Premium' : 'Ver el plan').setEmoji(sells ? '💎' : '🖥️')
+    );
+  }
   return row.components.length ? [row] : [];
 }
 
