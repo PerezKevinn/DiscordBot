@@ -19,7 +19,10 @@ echo "==> Actualizaciones de seguridad automáticas"
 dpkg-reconfigure -f noninteractive unattended-upgrades
 
 echo "==> SSH: solo con clave, sin contraseña"
-sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/; s/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+# Archivo propio en sshd_config.d: tiene prioridad sobre el de cloud-init, que en algunos
+# proveedores (p. ej. Hostinger) deja "PasswordAuthentication yes"
+printf "PasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin prohibit-password\n" > /etc/ssh/sshd_config.d/00-massup.conf
+sshd -t
 systemctl reload ssh || systemctl reload sshd
 
 echo "==> Cortafuegos: solo SSH, HTTP y HTTPS"
