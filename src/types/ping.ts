@@ -20,6 +20,10 @@ export interface ContentTypeConfig {
   defaultMount: string;
   defaultZone: string;
   roles: RoleTemplate[];
+  /** Crear canal de voz temporal al publicar (por defecto sí) */
+  createVoice?: boolean;
+  /** Crear hilo de builds al publicar (por defecto sí) */
+  createThread?: boolean;
 }
 
 export type PlanTier = 'free' | 'premium';

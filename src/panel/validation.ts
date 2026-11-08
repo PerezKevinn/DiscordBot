@@ -58,6 +58,8 @@ export const contentSchema = z.object({
   defaultMount: text(100),
   defaultZone: text(100),
   roles: z.array(roleSchema).min(1).max(20),
+  createVoice: z.boolean().optional().default(true),
+  createThread: z.boolean().optional().default(true),
 });
 
 export type ContentInput = z.infer<typeof contentSchema>;
@@ -95,6 +97,8 @@ export function toContentType(id: string, input: ContentInput): ContentTypeConfi
     defaultMount: input.defaultMount,
     defaultZone: input.defaultZone,
     roles,
+    createVoice: input.createVoice,
+    createThread: input.createThread,
   };
 }
 

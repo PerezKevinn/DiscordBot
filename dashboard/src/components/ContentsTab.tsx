@@ -16,6 +16,8 @@ const blankContent = (): Content => ({
   defaultGearTier: 'Equivalente T8',
   defaultMount: 'Garrapresta',
   defaultZone: 'Escondite (HO)',
+  createVoice: true,
+  createThread: true,
   roles: [
     { ...blankRole(), name: 'Tanque', emoji: '🛡️' },
     { ...blankRole(), name: 'Sanador', emoji: '💚' },
@@ -92,7 +94,8 @@ function ContentEditor({ data, initial, save, onDone }: { data: GuildData; initi
     });
 
   const submit = async () => {
-    const { id, ...body } = c;
+    const { id, ...rest } = c;
+    const body = { ...rest, createVoice: c.createVoice !== false, createThread: c.createThread !== false };
     const ok = await save(
       () => (isNew ? api.createContent(data.guild.id, body) : api.saveContent(data.guild.id, id, body)),
       isNew ? 'Contenido creado' : 'Contenido guardado'
@@ -146,6 +149,21 @@ function ContentEditor({ data, initial, save, onDone }: { data: GuildData; initi
             <input value={c.defaultZone} maxLength={100} onChange={(e) => set('defaultZone', e.target.value)} />
           </label>
         </div>
+        <div className="row" style={{ gap: 24 }}>
+          <label className="row" style={{ gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" style={{ width: 18, height: 18 }} checked={c.createVoice !== false}
+              onChange={(e) => set('createVoice', e.target.checked)} />
+            Crear canal de voz temporal al publicar
+          </label>
+          <label className="row" style={{ gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" style={{ width: 18, height: 18 }} checked={c.createThread !== false}
+              onChange={(e) => set('createThread', e.target.checked)} />
+            Crear hilo de builds al publicar
+          </label>
+        </div>
+        <p className="muted small" style={{ margin: 0 }}>
+          Todo esto es lo que usa cada <code>/ping</code> de este contenido: en Discord solo se elige la hora y el canal.
+        </p>
       </div>
 
       <div className="card stack">

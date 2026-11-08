@@ -31,6 +31,8 @@ export interface Content {
   defaultMount: string;
   defaultZone: string;
   roles: Role[];
+  createVoice?: boolean;
+  createThread?: boolean;
 }
 
 export interface Me {

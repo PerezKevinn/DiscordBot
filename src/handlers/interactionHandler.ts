@@ -18,7 +18,6 @@ import {
 import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, MentionType, RoleTemplate } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
 import {
-  buildDetailsModal,
   buildFixedCallerPanel,
   buildWizardStepMessage,
   resolvePingRoleId,
@@ -30,7 +29,7 @@ import { getLimits, PREMIUM_UPSELL } from '../utils/plans';
 import { baseEmbed, fitEmbed, hexToInt, UI_COLORS } from '../utils/ui';
 import { cleanPlayerText, cleanUserText, clearCooldown, COOLDOWNS, takeCooldown } from '../utils/security';
 import { canCreatePings, canMentionEveryone, displayNameOf, isGuildManager } from '../utils/permissions';
-import { handleCompoInteraction, openDraftCompoEditor, parseRolesText } from './compoEditor';
+import { handleCompoInteraction, parseRolesText } from './compoEditor';
 import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand } from './configCommands';
 import { movedToPanelReply } from '../utils/panelLink';
 
@@ -69,8 +68,8 @@ function getOrInitDraft(
       notes: '',
       targetChannelId: config.pingTargetChannelId,
       mentionType: defaultMentionFor(config, firstContent.id),
-      createThread: true,
-      createVoice: true,
+      createThread: firstContent.createThread !== false,
+      createVoice: firstContent.createVoice !== false,
     };
     ConfigManager.setDraft(config.guildId, userId, draft);
   }
@@ -245,43 +244,9 @@ export async function handleInteraction(interaction: Interaction) {
       }
 
       const draft = getOrInitDraft(config, interaction.user.id, displayName);
-      const content = ConfigManager.getContentType(config.guildId, draft.contentTypeId) || config.contentTypes[0];
-
-      if (customId === 'wizard_btn_edit_details') {
-        await interaction.showModal(buildDetailsModal(draft, content));
-        return;
-      }
-
-      if (customId === 'wizard_btn_edit_roles') {
-        await openDraftCompoEditor(interaction, config);
-        return;
-      }
-
-      if (customId === 'wizard_btn_cycle_mention') {
-        const order: MentionType[] = ['ROLE'];
-        if (canMentionEveryone(interaction)) order.push('HERE', 'EVERYONE');
-        order.push('NONE');
-        const nextIdx = (order.indexOf(draft.mentionType) + 1) % order.length;
-        draft.mentionType = order[nextIdx];
-        ConfigManager.setDraft(config.guildId, interaction.user.id, draft);
-        await interaction.update(buildWizardStepMessage(draft, config));
-        return;
-      }
-
-      if (customId === 'wizard_btn_toggle_extras') {
-        // Ciclo: Voz+Hilo -> solo Hilo -> solo Voz -> nada
-        if (draft.createVoice && draft.createThread) {
-          draft.createVoice = false;
-        } else if (!draft.createVoice && draft.createThread) {
-          draft.createVoice = true;
-          draft.createThread = false;
-        } else if (draft.createVoice && !draft.createThread) {
-          draft.createVoice = false;
-        } else {
-          draft.createVoice = true;
-          draft.createThread = true;
-        }
-        ConfigManager.setDraft(config.guildId, interaction.user.id, draft);
+      // Detalles, compo, aviso y voz/hilo ya no se ajustan por ping: salen del panel web.
+      // Si alguien pulsa uno de esos botones en un mensaje antiguo, se le muestra el asistente nuevo.
+      if (['wizard_btn_edit_details', 'wizard_btn_edit_roles', 'wizard_btn_cycle_mention', 'wizard_btn_toggle_extras'].includes(customId)) {
         await interaction.update(buildWizardStepMessage(draft, config));
         return;
       }
@@ -374,10 +339,9 @@ export async function handleInteraction(interaction: Interaction) {
           draft.gearTier = selected.defaultGearTier;
           draft.mountRequired = selected.defaultMount;
           draft.customRoles = undefined;
-          // Al cambiar de contenido, sugerimos avisar a su rol si tiene uno
-          if (draft.mentionType === 'ROLE' || draft.mentionType === 'NONE') {
-            draft.mentionType = defaultMentionFor(config, selected.id);
-          }
+          draft.mentionType = defaultMentionFor(config, selected.id);
+          draft.createVoice = selected.createVoice !== false;
+          draft.createThread = selected.createThread !== false;
         }
 
         if (customId === 'wizard_select_time') {
@@ -477,6 +441,17 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
 
   const draft = getOrInitDraft(config, interaction.user.id, callerDisplayName);
   const contentConfig = ConfigManager.getContentType(config.guildId, draft.contentTypeId) || config.contentTypes[0];
+
+  // El ping usa siempre lo configurado en el panel para ese contenido
+  draft.title = contentConfig.name;
+  draft.departureLocation = contentConfig.defaultZone;
+  draft.gearTier = contentConfig.defaultGearTier;
+  draft.mountRequired = contentConfig.defaultMount;
+  draft.notes = '';
+  draft.customRoles = undefined;
+  draft.mentionType = defaultMentionFor(config, contentConfig.id);
+  draft.createVoice = contentConfig.createVoice !== false;
+  draft.createThread = contentConfig.createThread !== false;
 
   const pingId = `${Date.now().toString(36).toUpperCase()}`;
   const rolesToUse: RoleTemplate[] = JSON.parse(JSON.stringify(draft.customRoles || contentConfig.roles));
