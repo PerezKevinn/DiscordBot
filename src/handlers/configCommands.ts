@@ -1,7 +1,15 @@
-import { ChatInputCommandInteraction, MessageFlags } from 'discord.js';
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  PermissionFlagsBits,
+} from 'discord.js';
 import { GuildConfig } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
-import { getEffectiveTier, PLAN_LIMITS, botBrandName } from '../utils/plans';
+import { grantPremium, MembershipError, redeemCode, revokePremium } from '../utils/memberships';
+import { getEffectiveTier, hasActiveSubscription, hasTimedPremium, PLAN_LIMITS, botBrandName, premiumSkuId } from '../utils/plans';
 import { panelButtonRow, panelUrl } from '../utils/panelLink';
 import { baseEmbed, fitEmbed } from '../utils/ui';
 
@@ -36,21 +44,49 @@ export async function handlePanelCommand(interaction: ChatInputCommandInteractio
   });
 }
 
+/** Texto con el estado de la membresía: fuentes y fin. */
+function membershipSummary(config: GuildConfig): string {
+  const tier = getEffectiveTier(config);
+  if (tier === 'free') return 'Este servidor está en **🆓 Gratis**.';
+  const lines: string[] = [];
+  if (hasActiveSubscription(config)) {
+    const s = config.subscription!;
+    lines.push(
+      s.endsAt
+        ? `💳 Suscripción de Discord cancelada: termina <t:${Math.floor(s.endsAt / 1000)}:D>`
+        : '💳 Suscripción de Discord activa (se renueva sola)'
+    );
+  }
+  if (hasTimedPremium(config)) {
+    const origin = config.premiumSource === 'code' ? 'Código canjeado' : 'Premium concedido';
+    lines.push(
+      config.premiumUntil
+        ? `🎟️ ${origin}: hasta <t:${Math.floor(config.premiumUntil / 1000)}:D>`
+        : `🎟️ ${origin}: de por vida`
+    );
+  }
+  return `Este servidor está en **💎 Premium**.\n${lines.join('\n')}`;
+}
+
+/** Botón nativo de compra (SKU) + enlace al panel. */
+function planComponents(guildId: string, showBuy: boolean) {
+  const row = new ActionRowBuilder<ButtonBuilder>();
+  const sku = premiumSkuId();
+  if (showBuy && sku) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Premium).setSKUId(sku));
+  const url = panelUrl(guildId, 'plan');
+  if (url) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(url).setLabel('Ver en el panel').setEmoji('🖥️'));
+  return row.components.length ? [row] : [];
+}
+
 export async function handlePlanCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   const tier = getEffectiveTier(config);
   const free = PLAN_LIMITS.free;
   const premium = PLAN_LIMITS.premium;
-  const until =
-    tier === 'premium'
-      ? config.premiumUntil
-        ? `hasta <t:${Math.floor(config.premiumUntil / 1000)}:D>`
-        : 'de por vida'
-      : '';
 
   const embed = baseEmbed(config, 'Planes')
     .setTitle(`💎 Planes de ${botBrandName()}`)
     .setDescription(
-      `Este servidor está en ${tier === 'premium' ? `**💎 Premium** ${until}` : '**🆓 Gratis**'}.`
+      `${membershipSummary(config)}\n\n-# ¿Tienes un código? Canjéalo con \`/canjear\`.`
     )
     .addFields(
       {
@@ -74,7 +110,30 @@ export async function handlePlanCommand(interaction: ChatInputCommandInteraction
         inline: true,
       }
     );
-  await interaction.reply({ embeds: [fitEmbed(embed)], flags: MessageFlags.Ephemeral });
+  await interaction.reply({
+    embeds: [fitEmbed(embed)],
+    components: planComponents(config.guildId, tier === 'free' || !hasActiveSubscription(config)),
+    flags: MessageFlags.Ephemeral,
+  });
+}
+
+/** /canjear: aplica un código de Premium al servidor actual. */
+export async function handleRedeemCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
+  if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+    await interaction.reply({ content: '⛔ Necesitas el permiso **Gestionar servidor** para canjear códigos.', flags: MessageFlags.Ephemeral });
+    return;
+  }
+  const code = interaction.options.getString('codigo', true);
+  try {
+    const { days, until } = redeemCode(code, config, interaction.user.id);
+    await interaction.reply({
+      content: `✅ **Código canjeado.** ${days === null ? 'Este servidor tiene Premium **de por vida**.' : `Se sumaron **${days} días** de Premium: hasta <t:${Math.floor((until ?? 0) / 1000)}:D>.`}`,
+      flags: MessageFlags.Ephemeral,
+    });
+  } catch (err) {
+    if (!(err instanceof MembershipError)) throw err;
+    await interaction.reply({ content: `❌ ${err.message}`, flags: MessageFlags.Ephemeral });
+  }
 }
 
 export async function handlePlanAdminCommand(interaction: ChatInputCommandInteraction) {
@@ -93,9 +152,8 @@ export async function handlePlanAdminCommand(interaction: ChatInputCommandIntera
 
   const guildName = interaction.client.guilds.cache.get(guildId)?.name;
   const target = ConfigManager.getConfig(guildId, guildName);
-  target.plan = plan;
-  target.premiumUntil = plan === 'premium' && days ? Date.now() + days * 24 * 60 * 60 * 1000 : undefined;
-  ConfigManager.saveConfig(target);
+  if (plan === 'premium') grantPremium(target, days ?? null, interaction.user.id, '/plan-admin');
+  else revokePremium(target, interaction.user.id, '/plan-admin');
 
   await interaction.reply({
     content: `✅ ${guildName ?? guildId}: plan **${plan}**${

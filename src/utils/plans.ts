@@ -31,11 +31,46 @@ export function botBrandName(): string {
   return process.env.BOT_BRAND_NAME || 'MassUp';
 }
 
-/** Plan efectivo del servidor (premium vencido = free). */
-export function getEffectiveTier(config: GuildConfig): PlanTier {
-  if (config.plan !== 'premium') return 'free';
-  if (config.premiumUntil && config.premiumUntil < Date.now()) return 'free';
-  return 'premium';
+/** Suscripción de Discord vigente. */
+export function hasActiveSubscription(config: GuildConfig, now = Date.now()): boolean {
+  const s = config.subscription;
+  return Boolean(s?.active && (!s.endsAt || s.endsAt > now));
+}
+
+/** Premium por tiempo (manual o código) vigente. */
+export function hasTimedPremium(config: GuildConfig, now = Date.now()): boolean {
+  return config.plan === 'premium' && (!config.premiumUntil || config.premiumUntil > now);
+}
+
+/** Plan efectivo del servidor: Premium si lo da la suscripción o el tiempo concedido. */
+export function getEffectiveTier(config: GuildConfig, now = Date.now()): PlanTier {
+  return hasActiveSubscription(config, now) || hasTimedPremium(config, now) ? 'premium' : 'free';
+}
+
+/**
+ * Cuándo deja de ser Premium: null = no vence (de por vida o suscripción que se renueva),
+ * undefined = ya es gratis.
+ */
+export function premiumEndsAt(config: GuildConfig, now = Date.now()): number | null | undefined {
+  const ends: Array<number | null> = [];
+  if (hasActiveSubscription(config, now)) ends.push(config.subscription!.endsAt ?? null);
+  if (hasTimedPremium(config, now)) ends.push(config.premiumUntil ?? null);
+  if (ends.length === 0) return undefined;
+  if (ends.includes(null)) return null;
+  return Math.max(...(ends as number[]));
+}
+
+/** Enlace a la tienda de Discord para comprar Premium (o null si no hay SKU configurado). */
+export function premiumStoreUrl(): string | null {
+  const sku = premiumSkuId();
+  const app = process.env.CLIENT_ID;
+  return sku && app ? `https://discord.com/application-directory/${app}/store/${sku}` : null;
+}
+
+/** SKU de la suscripción Premium de servidor (Developer Portal -> Monetización). */
+export function premiumSkuId(): string | null {
+  const sku = process.env.PREMIUM_SKU_ID;
+  return sku && /^\d{15,25}$/.test(sku) ? sku : null;
 }
 
 export function getLimits(config: GuildConfig): PlanLimits {

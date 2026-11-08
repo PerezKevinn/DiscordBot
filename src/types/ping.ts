@@ -28,6 +28,15 @@ export interface ContentTypeConfig {
 
 export type PlanTier = 'free' | 'premium';
 
+export interface GuildSubscription {
+  entitlementId: string;
+  userId: string; // quien paga
+  startsAt?: number;
+  endsAt?: number; // sin valor = se renueva sola
+  active: boolean;
+  updatedAt: number;
+}
+
 /**
  * Configuración de UN servidor de Discord. Cada servidor donde está el bot tiene la suya
  * (data/guilds/<guildId>.json).
@@ -61,6 +70,12 @@ export interface GuildConfig {
   /** Momento en que el bot salió del servidor (los datos se borran pasado el plazo de retención) */
   leftAt?: number;
   premiumUntil?: number; // ms epoch. Sin valor + plan premium = de por vida
+  /** De dónde salió el Premium por tiempo (plan/premiumUntil) */
+  premiumSource?: 'manual' | 'code';
+  /** Suscripción de Discord (entitlement del SKU Premium). Convive con el Premium por tiempo. */
+  subscription?: GuildSubscription;
+  /** Avisos de vencimiento ya enviados (por fecha de fin, para no repetirlos) */
+  notices?: { warnedFor?: number; expiredFor?: number };
   contentTypes: ContentTypeConfig[];
   /** Versión de la corrección a nombres oficiales del juego ya aplicada a las plantillas */
   namesVersion?: number;

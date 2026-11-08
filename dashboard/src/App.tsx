@@ -4,6 +4,7 @@ import type { Me } from './types';
 import { GuildPicker } from './components/GuildPicker';
 import { GuildPanel } from './components/GuildPanel';
 import { ToastProvider } from './components/Toast';
+import { AdminPanel } from './components/AdminPanel';
 
 /** Ruta mínima con el hash: #/ (servidores) o #/g/<id>/<pestaña> */
 function useHashRoute() {
@@ -14,7 +15,7 @@ function useHashRoute() {
     return () => window.removeEventListener('hashchange', on);
   }, []);
   const m = hash.match(/^#\/g\/(\d{15,25})(?:\/([a-z]+))?/);
-  return { guildId: m?.[1] ?? null, tab: m?.[2] ?? 'pings' };
+  return { guildId: m?.[1] ?? null, tab: m?.[2] ?? 'pings', admin: hash.startsWith('#/admin') };
 }
 
 export function App() {
@@ -92,6 +93,9 @@ export function App() {
           MassUp
         </a>
         <span className="spacer" />
+        {me.user.isOwner && (
+          <a className={`btn btn-sm${route.admin ? ' btn-primary' : ''}`} href="#/admin">Administración</a>
+        )}
         <span className="user">
           {me.user.avatar && <img src={me.user.avatar} alt="" />}
           {me.user.name}
@@ -99,7 +103,9 @@ export function App() {
         <button className="btn-ghost btn-sm" onClick={() => void logout()}>Salir</button>
       </header>
       <main className="page">
-        {route.guildId ? (
+        {route.admin && me.user.isOwner ? (
+          <AdminPanel />
+        ) : route.guildId ? (
           <GuildPanel key={route.guildId} guildId={route.guildId} tab={route.tab} />
         ) : (
           <GuildPicker guilds={me.guilds} />

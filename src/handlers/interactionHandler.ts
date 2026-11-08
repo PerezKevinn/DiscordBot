@@ -30,7 +30,8 @@ import { baseEmbed, fitEmbed, hexToInt, UI_COLORS } from '../utils/ui';
 import { cleanPlayerText, cleanUserText, clearCooldown, COOLDOWNS, takeCooldown } from '../utils/security';
 import { canCreatePings, canMentionEveryone, displayNameOf, isGuildManager } from '../utils/permissions';
 import { handleCompoInteraction, parseRolesText } from './compoEditor';
-import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand } from './configCommands';
+import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand, handleRedeemCommand } from './configCommands';
+import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
@@ -158,6 +159,8 @@ export async function handleInteraction(interaction: Interaction) {
 
     const config = ConfigManager.getConfig(interaction.guildId, interaction.guild?.name);
     if (interaction.guild) ConfigManager.syncGuildIcon(config, interaction.guild);
+    // Cada interacción trae las suscripciones vigentes: así un pago recién hecho se nota al instante
+    for (const e of interaction.entitlements.values()) applyEntitlement(interaction.client, e);
     const displayName = displayNameOf(interaction);
 
     // 1. Slash Commands
@@ -172,6 +175,7 @@ export async function handleInteraction(interaction: Interaction) {
       }
       if (commandName === 'plan') return handlePlanCommand(interaction, config);
       if (commandName === 'plan-admin') return handlePlanAdminCommand(interaction);
+      if (commandName === 'canjear') return handleRedeemCommand(interaction, config);
 
       if (commandName === 'panel-ping') {
         if (!isGuildManager(interaction) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {

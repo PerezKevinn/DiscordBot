@@ -36,7 +36,7 @@ export interface Content {
 }
 
 export interface Me {
-  user: { id: string; name: string; avatar: string | null };
+  user: { id: string; name: string; avatar: string | null; isOwner: boolean };
   guilds: Array<{ id: string; name: string; icon: string | null; botPresent: boolean; inviteUrl: string }>;
 }
 
@@ -46,6 +46,12 @@ export interface GuildData {
     tier: 'free' | 'premium';
     limits: { maxActivePings: number; maxContentTypes: number; customBranding: boolean; hideBotFooter: boolean };
     premiumUntil: number | null;
+    /** Fin del Premium (null = no vence o gratis: mirar tier) */
+    endsAt: number | null;
+    timed: { source: 'manual' | 'code'; until: number | null } | null;
+    subscription: { endsAt: number | null } | null;
+    storeUrl: string | null;
+    history: Array<{ at: number; type: MembershipEventType; days?: number | null; until?: number | null; code?: string }>;
   };
   settings: {
     callerRoleId: string | null;
@@ -73,6 +79,79 @@ export interface GuildData {
     joined: number;
     max: number;
   }>;
+}
+
+export type MembershipEventType =
+  | 'grant'
+  | 'extend'
+  | 'revoke'
+  | 'code_redeemed'
+  | 'subscription_started'
+  | 'subscription_updated'
+  | 'subscription_ended'
+  | 'expired';
+
+export interface MembershipEvent {
+  at: number;
+  guildId: string;
+  guildName?: string;
+  type: MembershipEventType;
+  actorId?: string;
+  days?: number | null;
+  until?: number | null;
+  code?: string;
+  note?: string;
+}
+
+export interface AdminGuild {
+  id: string;
+  name: string;
+  icon: string | null;
+  members: number | null;
+  botPresent: boolean;
+  joinedAt: number;
+  tier: 'free' | 'premium';
+  endsAt: number | null;
+  lifetime: boolean;
+  timed: { source: 'manual' | 'code'; until: number | null } | null;
+  subscription: { active: boolean; endsAt: number | null; userId: string } | null;
+}
+
+export interface RedeemCode {
+  code: string;
+  days: number | null;
+  maxUses: number;
+  uses: Array<{ guildId: string; guildName?: string; userId: string; at: number }>;
+  createdAt: number;
+  createdBy: string;
+  expiresAt?: number;
+  note?: string;
+  disabled?: boolean;
+  status: 'active' | 'used' | 'expired' | 'disabled';
+}
+
+export interface AdminOverview {
+  stats: { guilds: number; premium: number; subscriptions: number; timed: number; expiringSoon: number };
+  skuConfigured: boolean;
+  guilds: AdminGuild[];
+  codes: RedeemCode[];
+  history: MembershipEvent[];
+}
+
+export const EVENT_LABELS: Record<MembershipEventType, string> = {
+  grant: 'Premium concedido',
+  extend: 'Días añadidos',
+  revoke: 'Premium retirado',
+  code_redeemed: 'Código canjeado',
+  subscription_started: 'Suscripción iniciada',
+  subscription_updated: 'Suscripción actualizada',
+  subscription_ended: 'Suscripción terminada',
+  expired: 'Premium vencido',
+};
+
+export function fmtDate(ms: number | null | undefined, withTime = false) {
+  if (!ms) return '—';
+  return new Date(ms).toLocaleString('es', withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' });
 }
 
 export const BUILD_SLOTS: Array<{ slot: ItemSlot; label: string }> = [

@@ -11,14 +11,32 @@ import { cloneDefaultContentTypes } from '../data/defaultTemplates';
 import { ConfigManager } from '../utils/configManager';
 import { deleteCustomLogo, saveCustomLogoBuffer } from '../utils/logo';
 import { closePingExternally } from '../utils/pingSweeper';
-import { getEffectiveTier, getLimits } from '../utils/plans';
+import { getEffectiveTier, getLimits, hasActiveSubscription, hasTimedPremium, premiumEndsAt, premiumSkuId, premiumStoreUrl } from '../utils/plans';
+import {
+  codeStatus,
+  createCodes,
+  deleteCode,
+  extendPremium,
+  getHistory,
+  grantPremium,
+  listCodes,
+  MembershipError,
+  redeemCode,
+  RedeemCode,
+  revokePremium,
+  setCodeDisabled,
+} from '../utils/memberships';
 import { splitRoleLabel } from '../utils/ui';
 import { authorizeUrl, canManage, exchangeCode, fetchUser, fetchUserGuilds, PanelEnv } from './discordOAuth';
 import { createSession, destroySession, getSession, PanelSession, SESSION_COOKIE, SESSION_TTL_MS } from './sessions';
 import {
   brandingSchema,
+  adminPlanSchema,
   closePingSchema,
+  codeUpdateSchema,
   contentSchema,
+  createCodesSchema,
+  redeemSchema,
   firstIssue,
   logoSchema,
   settingsSchema,
@@ -228,6 +246,7 @@ export async function startPanel(client: Client) {
         id: session.userId,
         name: session.globalName || session.username,
         avatar: session.avatar ? `https://cdn.discordapp.com/avatars/${session.userId}/${session.avatar}.png?size=64` : null,
+        isOwner: Boolean(process.env.BOT_OWNER_ID && session.userId === process.env.BOT_OWNER_ID),
       },
       guilds: session.guilds
         .filter(canManage)
@@ -276,7 +295,22 @@ export async function startPanel(client: Client) {
 
     return {
       guild: { id: guild.id, name: guild.name, icon: guild.iconURL({ extension: 'png', size: 128 }) },
-      plan: { tier, limits, premiumUntil: config.premiumUntil ?? null },
+      plan: {
+        tier,
+        limits,
+        premiumUntil: config.premiumUntil ?? null,
+        endsAt: premiumEndsAt(config) ?? null,
+        timed: hasTimedPremium(config) ? { source: config.premiumSource ?? 'manual', until: config.premiumUntil ?? null } : null,
+        subscription: hasActiveSubscription(config) ? { endsAt: config.subscription!.endsAt ?? null } : null,
+        storeUrl: premiumStoreUrl(),
+        history: getHistory({ guildId: guild.id, limit: 15 }).map(({ at, type, days, until, code }) => ({
+          at,
+          type,
+          days,
+          until,
+          code: code ? `${code.slice(0, 5)}••••-${code.slice(-4)}` : undefined,
+        })),
+      },
       settings: {
         callerRoleId: config.callerRoleId ?? null,
         defaultPingRoleId: config.defaultPingRoleId ?? null,
@@ -437,6 +471,122 @@ export async function startPanel(client: Client) {
     if (!ping || (ping.status !== 'OPEN' && ping.status !== 'IN_PROGRESS')) throw new HttpError(404, 'Ping no encontrado');
     await closePingExternally(guild, ping, status);
     return serializeGuild(guild, config);
+  });
+
+  // ---------- Plan y membresía del servidor ----------
+  app.post('/api/guilds/:guildId/redeem', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
+    const { guild, config, session } = await requireGuild(req);
+    const { code } = parse(redeemSchema, req.body);
+    try {
+      redeemCode(code, config, session.userId);
+    } catch (err) {
+      if (err instanceof MembershipError) throw new HttpError(400, err.message);
+      throw err;
+    }
+    return serializeGuild(guild, config);
+  });
+
+  // ---------- Administración (solo el dueño del bot) ----------
+  const ownerId = process.env.BOT_OWNER_ID;
+  const isOwner = (s: PanelSession | undefined) => Boolean(ownerId && s?.userId === ownerId);
+  const requireOwner = (req: FastifyRequest): PanelSession => {
+    const session = requireSession(req);
+    if (!isOwner(session)) throw new HttpError(403, 'Solo el dueño del bot');
+    return session;
+  };
+  const membershipCall = <T>(fn: () => T): T => {
+    try {
+      return fn();
+    } catch (err) {
+      if (err instanceof MembershipError) throw new HttpError(400, err.message);
+      throw err;
+    }
+  };
+
+  const adminGuildRow = (guildId: string) => {
+    const config = ConfigManager.peekConfig(guildId);
+    if (!config) return null;
+    const guild = client.guilds.cache.get(guildId);
+    const ends = premiumEndsAt(config);
+    return {
+      id: guildId,
+      name: guild?.name ?? config.guildName,
+      icon: guild?.iconURL({ extension: 'png', size: 64 }) ?? null,
+      members: guild?.memberCount ?? null,
+      botPresent: Boolean(guild),
+      joinedAt: guild?.joinedTimestamp ?? config.createdAt,
+      tier: getEffectiveTier(config),
+      endsAt: ends === undefined ? null : ends, // null = no vence (o gratis: mirar tier)
+      lifetime: ends === null,
+      timed: hasTimedPremium(config)
+        ? { source: config.premiumSource ?? 'manual', until: config.premiumUntil ?? null }
+        : null,
+      subscription: config.subscription
+        ? { active: hasActiveSubscription(config), endsAt: config.subscription.endsAt ?? null, userId: config.subscription.userId }
+        : null,
+    };
+  };
+
+  const serializeCode = (c: RedeemCode) => ({ ...c, status: codeStatus(c) });
+
+  app.get('/api/admin/overview', async (req) => {
+    requireOwner(req);
+    const guilds = ConfigManager.listStoredGuildIds()
+      .map(adminGuildRow)
+      .filter((g): g is NonNullable<typeof g> => Boolean(g))
+      .sort((a, b) => Number(b.tier === 'premium') - Number(a.tier === 'premium') || Number(b.botPresent) - Number(a.botPresent) || a.name.localeCompare(b.name));
+    const present = guilds.filter((g) => g.botPresent);
+    const premium = present.filter((g) => g.tier === 'premium');
+    const soon = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    return {
+      stats: {
+        guilds: present.length,
+        premium: premium.length,
+        subscriptions: premium.filter((g) => g.subscription?.active).length,
+        timed: premium.filter((g) => g.timed).length,
+        expiringSoon: premium.filter((g) => g.endsAt && g.endsAt < soon).length,
+      },
+      skuConfigured: Boolean(premiumSkuId()),
+      guilds,
+      codes: listCodes().map(serializeCode),
+      history: getHistory({ limit: 300 }),
+    };
+  });
+
+  app.post('/api/admin/guilds/:guildId/plan', async (req) => {
+    const session = requireOwner(req);
+    const { guildId } = req.params as { guildId: string };
+    if (!snowflake.safeParse(guildId).success || !ConfigManager.peekConfig(guildId)) throw new HttpError(404, 'Servidor no encontrado');
+    const body = parse(adminPlanSchema, req.body);
+    const config = ConfigManager.getConfig(guildId);
+    membershipCall(() => {
+      if (body.action === 'grant') grantPremium(config, body.days, session.userId, body.note);
+      else if (body.action === 'extend') extendPremium(config, body.days, session.userId, body.note);
+      else revokePremium(config, session.userId, body.note);
+    });
+    return { guild: adminGuildRow(guildId), history: getHistory({ limit: 300 }) };
+  });
+
+  app.post('/api/admin/codes', async (req) => {
+    const session = requireOwner(req);
+    const body = parse(createCodesSchema, req.body);
+    const created = createCodes({ ...body, actorId: session.userId });
+    return { created: created.map(serializeCode), codes: listCodes().map(serializeCode) };
+  });
+
+  app.patch('/api/admin/codes/:code', async (req) => {
+    requireOwner(req);
+    const { code } = req.params as { code: string };
+    const { disabled } = parse(codeUpdateSchema, req.body);
+    membershipCall(() => setCodeDisabled(code, disabled));
+    return { codes: listCodes().map(serializeCode) };
+  });
+
+  app.delete('/api/admin/codes/:code', async (req) => {
+    requireOwner(req);
+    const { code } = req.params as { code: string };
+    membershipCall(() => deleteCode(code));
+    return { codes: listCodes().map(serializeCode) };
   });
 
   // ---------- Catálogo de ítems ----------

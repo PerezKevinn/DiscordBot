@@ -7,12 +7,14 @@ import { PingsTab } from './PingsTab';
 import { SettingsTab } from './SettingsTab';
 import { ContentsTab } from './ContentsTab';
 import { BrandingTab } from './BrandingTab';
+import { PlanTab } from './PlanTab';
 
 const TABS = [
   { id: 'pings', label: 'Pings activos' },
   { id: 'contenidos', label: 'Contenidos y builds' },
   { id: 'ajustes', label: 'Ajustes' },
   { id: 'marca', label: 'Marca' },
+  { id: 'plan', label: 'Plan' },
 ];
 
 export type Save = (fn: () => Promise<GuildData>, okText?: string) => Promise<boolean>;
@@ -80,6 +82,7 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
       {current === 'contenidos' && <ContentsTab data={data} save={save} />}
       {current === 'ajustes' && <SettingsTab data={data} save={save} />}
       {current === 'marca' && <BrandingTab data={data} save={save} />}
+      {current === 'plan' && <PlanTab data={data} save={save} />}
     </div>
   );
 }

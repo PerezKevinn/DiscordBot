@@ -1,4 +1,4 @@
-import type { CatalogItem, Content, GuildData, Me } from './types';
+import type { AdminGuild, AdminOverview, CatalogItem, Content, GuildData, Me, MembershipEvent, RedeemCode } from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -39,4 +39,20 @@ export const api = {
   deleteLogo: (id: string) => request<GuildData>('DELETE', `/api/guilds/${id}/logo`),
   closePing: (id: string, pingId: string, status: 'CLOSED' | 'CANCELLED') =>
     request<GuildData>('POST', `/api/guilds/${id}/pings/${encodeURIComponent(pingId)}/close`, { status }),
+  redeem: (id: string, code: string) => request<GuildData>('POST', `/api/guilds/${id}/redeem`, { code }),
+
+  // Administración (solo el dueño del bot)
+  adminOverview: () => request<AdminOverview>('GET', '/api/admin/overview'),
+  adminPlan: (
+    guildId: string,
+    body:
+      | { action: 'grant'; days: number | null; note?: string }
+      | { action: 'extend'; days: number; note?: string }
+      | { action: 'revoke'; note?: string }
+  ) => request<{ guild: AdminGuild; history: MembershipEvent[] }>('POST', `/api/admin/guilds/${guildId}/plan`, body),
+  createCodes: (body: { days: number | null; maxUses: number; count: number; expiresInDays?: number | null; note?: string }) =>
+    request<{ created: RedeemCode[]; codes: RedeemCode[] }>('POST', '/api/admin/codes', body),
+  setCodeDisabled: (code: string, disabled: boolean) =>
+    request<{ codes: RedeemCode[] }>('PATCH', `/api/admin/codes/${encodeURIComponent(code)}`, { disabled }),
+  deleteCode: (code: string) => request<{ codes: RedeemCode[] }>('DELETE', `/api/admin/codes/${encodeURIComponent(code)}`),
 };

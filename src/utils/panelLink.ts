@@ -3,7 +3,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'disc
 /**
  * Enlaces al panel web. Toda la configuración del bot se hace allí; en Discord solo se usa.
  */
-export type PanelTab = 'pings' | 'contenidos' | 'ajustes' | 'marca';
+export type PanelTab = 'pings' | 'contenidos' | 'ajustes' | 'marca' | 'plan';
 
 export function panelUrl(guildId?: string, tab: PanelTab = 'contenidos'): string | null {
   const base = process.env.PANEL_URL?.replace(/\/$/, '');

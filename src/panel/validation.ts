@@ -132,3 +132,25 @@ export function firstIssue(err: z.ZodError): string {
   const i = err.issues[0];
   return i ? `${i.path.join('.') || 'datos'}: ${i.message}` : 'Datos no válidos';
 }
+
+// ---------- Membresías ----------
+export const redeemSchema = z.object({ code: z.string().min(8).max(32) });
+
+const days = z.number().int().min(1).max(3650);
+const note = z.string().max(200).optional().transform((s) => (s ? cleanUserText(s, 120) : undefined));
+
+export const adminPlanSchema = z.discriminatedUnion('action', [
+  z.object({ action: z.literal('grant'), days: days.nullable(), note }), // null = de por vida
+  z.object({ action: z.literal('extend'), days, note }),
+  z.object({ action: z.literal('revoke'), note }),
+]);
+
+export const createCodesSchema = z.object({
+  days: days.nullable(),
+  maxUses: z.number().int().min(1).max(1000),
+  count: z.number().int().min(1).max(50),
+  expiresInDays: z.number().int().min(1).max(3650).nullable().optional(),
+  note,
+});
+
+export const codeUpdateSchema = z.object({ disabled: z.boolean() });

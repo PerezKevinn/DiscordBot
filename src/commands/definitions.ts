@@ -23,6 +23,15 @@ export const publicCommands = [
     .setName('plan')
     .setDescription('Muestra el plan del servidor (Gratis / Premium) y qué incluye')
     .setDMPermission(false),
+
+  new SlashCommandBuilder()
+    .setName('canjear')
+    .setDescription('Canjea un código de Premium para este servidor')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+    .setDMPermission(false)
+    .addStringOption((o) =>
+      o.setName('codigo').setDescription('Código, ej: MASS-ABCD-EFGH').setRequired(true).setMinLength(8).setMaxLength(32)
+    ),
 ].map((c) => c.toJSON());
 
 /** Comandos del dueño del bot: solo se registran en el servidor de desarrollo (OWNER_GUILD_ID). */
