@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Instalación inicial de MassUp en un VPS nuevo con Ubuntu 24.04. Ejecutar como root, UNA vez:
+# Instalación inicial de MassUp en un VPS nuevo con Ubuntu 24.04. Ejecutar como root.
+# Se puede repetir sin problema: lo ya hecho se salta.
 #   bash setup-vps.sh <url-ssh-del-repo>
 # Ej.: bash setup-vps.sh git@github.com:tu-usuario/massup.git
 set -euo pipefail
@@ -60,7 +61,13 @@ echo "(Add deploy key, SIN marcar 'Allow write access'):"
 echo
 cat /home/$APP_USER/.ssh/id_ed25519.pub
 echo "----------------------------------------------------------------"
-read -r -p "Pulsa Enter cuando la hayas añadido... "
+if ! sudo -u $APP_USER git ls-remote "$REPO" >/dev/null 2>&1; then
+  echo
+  echo "GitHub todavía no acepta esta clave. Añádela y vuelve a ejecutar este mismo script:"
+  echo "  bash setup-vps.sh $REPO"
+  exit 2
+fi
+echo "GitHub acepta la clave."
 
 echo "==> Descargando el código"
 if [ ! -d "$APP_DIR/.git" ]; then
