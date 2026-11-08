@@ -81,6 +81,23 @@ El borrado lo hace `src/utils/dataRetention.ts` cada 6 horas, y también detecta
 Con muchos servidores conviene pasar este almacenamiento a SQLite o Postgres; todo el acceso a datos
 está en `src/utils/configManager.ts`.
 
+## Web (inicio, privacidad y términos)
+
+Está en `web/` (HTML y CSS estáticos, sin compilar). Para verla en local: `node scripts/serveWeb.js` y abre http://localhost:4321.
+
+**Antes de publicarla**, busca y rellena lo marcado en rojo:
+- `[TU NOMBRE O ALIAS]`, `[TU CORREO DE CONTACTO]`, `[TU PAÍS]`, `[PROVEEDOR]`, `[PAÍS DEL SERVIDOR]` en `privacidad.html` y `terminos.html`.
+- `https://discord.gg/CAMBIAR` (en las 3 páginas): la invitación permanente de tu servidor de soporte.
+
+**Publicarla gratis** (el repositorio del bot puede seguir siendo privado):
+- **Cloudflare Pages**: conecta el repositorio y pon `web` como carpeta de salida (sin comando de build). Cada `git push` actualiza la web.
+- **Netlify Drop**: arrastra la carpeta `web` a app.netlify.com/drop.
+
+Luego pon en el Developer Portal (General Information) las URLs de `/terminos.html` y `/privacidad.html`.
+
+La política promete que los registros técnicos duran como máximo 14 días. En el VPS:
+`pm2 install pm2-logrotate && pm2 set pm2-logrotate:retain 14`.
+
 ## Vista previa del banner
 
 `npm run preview:card -- "NOMBRE DEL GREMIO" "[TAG]"` genera `data/preview_banner.png`.

@@ -217,14 +217,28 @@ export class ConfigManager {
         pings = {};
       }
     }
-    // Limpieza de pings viejos ya cerrados
-    const now = Date.now();
+    pingsCache.set(guildId, pings);
+    this.pruneClosedPings(guildId);
+    return pings;
+  }
+
+  /**
+   * Borra (memoria y disco) los pings cerrados hace más de 3 días.
+   * Se llama al cargar y periódicamente desde la limpieza automática.
+   */
+  public static pruneClosedPings(guildId: string, now = Date.now()): number {
+    const pings = pingsCache.get(guildId);
+    if (!pings) return 0;
+    let removed = 0;
     for (const [id, p] of Object.entries(pings)) {
       const done = p.status === 'CLOSED' || p.status === 'CANCELLED';
-      if (done && now - (p.closedAt || p.createdAt) > CLOSED_PING_TTL_MS) delete pings[id];
+      if (done && now - (p.closedAt || p.createdAt) > CLOSED_PING_TTL_MS) {
+        delete pings[id];
+        removed++;
+      }
     }
-    pingsCache.set(guildId, pings);
-    return pings;
+    if (removed > 0) writeJsonAtomic(pingsPath(guildId), pings);
+    return removed;
   }
 
   public static countOpenPings(guildId: string): number {

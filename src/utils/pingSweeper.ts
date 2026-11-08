@@ -89,6 +89,8 @@ export async function sweepGuild(guild: Guild) {
   let pings: Record<string, ActivePing>;
   try {
     pings = ConfigManager.getActivePings(guild.id);
+    // Privacidad: los pings cerrados (con los nombres de los jugadores) no duran más de 3 días
+    ConfigManager.pruneClosedPings(guild.id, now);
   } catch {
     return;
   }

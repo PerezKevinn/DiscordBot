@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MassUp · El centro de mando de tu gremio</title>
+  <meta name="description" content="Bot de Discord para gremios de Albion Online: pings de contenido con roster por roles, aviso al rol de cada actividad, voz temporal e hilo de builds." />
+  <meta property="og:title" content="MassUp · El centro de mando de tu gremio" />
+  <meta property="og:description" content="Pings de Gankeo, Grupales, Azules, Facciones, ZvZ y más, con roster por roles, para tu servidor de Discord." />
+  <meta property="og:image" content="https://massup.shop/img/og.png" />
+  <meta property="og:url" content="https://massup.shop/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://massup.shop/" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#08080b" />
+  <link rel="icon" type="image/png" href="img/favicon.png" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!--
+    ENLACES A CAMBIAR antes de publicar:
+    - INVITE: enlace para añadir el bot (ya configurado con tu CLIENT_ID y permisos mínimos)
+    - SOPORTE: busca "discord.gg/CAMBIAR" y pon la invitación permanente de tu servidor de soporte
+  -->
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="index.html"><img src="img/avatar.png" alt="" />MassUp</a>
+      <nav class="nav-links">
+        <a href="#funciones">Funciones</a>
+        <a href="#como-empezar">Cómo empezar</a>
+        <a href="#planes">Planes</a>
+        <a href="#faq">Preguntas</a>
+        <a class="btn btn-primary btn-sm" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div>
+          <span class="eyebrow">Bot de Discord para Albion Online</span>
+          <h1>El centro de mando de <span>tu gremio</span></h1>
+          <p class="lead">Tira pings de contenido en segundos. Tu gente se anota en su rol, el bot avisa al rol de cada actividad, abre voz e hilo de builds y lo limpia todo al terminar.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">
+              Añadir a Discord
+            </a>
+            <a class="btn btn-ghost" href="https://discord.gg/CAMBIAR">Servidor de soporte</a>
+          </div>
+          <p class="muted" style="margin-top:14px;font-size:.9rem">Gratis · En español · Sin pedir permisos de administrador</p>
+        </div>
+
+        <!-- Maqueta de un ping publicado -->
+        <div class="discord-mock" aria-label="Ejemplo de un ping de MassUp en Discord">
+          <div class="dm-head">
+            <img src="img/avatar.png" alt="" />
+            <span class="dm-name">MassUp</span><span class="dm-app">APP</span><span class="dm-time">hoy a las 21:00</span>
+          </div>
+          <div class="dm-content"><span class="mention">@Gankeo</span> — <b>¡SALE GANKEO EN CAMINOS DE AVALON! Anótense abajo</b></div>
+          <div class="dm-embed">
+            <div class="author">TU GREMIO [TAG] • Gankeo en Caminos de Avalon</div>
+            <div class="title">🌀 GANKEO EN CAMINOS DE AVALON</div>
+            <div class="line">🟢 <b>Abierto</b> — ¡anótate en tu rol!</div>
+            <div class="line">⏰ <b>Salida:</b> 21:15 · en 15 minutos</div>
+            <div class="line">📍 <b>Masa en:</b> Brecilien / Portal de Caminos</div>
+            <div class="line">🛡️ <b>IP / Build:</b> Equivalente T7 / T8</div>
+            <div class="line">👥 <b>Party:</b> 4/7 ▰▰▰▰▰▰▱▱▱▱</div>
+            <div class="dm-fields">
+              <div class="dm-field"><div class="fname">⛓️ Tanque de atrape · 1/2</div><div class="sub">Maza pesada / Patas de oso</div><span class="mention">@Vortex</span></div>
+              <div class="dm-field"><div class="fname">✨ Sanador · 1/1</div><div class="sub">Bastón sagrado</div><span class="mention">@Aurelia</span></div>
+              <div class="dm-field"><div class="fname">🗡️ Daño · 2/3</div><div class="sub">Sangradora / Brazales de batalla</div><span class="mention">@Nyx</span> <span class="mention">@Draven</span></div>
+            </div>
+            <img src="img/ping-header.png" alt="Cabecera gráfica del ping" />
+          </div>
+          <div class="dm-select"><span>⚔️ ¿De qué vas? Elige tu rol…</span><span>⌄</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>Para el contenido que de verdad sale</h2>
+          <p>Plantillas listas con los nombres oficiales del juego. Cada servidor puede editarlas o crear las suyas.</p>
+        </div>
+        <div class="chips">
+          <span class="chip">🐺 Gankeo en Tierras Lejanas</span>
+          <span class="chip">🌀 Gankeo en Caminos de Avalon</span>
+          <span class="chip">🗝️ Mazmorra grupal</span>
+          <span class="chip">🔷 Cofres azules</span>
+          <span class="chip">🏆 Cofres dorados</span>
+          <span class="chip">🏛️ Mazmorra avaloniana</span>
+          <span class="chip">🚩 Guerra de facciones</span>
+          <span class="chip">⚔️ ZvZ / CTA</span>
+          <span class="chip">🔥 Hellgate 5v5</span>
+          <span class="chip">🐾 Rastreo</span>
+          <span class="chip">⛏️ Recolección con escolta</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="funciones">
+      <div class="container">
+        <div class="section-head">
+          <h2>Todo lo que necesita un Caller</h2>
+          <p>Menos tiempo organizando, más tiempo jugando.</p>
+        </div>
+        <div class="grid">
+          <div class="card"><div class="icon">⚔️</div><h3>Ping en segundos</h3><p>Asistente privado: eliges contenido, hora y lugar de masa, y publicas. Con banner y el logo de tu gremio.</p></div>
+          <div class="card"><div class="icon">👥</div><h3>Roster por roles</h3><p>Cada jugador elige su rol desde un menú. Cupos por rol, banca automática cuando se llena y nota de arma/IP.</p></div>
+          <div class="card"><div class="icon">🔔</div><h3>Aviso al rol correcto</h3><p>Gankeo avisa a @Gankeo, Facciones a @Facciones. Sin molestar a todo el servidor con @everyone.</p></div>
+          <div class="card"><div class="icon">🔊</div><h3>Voz e hilo temporales</h3><p>Crea un canal de voz y un hilo de builds para cada salida y los borra solos cuando la party termina.</p></div>
+          <div class="card"><div class="icon">🛠️</div><h3>Compos a tu medida</h3><p>Editor visual: añade roles, ajusta cupos con un clic y guarda la compo para los próximos pings.</p></div>
+          <div class="card"><div class="icon">👑</div><h3>Mando del Caller</h3><p>Marca la salida en ruta, llama a todos a voz y cierra con GG. Solo el Caller o los oficiales pueden tocarlo.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="como-empezar" class="alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>Listo en 3 pasos</h2>
+        </div>
+        <div class="steps">
+          <div class="step"><h3>Añade MassUp</h3><p>Invítalo a tu servidor. Solo pide los permisos que necesita.</p></div>
+          <div class="step"><h3>Configura los avisos</h3><p>Usa <code>/config rol-ping</code> para elegir a qué rol avisa cada contenido y <code>/config rol-caller</code> para decidir quién puede tirar pings.</p></div>
+          <div class="step"><h3>Tira tu primer ping</h3><p>Escribe <code>/ping</code> o deja el panel fijo con <code>/panel-ping</code> en el canal de Callers.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="planes">
+      <div class="container">
+        <div class="section-head">
+          <h2>Planes</h2>
+          <p>Todo lo esencial es gratis. Premium es para gremios que quieren su propia marca.</p>
+        </div>
+        <div class="plans">
+          <div class="plan">
+            <h3>Gratis</h3>
+            <div class="price">Siempre gratis</div>
+            <ul>
+              <li>Hasta 3 pings abiertos a la vez</li>
+              <li>Hasta 12 tipos de contenido</li>
+              <li>Roster, banca, voz e hilo</li>
+              <li>Aviso por rol en cada contenido</li>
+              <li>Icono de tu servidor en el banner</li>
+            </ul>
+          </div>
+          <div class="plan featured">
+            <span class="badge">Próximamente</span>
+            <h3>💎 Premium</h3>
+            <div class="price">—</div>
+            <ul>
+              <li>Hasta 25 pings abiertos a la vez</li>
+              <li>Hasta 25 tipos de contenido</li>
+              <li>Logo propio en el banner</li>
+              <li>Nombre, siglas, lema y color de tu gremio</li>
+              <li>Sin “Creado con MassUp”</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="alt">
+      <div class="container">
+        <div class="section-head"><h2>Preguntas frecuentes</h2></div>
+        <div class="faq">
+          <details>
+            <summary>¿Qué permisos necesita el bot?</summary>
+            <p>Ver y enviar mensajes, insertar enlaces y adjuntar archivos (para el ping y su imagen), crear y gestionar hilos (hilo de builds), gestionar canales (voz temporal) y mencionar roles (para avisar al rol de cada contenido). No pide Administrador.</p>
+          </details>
+          <details>
+            <summary>¿Cualquiera puede tirar pings?</summary>
+            <p>Por defecto sí. Con <code>/config rol-caller</code> eliges un rol y solo esas personas (y los admins) pueden tirar pings. Las menciones @here y @everyone solo están disponibles para quien ya tiene ese permiso en Discord.</p>
+          </details>
+          <details>
+            <summary>¿Puedo cambiar los roles y las compos?</summary>
+            <p>Sí. Los admins editan las plantillas desde el panel (“Contenidos y roles”) y cada Caller puede ajustar la compo de un ping concreto antes de publicarlo.</p>
+          </details>
+          <details>
+            <summary>¿Qué pasa con los canales de voz que crea?</summary>
+            <p>Se borran solos: al pulsar GG o Cancelar, cuando la party deja la voz vacía 10 minutos o, si nadie entró, 30 minutos después de la hora de salida.</p>
+          </details>
+          <details>
+            <summary>¿Qué datos guarda?</summary>
+            <p>Solo lo necesario para funcionar: la configuración de tu servidor y los pings (con quién se anotó) hasta 3 días después de cerrarse. Los detalles están en la <a href="privacidad.html">política de privacidad</a>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <img class="banner" src="img/banner.png" alt="MassUp · El centro de mando de tu gremio" />
+        <h2>Organiza. Convoca. Conquista.</h2>
+        <p class="muted">Añade MassUp a tu servidor y tira tu primer ping hoy.</p>
+        <div class="actions" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+          <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
+          <a class="btn btn-ghost" href="https://discord.gg/CAMBIAR">Servidor de soporte</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <span>© 2026 MassUp</span>
+      <nav class="links">
+        <a href="privacidad.html">Privacidad</a>
+        <a href="terminos.html">Términos</a>
+        <a href="https://discord.gg/CAMBIAR">Soporte</a>
+      </nav>
+      <p class="disclaimer">MassUp es un proyecto independiente y no está afiliado, patrocinado ni respaldado por Sandbox Interactive GmbH ni por Discord Inc. Albion Online es una marca de Sandbox Interactive GmbH.</p>
+    </div>
+  </footer>
+</body>
+</html>
