@@ -11,6 +11,7 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import { ContentTypeConfig, DraftPingSession, GuildConfig, MentionType } from '../types/ping';
+import { panelUrl } from './panelLink';
 import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt, totalSlots } from './ui';
 
 /** Rol que se mencionará para un contenido (el propio del contenido o el rol por defecto). */
@@ -60,13 +61,13 @@ export function buildFixedCallerPanel(config: GuildConfig) {
       .setLabel('Crear ping')
       .setEmoji('⚔️')
       .setStyle(ButtonStyle.Success),
-    new ButtonBuilder()
-      .setCustomId('panel_manage_templates')
-      .setLabel('Contenidos y roles')
-      .setEmoji('⚙️')
-      .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder().setCustomId('panel_refresh').setEmoji('🔄').setStyle(ButtonStyle.Secondary)
   );
+  // La configuración (contenidos, compos, builds, avisos) se hace en el panel web
+  const url = panelUrl(config.guildId, 'contenidos');
+  if (url) {
+    row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(url).setLabel('Configurar').setEmoji('🖥️'));
+  }
 
   return { embeds: [fitEmbed(embed)], components: [row] };
 }
@@ -128,7 +129,7 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
   if (draft.mentionType === 'ROLE' && !pingRoleId) {
     embed.addFields({
       name: '​',
-      value: '-# Este contenido no tiene rol de aviso. Un admin puede ponerlo con `/config rol-ping`.',
+      value: '-# Este contenido no tiene rol de aviso. Un admin puede ponerlo en el panel web (`/panel`).',
     });
   }
 

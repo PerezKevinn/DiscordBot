@@ -5,7 +5,7 @@ import { GuildConfig } from '../types/ping';
 
 /**
  * Logo del gremio para el banner de los pings:
- * 1. Logo propio subido con /config marca (Premium) -> data/logos/<guildId>.png
+ * 1. Logo propio subido desde el panel web (Premium) -> data/logos/<guildId>.png
  * 2. Si no, el icono del servidor de Discord
  * 3. Si no hay ninguno, el banner dibuja el escudo con las iniciales
  */

@@ -22,9 +22,8 @@ import { cleanUserText } from '../utils/security';
 import { baseEmbed, composeRoleLabel, fitEmbed, hexToInt, splitRoleLabel, totalSlots, UI_COLORS } from '../utils/ui';
 
 /**
- * Editor visual de la compo (roles y cupos) para:
- * - el ping que el Caller está armando (solo ese ping), o
- * - la plantilla permanente de un contenido (admins).
+ * Editor visual de la compo (roles y cupos) del ping que el Caller está armando (solo ese ping).
+ * Las plantillas permanentes, con sus builds, se editan en el panel web.
  *
  * Sustituye al formulario de texto "Emoji | Rol | Cupos | Descripción", que sigue
  * disponible como "Editar como texto" para quien quiera pegar varios roles de golpe.
@@ -412,30 +411,6 @@ export async function openDraftCompoEditor(interaction: ButtonInteraction, confi
     accentColor: content.accentColor,
     roles,
     original: clone(roles),
-    selected: 0,
-  };
-  sessions.set(key(config.guildId, interaction.user.id), s);
-  sessionTouched.set(key(config.guildId, interaction.user.id), Date.now());
-  await interaction.update(buildEditorView(config, s));
-}
-
-/** Abre el editor de la plantilla permanente de un contenido (admins). */
-export async function openTemplateCompoEditor(
-  interaction: StringSelectMenuInteraction,
-  config: GuildConfig,
-  contentId: string
-) {
-  const content = config.contentTypes.find((c) => c.id === contentId);
-  if (!content) {
-    await interaction.reply({ content: '❌ Ese contenido ya no existe.', flags: MessageFlags.Ephemeral });
-    return;
-  }
-  const s: CompoSession = {
-    target: { kind: 'template', contentId },
-    title: content.name,
-    accentColor: content.accentColor,
-    roles: clone(content.roles),
-    original: clone(content.roles),
     selected: 0,
   };
   sessions.set(key(config.guildId, interaction.user.id), s);

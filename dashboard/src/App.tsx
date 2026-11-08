@@ -26,6 +26,12 @@ export function App() {
   const load = useCallback(async () => {
     try {
       setMe(await api.me());
+      // Volver a la pantalla que se quería abrir antes de iniciar sesión (p. ej. desde el botón "Configurar")
+      const pending = sessionStorage.getItem('massup_after_login');
+      if (pending) {
+        sessionStorage.removeItem('massup_after_login');
+        if (!window.location.hash && /^#\/g\/\d{15,25}\/[a-z]+$/.test(pending)) window.location.hash = pending;
+      }
       setState('ready');
     } catch (err) {
       setState(err instanceof ApiError && err.status === 401 ? 'login' : 'error');
@@ -46,7 +52,13 @@ export function App() {
           <h1>Panel de MassUp</h1>
           <p className="muted">Administra los pings, contenidos, compos y builds de tu gremio.</p>
           {loginError && <p className="notice">No se pudo iniciar sesión. Inténtalo de nuevo.</p>}
-          <a className="btn btn-discord" href="/auth/login">Entrar con Discord</a>
+          <a
+            className="btn btn-discord"
+            href="/auth/login"
+            onClick={() => window.location.hash && sessionStorage.setItem('massup_after_login', window.location.hash)}
+          >
+            Entrar con Discord
+          </a>
           <p className="muted small" style={{ marginTop: 16 }}>
             Solo leemos tu usuario y la lista de tus servidores. Nunca actuamos en tu nombre.
           </p>

@@ -16,18 +16,14 @@ Más módulos de gestión de gremio irán sumándose.
 
 ## Comandos
 
+Discord es para **usar** el bot (tirar pings, anotarse, mandar la party). Toda la **configuración** (contenidos, compos, builds, avisos, canales, marca y logo) se hace en el [panel web](https://panel.massup.shop).
+
+
 | Comando | Quién | Qué hace |
 |---|---|---|
 | `/ping` | Callers | Arma un ping |
-| `/panel-ping` | Gestionar mensajes | Pone el panel fijo de Callers |
-| `/config ver` | Gestionar servidor | Muestra la configuración |
-| `/config rol-ping contenido rol` | Gestionar servidor | Rol a avisar por contenido (Gankeo → @Gankeo) |
-| `/config rol-ping-defecto rol` | Gestionar servidor | Rol si el contenido no tiene uno propio |
-| `/config rol-caller rol` | Gestionar servidor | Solo ese rol puede tirar pings |
-| `/config canal-pings canal` | Gestionar servidor | Canal por defecto de los pings |
-| `/config categoria-voz categoria` | Gestionar servidor | Dónde se crean las voces temporales |
-| `/config marca ...` | Gestionar servidor 💎 | Nombre, siglas, lema, color y logo propios |
-| `/config restablecer-plantillas` | Gestionar servidor | Vuelve a las plantillas por defecto |
+| `/panel-ping` | Gestionar mensajes | Pone el panel fijo de Callers en un canal |
+| `/panel` | Gestionar servidor | Enlace al panel web, donde se configura **todo** |
 | `/plan` | Todos | Plan del servidor y qué incluye |
 | `/plan-admin` | Solo `BOT_OWNER_ID`, solo en tu servidor | Da o quita Premium a un servidor |
 

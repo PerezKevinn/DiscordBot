@@ -10,8 +10,6 @@ import {
   ModalBuilder,
   ModalSubmitInteraction,
   PermissionFlagsBits,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
   TextChannel,
   TextInputBuilder,
   TextInputStyle,
@@ -29,11 +27,12 @@ import { buildPingMessagePayload } from '../utils/pingBuilder';
 import { generateBuildCard } from '../utils/buildCard';
 import { cleanupPingChannels } from '../utils/pingSweeper';
 import { getLimits, PREMIUM_UPSELL } from '../utils/plans';
-import { baseEmbed, fitEmbed, formatCompoInline, hexToInt, splitRoleLabel, UI_COLORS } from '../utils/ui';
+import { baseEmbed, fitEmbed, hexToInt, UI_COLORS } from '../utils/ui';
 import { cleanPlayerText, cleanUserText, clearCooldown, COOLDOWNS, takeCooldown } from '../utils/security';
 import { canCreatePings, canMentionEveryone, displayNameOf, isGuildManager } from '../utils/permissions';
-import { handleCompoInteraction, openDraftCompoEditor, openTemplateCompoEditor, parseRolesText } from './compoEditor';
-import { handleConfigAutocomplete, handleConfigCommand, handlePlanAdminCommand, handlePlanCommand } from './configCommands';
+import { handleCompoInteraction, openDraftCompoEditor, parseRolesText } from './compoEditor';
+import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand } from './configCommands';
+import { movedToPanelReply } from '../utils/panelLink';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
 const NO_ADMIN_PERMS = '⛔ Necesitas el permiso **Gestionar servidor** para hacer esto.';
@@ -146,7 +145,8 @@ function isPingFinished(ping: ActivePing) {
 export async function handleInteraction(interaction: Interaction) {
   try {
     if (interaction.isAutocomplete()) {
-      await handleConfigAutocomplete(interaction);
+      // Ningún comando usa autocompletado desde que la configuración pasó al panel web
+      await interaction.respond([]);
       return;
     }
 
@@ -165,7 +165,12 @@ export async function handleInteraction(interaction: Interaction) {
     if (interaction.isChatInputCommand()) {
       const { commandName } = interaction;
 
-      if (commandName === 'config') return handleConfigCommand(interaction, config);
+      if (commandName === 'panel') return handlePanelCommand(interaction);
+      // /config ya no existe (se configura en el panel); por si Discord aún lo muestra en caché:
+      if (commandName === 'config') {
+        await interaction.reply({ ...movedToPanelReply(config.guildId, 'ajustes'), flags: MessageFlags.Ephemeral });
+        return;
+      }
       if (commandName === 'plan') return handlePlanCommand(interaction, config);
       if (commandName === 'plan-admin') return handlePlanAdminCommand(interaction);
 
@@ -218,27 +223,10 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Panel / Plantillas: solo admins ---
+      // --- Botones de paneles antiguos que configuraban desde Discord: ahora llevan al panel web ---
       if (customId === 'panel_manage_templates' || customId.startsWith('tpl_')) {
-        if (!isGuildManager(interaction)) {
-          await interaction.reply({ content: NO_ADMIN_PERMS, flags: MessageFlags.Ephemeral });
-          return;
-        }
-        if (customId === 'panel_manage_templates') {
-          await showTemplateManagerMenu(interaction, config);
-          return;
-        }
-        if (customId === 'tpl_btn_create_new') {
-          if (config.contentTypes.length >= getLimits(config).maxContentTypes) {
-            await interaction.reply({
-              content: `⚠️ Llegaste al límite de **${getLimits(config).maxContentTypes} plantillas** de tu plan. Borra alguna primero.\n${PREMIUM_UPSELL}`,
-              flags: MessageFlags.Ephemeral,
-            });
-            return;
-          }
-          await interaction.showModal(buildCreateTemplateModal());
-          return;
-        }
+        await interaction.reply({ ...movedToPanelReply(config.guildId), flags: MessageFlags.Ephemeral });
+        return;
       }
 
       // --- Todo lo demás es del asistente de creación: requiere ser Caller ---
@@ -364,34 +352,10 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Plantillas (solo admins) ---
+      // --- Menús de plantillas de versiones anteriores: ahora se gestiona en el panel web ---
       if (customId.startsWith('tpl_')) {
-        if (!isGuildManager(interaction)) {
-          await interaction.reply({ content: NO_ADMIN_PERMS, flags: MessageFlags.Ephemeral });
-          return;
-        }
-        const contentId = values[0];
-
-        if (customId === 'tpl_select_edit_roles') {
-          await openTemplateCompoEditor(interaction, config, contentId);
-          return;
-        }
-
-        if (customId === 'tpl_select_delete') {
-          if (config.contentTypes.length <= 1) {
-            await interaction.reply({ content: '⚠️ Debe existir al menos 1 plantilla.', flags: MessageFlags.Ephemeral });
-            return;
-          }
-          const deleted = ConfigManager.deleteContentType(config.guildId, contentId);
-          await interaction.update({
-            content: deleted
-              ? `✅ Plantilla \`${contentId}\` eliminada. Dale a **Recargar Panel** para verlo en el canal.`
-              : '❌ No se encontró la plantilla.',
-            embeds: [],
-            components: [],
-          });
-          return;
-        }
+        await interaction.reply({ ...movedToPanelReply(config.guildId), flags: MessageFlags.Ephemeral });
+        return;
       }
 
       // --- Asistente (solo Callers) ---
@@ -455,103 +419,6 @@ export async function handleInteraction(interaction: Interaction) {
         .catch(() => null);
     }
   }
-}
-
-export function buildCreateTemplateModal(): ModalBuilder {
-  const field = (id: string, label: string, style: TextInputStyle, value: string) =>
-    new ActionRowBuilder<TextInputBuilder>().addComponents(
-      new TextInputBuilder().setCustomId(id).setLabel(label).setStyle(style).setValue(value).setRequired(true)
-    );
-
-  return new ModalBuilder()
-    .setCustomId('tpl_modal_create_content')
-    .setTitle('Nuevo Tipo de Contenido')
-    .addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(
-        new TextInputBuilder()
-          .setCustomId('tpl_name')
-          .setLabel('Nombre (Ej: Cristales 5v5, Abismo)')
-          .setStyle(TextInputStyle.Short)
-          .setMaxLength(60)
-          .setRequired(true)
-      ),
-      field('tpl_emoji', 'Emoji', TextInputStyle.Short, '🔥'),
-      field('tpl_subtitle', 'Subtítulo del banner', TextInputStyle.Short, 'OBJETIVO DEL GREMIO'),
-      field('tpl_defaults', 'Tier | Montura | Salida (separados con |)', TextInputStyle.Short, 'Equivalente T8 | Garrapresta | Escondite (HO)'),
-      field(
-        'tpl_roles',
-        'Roles: emoji Nombre xCupos: armas',
-        TextInputStyle.Paragraph,
-        '🛡️ Tanque x1: Maza íncubo / Maza\n💚 Sanador x2: Bastón sagrado\n🔮 Soporte x1\n🗡️ Daño x6'
-      )
-    );
-}
-
-/**
- * Panel efímero para que los admins editen plantillas de Contenidos y Roles
- */
-async function showTemplateManagerMenu(interaction: ButtonInteraction, config: GuildConfig) {
-  const limits = getLimits(config);
-  const embed = baseEmbed(config, 'Contenidos y roles')
-    .setTitle('⚙️ Contenidos y roles')
-    .setDescription(
-      [
-        `Tienes **${config.contentTypes.length} de ${limits.maxContentTypes}** contenidos.`,
-        'Edita la compo de uno, crea otro nuevo o borra los que no uses.',
-        '-# El rol al que avisa cada contenido se cambia con `/config rol-ping`.',
-      ].join('\n')
-    );
-
-  for (const c of config.contentTypes.slice(0, 24)) {
-    const roleId = config.pingRoles[c.id];
-    embed.addFields({
-      name: `${c.emoji} ${c.name}`.slice(0, 256),
-      value: [
-        ...c.roles.map((r) => `${r.emoji} ${splitRoleLabel(r.label).name} ×${r.maxSlots || '∞'}`),
-        `-# ${roleId ? `avisa a <@&${roleId}>` : 'sin rol de aviso'} · \`${c.id}\``,
-      ]
-        .join('\n')
-        .slice(0, 1024),
-      inline: true,
-    });
-  }
-
-  const editRolesSelect = new StringSelectMenuBuilder()
-    .setCustomId('tpl_select_edit_roles')
-    .setPlaceholder('👥 Editar la compo de un contenido...');
-  const deleteSelect = new StringSelectMenuBuilder()
-    .setCustomId('tpl_select_delete')
-    .setPlaceholder('🗑️ Borrar un contenido...');
-
-  for (const c of config.contentTypes.slice(0, 25)) {
-    const optEdit = new StringSelectMenuOptionBuilder()
-      .setLabel(c.name.slice(0, 100))
-      .setValue(c.id)
-      .setDescription(formatCompoInline(c.roles).slice(0, 100));
-    const optDel = new StringSelectMenuOptionBuilder().setLabel(c.name.slice(0, 100)).setValue(c.id);
-    if (c.emoji) {
-      optEdit.setEmoji(c.emoji);
-      optDel.setEmoji(c.emoji);
-    }
-    editRolesSelect.addOptions(optEdit);
-    deleteSelect.addOptions(optDel);
-  }
-
-  const btnCreateNew = new ButtonBuilder()
-    .setCustomId('tpl_btn_create_new')
-    .setLabel('Nuevo contenido')
-    .setEmoji('➕')
-    .setStyle(ButtonStyle.Success);
-
-  await interaction.reply({
-    embeds: [fitEmbed(embed)],
-    components: [
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(editRolesSelect),
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(deleteSelect),
-      new ActionRowBuilder<ButtonBuilder>().addComponents(btnCreateNew),
-    ],
-    flags: MessageFlags.Ephemeral,
-  });
 }
 
 /**
@@ -1008,82 +875,13 @@ async function handleModalSubmissions(interaction: ModalSubmitInteraction, confi
     return;
   }
 
-  // 3. Guardar roles de una plantilla (admins)
-  if (customId.startsWith('tpl_modal_save_roles:')) {
-    if (!isGuildManager(interaction)) {
-      await interaction.reply({ content: NO_ADMIN_PERMS, flags: MessageFlags.Ephemeral });
-      return;
-    }
-    const contentId = customId.split(':')[1];
-    const parsedRoles = parseRolesText(interaction.fields.getTextInputValue('input_roles_lines'));
-    if (parsedRoles.length === 0) {
-      await interaction.reply({ content: '❌ Formato inválido. Usa `Emoji | Nombre | Cupos | Descripción`.', flags: MessageFlags.Ephemeral });
-      return;
-    }
-    ConfigManager.updateContentRoles(config.guildId, contentId, parsedRoles);
-    await interaction.reply({ content: `✅ Roles de la plantilla guardados (${parsedRoles.length}).`, flags: MessageFlags.Ephemeral });
+  // 3. Formularios de plantillas de versiones anteriores: ahora se gestiona en el panel web
+  if (customId.startsWith('tpl_modal_')) {
+    await interaction.reply({ ...movedToPanelReply(config.guildId), flags: MessageFlags.Ephemeral });
     return;
   }
 
-  // 4. Nueva plantilla (admins)
-  if (customId === 'tpl_modal_create_content') {
-    if (!isGuildManager(interaction)) {
-      await interaction.reply({ content: NO_ADMIN_PERMS, flags: MessageFlags.Ephemeral });
-      return;
-    }
-    if (config.contentTypes.length >= getLimits(config).maxContentTypes) {
-      await interaction.reply({ content: `⚠️ Límite de plantillas alcanzado.\n${PREMIUM_UPSELL}`, flags: MessageFlags.Ephemeral });
-      return;
-    }
-
-    const name = cleanUserText(interaction.fields.getTextInputValue('tpl_name'), 60) || 'Contenido';
-    const emoji = interaction.fields.getTextInputValue('tpl_emoji').trim() || '⚔️';
-    const subtitle = cleanUserText(interaction.fields.getTextInputValue('tpl_subtitle'), 60);
-    const [defaultGearTier, defaultMount, defaultZone] = interaction.fields
-      .getTextInputValue('tpl_defaults')
-      .split('|')
-      .map((s) => cleanUserText(s, 100));
-    const roles = parseRolesText(interaction.fields.getTextInputValue('tpl_roles'));
-
-    let newId =
-      name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_|_$/g, '')
-        .slice(0, 24) || `custom_${Date.now().toString(36)}`;
-    // Evitar pisar una plantilla existente con el mismo id
-    if (config.contentTypes.some((c) => c.id === newId)) newId = `${newId}_${Date.now().toString(36)}`;
-
-    const newContent: ContentTypeConfig = {
-      id: newId,
-      name,
-      emoji,
-      subtitle: subtitle || 'CONTENIDO DEL GREMIO',
-      accentColor: '#D4AF37',
-      defaultGearTier: defaultGearTier || 'T8 Equiv',
-      defaultMount: defaultMount || 'Garrapresta',
-      defaultZone: defaultZone || 'HO / Ciudad',
-      roles:
-        roles.length > 0
-          ? roles
-          : [
-              { id: 'tank', emoji: '🛡️', label: 'Tanque', maxSlots: 1 },
-              { id: 'healer', emoji: '✨', label: 'Sanador', maxSlots: 1 },
-              { id: 'dps', emoji: '🗡️', label: 'Daño', maxSlots: 5 },
-            ],
-    };
-
-    ConfigManager.upsertContentType(config.guildId, newContent);
-    await interaction.reply({
-      content: `✅ Nuevo contenido: ${newContent.emoji} **${newContent.name}** (${newContent.roles.length} roles).\nPara avisar a un rol: \`/config rol-ping contenido:${newContent.id}\`.`,
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  // 5. Arma/IP del jugador
+  // 4. Arma/IP del jugador
   if (customId.startsWith('ping_modal_weapon:')) {
     const pingId = customId.split(':')[1];
     const weaponNote = cleanPlayerText(interaction.fields.getTextInputValue('input_weapon_note'), 45);
