@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+data/guilds/
+data/pings/
+data/*.migrated
+data/active_pings.json
+*.png
+!assets/*.png
+data/logos/
