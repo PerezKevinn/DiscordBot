@@ -89,11 +89,16 @@ Está en `web/` (HTML y CSS estáticos, sin compilar). Para verla en local: `nod
 - `[TU NOMBRE O ALIAS]`, `[TU CORREO DE CONTACTO]`, `[TU PAÍS]`, `[PROVEEDOR]`, `[PAÍS DEL SERVIDOR]` en `privacidad.html` y `terminos.html`.
 - `https://discord.gg/CAMBIAR` (en las 3 páginas): la invitación permanente de tu servidor de soporte.
 
-**Publicarla gratis** (el repositorio del bot puede seguir siendo privado):
-- **Cloudflare Pages**: conecta el repositorio y pon `web` como carpeta de salida (sin comando de build). Cada `git push` actualiza la web.
-- **Netlify Drop**: arrastra la carpeta `web` a app.netlify.com/drop.
+**Publicarla gratis en Vercel** (`web/vercel.json` ya activa URLs limpias y cabeceras de seguridad):
 
-Luego pon en el Developer Portal (General Information) las URLs de `/terminos.html` y `/privacidad.html`.
+```bash
+npx vercel --cwd web          # primera vez: inicia sesión y crea el proyecto
+npx vercel --cwd web --prod   # publicar / actualizar
+```
+
+DNS en Hostinger: `A @ 76.76.21.21` y `CNAME www cname.vercel-dns.com` (o los valores que muestre Vercel en Settings → Domains).
+
+Luego pon en el Developer Portal (General Information) las URLs `https://massup.shop/terminos` y `https://massup.shop/privacidad`.
 
 La política promete que los registros técnicos duran como máximo 14 días. En el VPS:
 `pm2 install pm2-logrotate && pm2 set pm2-logrotate:retain 14`.
