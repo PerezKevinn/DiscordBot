@@ -201,3 +201,56 @@ export const BUILD_SLOTS: Array<{ slot: ItemSlot; label: string }> = [
 export function iconUrl(item: CatalogItem, size = 64) {
   return `https://render.albiononline.com/v1/item/${encodeURIComponent(item.icon)}.png?size=${size}`;
 }
+
+// ---------- Puntos ----------
+export type RankingPeriod = 'total' | 'month' | 'week';
+
+export const PERIOD_LABEL: Record<RankingPeriod, string> = {
+  total: 'Temporada',
+  month: 'Últimos 30 días',
+  week: 'Últimos 7 días',
+};
+
+export interface PointsEntry {
+  userId: string;
+  name: string;
+  points: number;
+}
+
+export interface PointsData {
+  settings: { enabled: boolean; defaultAward: number; maxPerActivity: number };
+  pro: boolean;
+  rankingSize: number;
+  period: RankingPeriod;
+  seasonStart: number | null;
+  ranking: Array<{ userId: string; name: string; points: number; activities: number; rank: number }>;
+  awards: Array<{
+    id: string;
+    kind: 'activity' | 'adjust';
+    title: string;
+    contentName: string | null;
+    by: string;
+    byName: string | null;
+    at: number;
+    updatedAt: number | null;
+    note: string | null;
+    total: number;
+    entries: PointsEntry[];
+  }>;
+  pending: Array<{
+    pingId: string;
+    title: string;
+    contentName: string;
+    callerName: string;
+    closedAt: number;
+    participants: number;
+    awarded: number | null;
+  }>;
+}
+
+export interface PointsEditor {
+  pingId: string;
+  title: string;
+  max: number;
+  entries: PointsEntry[];
+}

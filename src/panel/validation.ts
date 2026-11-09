@@ -156,3 +156,26 @@ export const createCodesSchema = z.object({
 export const codeUpdateSchema = z.object({ disabled: z.boolean() });
 
 export const checkoutSchema = z.object({ packageId: z.enum(['1m', '3m', '12m']) });
+
+// ---------- Puntos ----------
+export const pointsSettingsSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    defaultAward: z.number().int().min(0).max(10_000).optional(),
+    maxPerActivity: z.number().int().min(1).max(10_000).optional(),
+  })
+  .strict();
+
+export const pointsAwardSchema = z.object({
+  entries: z
+    .array(z.object({ userId: snowflake, points: z.number().int().min(0).max(10_000) }))
+    .max(300),
+});
+
+export const pointsAdjustSchema = z.object({
+  userId: snowflake,
+  points: z.number().int().min(-100_000).max(100_000).refine((n) => n !== 0, 'no puede ser 0'),
+  note,
+});
+
+export const rankingPeriodSchema = z.enum(['total', 'month', 'week']).catch('total');

@@ -28,6 +28,14 @@ export interface ContentTypeConfig {
 
 export type PlanTier = 'free' | 'premium';
 
+export interface PointsSettings {
+  enabled: boolean;
+  /** Puntos que se proponen a cada participante al repartir */
+  defaultAward: number;
+  /** Máximo que un Caller puede dar a un jugador en una actividad */
+  maxPerActivity: number;
+}
+
 export interface GuildSubscription {
   entitlementId: string;
   userId: string; // quien paga
@@ -76,6 +84,8 @@ export interface GuildConfig {
   subscription?: GuildSubscription;
   /** Avisos de vencimiento ya enviados (por fecha de fin, para no repetirlos) */
   notices?: { warnedFor?: number; expiredFor?: number };
+  /** Puntos de actividad (ver utils/points.ts). Sin valor = valores por defecto. */
+  points?: PointsSettings;
   contentTypes: ContentTypeConfig[];
   /** Versión de la corrección a nombres oficiales del juego ya aplicada a las plantillas */
   namesVersion?: number;

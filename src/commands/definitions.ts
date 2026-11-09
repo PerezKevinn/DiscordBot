@@ -25,6 +25,27 @@ export const publicCommands = [
     .setDMPermission(false),
 
   new SlashCommandBuilder()
+    .setName('ranking')
+    .setDescription('Ranking de puntos de actividad del servidor')
+    .setDMPermission(false)
+    .addStringOption((o) =>
+      o
+        .setName('periodo')
+        .setDescription('Periodo del ranking (semana y mes son Premium)')
+        .addChoices(
+          { name: 'Temporada', value: 'total' },
+          { name: 'Últimos 30 días', value: 'month' },
+          { name: 'Últimos 7 días', value: 'week' }
+        )
+    ),
+
+  new SlashCommandBuilder()
+    .setName('puntos')
+    .setDescription('Tus puntos de actividad (o los de otro jugador) y tu puesto')
+    .setDMPermission(false)
+    .addUserOption((o) => o.setName('jugador').setDescription('Jugador a consultar (vacío = tú)')),
+
+  new SlashCommandBuilder()
     .setName('canjear')
     .setDescription('Canjea un código de Premium para este servidor')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)

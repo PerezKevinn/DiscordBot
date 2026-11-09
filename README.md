@@ -25,6 +25,8 @@ Discord es para **usar** el bot (tirar pings, anotarse, mandar la party). Toda l
 | `/panel-ping` | Gestionar mensajes | Pone el panel fijo de Callers en un canal |
 | `/panel` | Gestionar servidor | Enlace al panel web, donde se configura **todo** |
 | `/plan` | Todos | Plan del servidor y qué incluye |
+| `/ranking [periodo]` | Todos | Ranking de puntos de actividad (semana y mes: Premium) |
+| `/puntos [jugador]` | Todos | Puntos y puesto de un jugador |
 | `/plan-admin` | Solo `BOT_OWNER_ID`, solo en tu servidor | Da o quita Premium a un servidor |
 
 `@here` / `@everyone` solo aparecen en el asistente para quien ya tiene ese permiso en Discord.

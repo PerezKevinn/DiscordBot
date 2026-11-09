@@ -33,6 +33,7 @@ import { handleCompoInteraction, parseRolesText } from './compoEditor';
 import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand, handleRedeemCommand } from './configCommands';
 import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
+import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
 const NO_ADMIN_PERMS = '⛔ Necesitas el permiso **Gestionar servidor** para hacer esto.';
@@ -176,6 +177,8 @@ export async function handleInteraction(interaction: Interaction) {
       if (commandName === 'plan') return handlePlanCommand(interaction, config);
       if (commandName === 'plan-admin') return handlePlanAdminCommand(interaction);
       if (commandName === 'canjear') return handleRedeemCommand(interaction, config);
+      if (commandName === 'ranking') return handleRankingCommand(interaction, config);
+      if (commandName === 'puntos') return handlePointsCommand(interaction, config);
 
       if (commandName === 'panel-ping') {
         if (!isGuildManager(interaction) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
@@ -211,6 +214,10 @@ export async function handleInteraction(interaction: Interaction) {
       }
       if (customId.startsWith('caller_action:')) {
         await handleCallerStatusAction(interaction, config);
+        return;
+      }
+      if (customId.startsWith('pts_')) {
+        await handlePointsInteraction(interaction, config);
         return;
       }
 
@@ -361,6 +368,12 @@ export async function handleInteraction(interaction: Interaction) {
       }
     }
 
+    // Añadir jugadores al reparto de puntos
+    if (interaction.isUserSelectMenu() && interaction.customId.startsWith('pts_')) {
+      await handlePointsInteraction(interaction, config);
+      return;
+    }
+
     // 4. Selector de canal destino en el asistente
     if (interaction.isChannelSelectMenu() && interaction.customId === 'wizard_select_channel') {
       if (!canCreatePings(interaction, config)) {
@@ -376,6 +389,10 @@ export async function handleInteraction(interaction: Interaction) {
 
     // 5. Formularios (Modals)
     if (interaction.isModalSubmit()) {
+      if (interaction.customId.startsWith('pts_')) {
+        await handlePointsInteraction(interaction, config);
+        return;
+      }
       await handleModalSubmissions(interaction, config, displayName);
       return;
     }
@@ -651,6 +668,20 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
 
     const joined = Object.values(ping.roster).reduce((acc, l) => acc + l.length, 0);
     const max = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
+
+    // Salida terminada: lo único que queda por hacer es repartir los puntos
+    if (isPingFinished(ping)) {
+      const btn = pointsButton(config, ping);
+      await interaction.reply({
+        content: btn
+          ? `🔒 **${ping.title}** ya terminó (${joined} anotados · ${ping.bench.length} en banca). Reparte o corrige los puntos:`
+          : '🔒 Esta salida ya terminó.',
+        components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
+        flags: MessageFlags.Ephemeral,
+        allowedMentions: { parse: [] },
+      });
+      return;
+    }
     const embed = baseEmbed(config, 'Mando del Caller')
       .setTitle(`👑 ${ping.title}`.slice(0, 256))
       .setDescription(
@@ -795,9 +826,14 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
     }
 
     ConfigManager.savePing(config.guildId, ping);
+    const btn = pointsButton(config, ping);
     await interaction.update({
-      content: subAction === 'close' ? '🔒 **¡GG!** Salida terminada; borré la voz y el hilo.' : '🔴 Salida cancelada (F); borré la voz y el hilo.',
-      components: [],
+      content:
+        subAction === 'close'
+          ? `🔒 **¡GG!** Salida terminada; borré la voz y el hilo.${btn ? '\nAhora reparte los puntos a los que fueron:' : ''}`
+          : '🔴 Salida cancelada (F); borré la voz y el hilo.',
+      embeds: [],
+      components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
     });
     await refreshActivePingMessage(interaction, config, ping);
   }

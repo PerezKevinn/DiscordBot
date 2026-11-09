@@ -31,6 +31,7 @@ export async function handlePanelCommand(interaction: ChatInputCommandInteractio
         '',
         '⚔️ **Contenidos, compos y builds** por rol con los ítems del juego',
         '🔔 **A quién avisa** cada contenido y **quién** puede tirar pings',
+        '🏆 **Puntos**: ranking, historial y temporadas',
         '📺 **Canal** de pings y **categoría** de las voces',
         '👑 **Pings activos**: verlos y cerrarlos',
         '💎 **Marca y logo** del gremio (Premium)',
@@ -106,6 +107,7 @@ export async function handlePlanCommand(interaction: ChatInputCommandInteraction
           `✓ **${free.maxContentTypes}** contenidos`,
           '✓ Roster, banca, voz e hilo',
           '✓ Aviso por rol en cada contenido',
+          `✓ Puntos y ranking (top ${free.pointsRankingSize})`,
         ].join('\n'),
         inline: true,
       },
@@ -116,6 +118,7 @@ export async function handlePlanCommand(interaction: ChatInputCommandInteraction
           `✓ **${premium.maxContentTypes}** contenidos`,
           '✓ Marca propia: nombre, siglas, lema y color',
           `✓ Sin "Creado con ${botBrandName()}"`,
+          '✓ Ranking semanal/mensual, temporadas y ajustes',
         ].join('\n'),
         inline: true,
       }

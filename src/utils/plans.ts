@@ -9,6 +9,9 @@ export interface PlanLimits {
   maxContentTypes: number; // Plantillas de contenido por servidor (Discord permite 25 en un menú)
   customBranding: boolean; // Nombre, siglas, lema y color propios en banner/embeds
   hideBotFooter: boolean; // Quitar el "Creado con <bot>" de los pings
+  pointsRankingSize: number; // Puestos que muestra el ranking de puntos
+  /** Ranking por semana/mes, temporadas, ajustes manuales e historial completo */
+  pointsPro: boolean;
 }
 
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
@@ -17,12 +20,16 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     maxContentTypes: 12,
     customBranding: false,
     hideBotFooter: false,
+    pointsRankingSize: 10,
+    pointsPro: false,
   },
   premium: {
     maxActivePings: 25,
     maxContentTypes: 25,
     customBranding: true,
     hideBotFooter: true,
+    pointsRankingSize: 25,
+    pointsPro: true,
   },
 };
 

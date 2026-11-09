@@ -3,6 +3,7 @@ import path from 'path';
 import { cloneDefaultContentTypes } from '../data/defaultTemplates';
 import { applyGameNames, NAMES_VERSION } from '../data/gameNames';
 import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, RoleTemplate } from '../types/ping';
+import { evictPoints, purgePoints } from './points';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const GUILDS_DIR = path.join(DATA_DIR, 'guilds');
@@ -281,6 +282,7 @@ export class ConfigManager {
   public static evictGuild(guildId: string): void {
     configCache.delete(guildId);
     pingsCache.delete(guildId);
+    evictPoints(guildId);
   }
 
   // --- Retención de datos (ver utils/dataRetention.ts) ---
@@ -332,5 +334,6 @@ export class ConfigManager {
       if (fs.existsSync(file)) fs.unlinkSync(file);
     }
     for (const key of [...draftSessions.keys()]) if (key.startsWith(`${guildId}:`)) draftSessions.delete(key);
+    purgePoints(guildId);
   }
 }

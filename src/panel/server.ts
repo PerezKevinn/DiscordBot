@@ -42,6 +42,21 @@ import {
   setCodeDisabled,
 } from '../utils/memberships';
 import { splitRoleLabel } from '../utils/ui';
+import {
+  addAdjustment,
+  deleteAward,
+  getActivityAward,
+  participantsOf,
+  pointsSettings,
+  PointsError,
+  proposedEntries,
+  ranking,
+  recentAwards,
+  seasonStart,
+  setActivityAward,
+  startSeason,
+  updatePointsSettings,
+} from '../utils/points';
 import { authorizeUrl, canManage, exchangeCode, fetchUser, fetchUserGuilds, PanelEnv } from './discordOAuth';
 import { createSession, destroySession, getSession, PanelSession, SESSION_COOKIE, SESSION_TTL_MS } from './sessions';
 import {
@@ -49,6 +64,10 @@ import {
   adminPlanSchema,
   checkoutSchema,
   closePingSchema,
+  pointsAdjustSchema,
+  pointsAwardSchema,
+  pointsSettingsSchema,
+  rankingPeriodSchema,
   codeUpdateSchema,
   contentSchema,
   createCodesSchema,
@@ -499,6 +518,127 @@ export async function startPanel(client: Client) {
     if (!ping || (ping.status !== 'OPEN' && ping.status !== 'IN_PROGRESS')) throw new HttpError(404, 'Ping no encontrado');
     await closePingExternally(guild, ping, status);
     return serializeGuild(guild, config);
+  });
+
+  // ---------- Puntos de actividad ----------
+  const pointsCall = <T>(fn: () => T): T => {
+    try {
+      return fn();
+    } catch (err) {
+      if (err instanceof PointsError) throw new HttpError(400, err.message);
+      throw err;
+    }
+  };
+
+  const serializePoints = (guild: Guild, config: GuildConfig, period: 'total' | 'month' | 'week') => {
+    const limits = getLimits(config);
+    const pro = limits.pointsPro;
+    const p = pro ? period : 'total';
+    const nameOf = (id: string) => guild.members.cache.get(id)?.displayName ?? null;
+    const pending = Object.values(ConfigManager.getActivePings(guild.id))
+      .filter((ping) => ping.status === 'CLOSED')
+      .sort((a, b) => (b.closedAt ?? 0) - (a.closedAt ?? 0))
+      .map((ping) => {
+        const award = getActivityAward(guild.id, ping.id);
+        return {
+          pingId: ping.id,
+          title: ping.title,
+          contentName: ping.contentName,
+          callerName: ping.callerName,
+          closedAt: ping.closedAt ?? ping.createdAt,
+          participants: participantsOf(ping).length,
+          awarded: award ? award.entries.reduce((s, e) => s + e.points, 0) : null,
+        };
+      });
+    return {
+      settings: pointsSettings(config),
+      pro,
+      rankingSize: limits.pointsRankingSize,
+      period: p,
+      seasonStart: seasonStart(guild.id),
+      ranking: ranking(guild.id, p).slice(0, pro ? 200 : limits.pointsRankingSize),
+      awards: recentAwards(guild.id, pro ? 100 : 10).map((a) => ({
+        id: a.id,
+        kind: a.kind,
+        title: a.title,
+        contentName: a.contentName ?? null,
+        by: a.by,
+        byName: nameOf(a.by),
+        at: a.at,
+        updatedAt: a.updatedAt ?? null,
+        note: a.note ?? null,
+        total: a.entries.reduce((s, e) => s + e.points, 0),
+        entries: a.entries,
+      })),
+      pending,
+    };
+  };
+
+  const periodOf = (req: FastifyRequest) => rankingPeriodSchema.parse((req.query as { period?: string }).period);
+
+  app.get('/api/guilds/:guildId/points', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    return serializePoints(guild, config, periodOf(req));
+  });
+
+  app.patch('/api/guilds/:guildId/points/settings', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const body = parse(pointsSettingsSchema, req.body);
+    updatePointsSettings(config, body);
+    ConfigManager.saveConfig(config);
+    return serializePoints(guild, config, periodOf(req));
+  });
+
+  const closedPing = (guildId: string, pingId: string) => {
+    const ping = ConfigManager.getPing(guildId, pingId);
+    if (!ping) throw new HttpError(404, 'Esa salida ya no está guardada (se borran 3 días después de cerrarse)');
+    return ping;
+  };
+
+  app.get('/api/guilds/:guildId/points/pings/:pingId', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const ping = closedPing(guild.id, (req.params as { pingId: string }).pingId);
+    return {
+      pingId: ping.id,
+      title: ping.title,
+      max: pointsSettings(config).maxPerActivity,
+      entries: proposedEntries(config, ping),
+    };
+  });
+
+  app.put('/api/guilds/:guildId/points/pings/:pingId', async (req) => {
+    const { guild, config, session } = await requireGuild(req);
+    const ping = closedPing(guild.id, (req.params as { pingId: string }).pingId);
+    const { entries } = parse(pointsAwardSchema, req.body);
+    // Solo participantes o jugadores ya puntuados (los nombres salen de ahí, no del navegador)
+    const known = new Map(proposedEntries(config, ping).map((e) => [e.userId, e.name]));
+    const clean = entries.filter((e) => known.has(e.userId)).map((e) => ({ ...e, name: known.get(e.userId)! }));
+    pointsCall(() => setActivityAward(config, ping, clean, session.userId));
+    return serializePoints(guild, config, periodOf(req));
+  });
+
+  app.post('/api/guilds/:guildId/points/adjust', { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }, async (req) => {
+    const { guild, config, session } = await requireGuild(req);
+    const body = parse(pointsAdjustSchema, req.body);
+    const member = await guild.members.fetch(body.userId).catch(() => null);
+    if (!member) throw new HttpError(400, 'Ese usuario no está en el servidor');
+    if (member.user.bot) throw new HttpError(400, 'Los bots no tienen puntos');
+    pointsCall(() => addAdjustment(config, member.id, member.displayName, body.points, session.userId, body.note));
+    return serializePoints(guild, config, periodOf(req));
+  });
+
+  app.delete('/api/guilds/:guildId/points/awards/:awardId', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const { awardId } = req.params as { awardId: string };
+    if (!/^[\w-]{1,40}$/.test(awardId)) throw new HttpError(400, 'Registro no válido');
+    pointsCall(() => deleteAward(guild.id, awardId));
+    return serializePoints(guild, config, periodOf(req));
+  });
+
+  app.post('/api/guilds/:guildId/points/season', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    pointsCall(() => startSeason(config));
+    return serializePoints(guild, config, periodOf(req));
   });
 
   // ---------- Plan y membresía del servidor ----------

@@ -38,6 +38,7 @@
       <li>Plantillas de contenido y roles, plan contratado y, si se sube, el logo del gremio.</li>
     </ul>
     <p><strong>Del plan Premium:</strong> un historial de altas, renovaciones y bajas de cada servidor, con el ID de usuario de quien canjea un código o paga la suscripción en Discord, para resolver dudas y reclamaciones.</p>
+    <p><strong>De los puntos de actividad:</strong> cuando el Caller o un oficial reparte puntos al terminar una salida, guardamos por cada jugador su ID de usuario, su apodo en el servidor y los puntos que recibió, junto con el título y la fecha de la salida y el ID de quien los repartió. Lo mismo para los ajustes manuales, con su motivo si se escribe. Con esto se calcula el ranking del servidor.</p>
     <p><strong>De cada ping de contenido:</strong></p>
     <ul>
       <li>Los datos del ping que escribe el Caller (título, lugar de masa, equipo, montura, notas y hora de salida).</li>
@@ -63,6 +64,7 @@
       <li>Avisar a los roles configurados y mencionar a los jugadores anotados cuando el Caller lo pide.</li>
       <li>Crear y borrar los canales de voz e hilos temporales.</li>
       <li>Aplicar los permisos y los límites de cada plan.</li>
+      <li>Calcular y mostrar el ranking de puntos del servidor (con <code>/ranking</code>, <code>/puntos</code> y en el panel).</li>
     </ul>
     <p>No vendemos, alquilamos ni compartimos tus datos con terceros con fines comerciales, ni los usamos para publicidad.</p>
 
@@ -72,6 +74,7 @@
       <tbody>
         <tr><td>Pings y la lista de jugadores anotados</td><td>Hasta 3 días después de que el ping se cierre (los pings abiertos se cierran solos 6 horas después de la hora de salida).</td></tr>
         <tr><td>Configuración, plantillas y logo de un servidor</td><td>Mientras el bot esté en ese servidor.</td></tr>
+        <tr><td>Puntos de actividad y su historial</td><td>Mientras el bot esté en ese servidor. Cuando un servidor acumula más de 3000 registros, los más antiguos se resumen en un total por jugador y se borra el detalle.</td></tr>
         <tr><td>Todos los datos de un servidor que expulsa al bot</td><td>30 días. Si el bot vuelve antes, se conservan; si no, se borran automáticamente.</td></tr>
         <tr><td>Historial del plan Premium, códigos canjeados y registro de pagos</td><td>2 años desde cada movimiento. Los pagos que se inician y no se completan se borran a los 7 días.</td></tr>
         <tr><td>Borradores y contadores en memoria</td><td>De 30 a 45 minutos, o hasta que el bot se reinicia.</td></tr>
@@ -95,6 +98,7 @@
     <p>Puedes pedir acceso a tus datos, que los corrijamos o que los borremos escribiendo a <span class="todo">contacto@massup.shop</span> o en el <a href="PENDIENTE">servidor de soporte</a>. Responderemos en un máximo de 30 días.</p>
     <ul>
       <li>Como jugador, también puedes pulsar <strong>Bajarme</strong> en un ping; el ping completo se borra 3 días después de cerrarse.</li>
+      <li>Los administradores del servidor pueden deshacer repartos y ajustes de puntos desde el panel. Si quieres que se borren tus puntos, pídeselo a ellos o escríbenos.</li>
       <li>Como administrador, al expulsar el bot todos los datos del servidor se borran a los 30 días. Si quieres que se borren antes, escríbenos.</li>
     </ul>
     <p>Si vives en la Unión Europea, también puedes reclamar ante la autoridad de protección de datos de tu país.</p>

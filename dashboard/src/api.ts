@@ -1,4 +1,17 @@
-import type { AdminGuild, AdminOverview, CatalogItem, Content, GuildData, Me, MembershipEvent, PaymentOrder, RedeemCode } from './types';
+import type {
+  AdminGuild,
+  AdminOverview,
+  CatalogItem,
+  Content,
+  GuildData,
+  Me,
+  MembershipEvent,
+  PaymentOrder,
+  PointsData,
+  PointsEditor,
+  RankingPeriod,
+  RedeemCode,
+} from './types';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -44,6 +57,21 @@ export const api = {
     request<{ sessionId: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
   order: (id: string, invoice: string) =>
     request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
+
+  // Puntos de actividad
+  points: (id: string, period: RankingPeriod) => request<PointsData>('GET', `/api/guilds/${id}/points?period=${period}`),
+  savePointsSettings: (id: string, period: RankingPeriod, body: Partial<PointsData['settings']>) =>
+    request<PointsData>('PATCH', `/api/guilds/${id}/points/settings?period=${period}`, body),
+  pointsEditor: (id: string, pingId: string) =>
+    request<PointsEditor>('GET', `/api/guilds/${id}/points/pings/${encodeURIComponent(pingId)}`),
+  saveActivityPoints: (id: string, period: RankingPeriod, pingId: string, entries: Array<{ userId: string; points: number }>) =>
+    request<PointsData>('PUT', `/api/guilds/${id}/points/pings/${encodeURIComponent(pingId)}?period=${period}`, { entries }),
+  adjustPoints: (id: string, period: RankingPeriod, body: { userId: string; points: number; note?: string }) =>
+    request<PointsData>('POST', `/api/guilds/${id}/points/adjust?period=${period}`, body),
+  deletePointsAward: (id: string, period: RankingPeriod, awardId: string) =>
+    request<PointsData>('DELETE', `/api/guilds/${id}/points/awards/${encodeURIComponent(awardId)}?period=${period}`),
+  newSeason: (id: string, period: RankingPeriod) =>
+    request<PointsData>('POST', `/api/guilds/${id}/points/season?period=${period}`, {}),
 
   // Administración (solo el dueño del bot)
   adminOverview: () => request<AdminOverview>('GET', '/api/admin/overview'),
