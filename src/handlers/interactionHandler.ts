@@ -33,6 +33,7 @@ import { handleCompoInteraction, parseRolesText } from './compoEditor';
 import { handlePanelCommand, handlePlanAdminCommand, handlePlanCommand, handleRedeemCommand } from './configCommands';
 import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
+import { defaultUtcSlot, draftSlot, formatUtc, nextUtcStartUnix } from '../utils/pingTime';
 import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
@@ -54,6 +55,7 @@ function getOrInitDraft(
   let draft = ConfigManager.getDraft(config.guildId, userId);
   if (!draft) {
     const firstContent = config.contentTypes[0];
+    const slot = defaultUtcSlot();
     draft = {
       guildId: config.guildId,
       callerId: userId,
@@ -64,9 +66,10 @@ function getOrInitDraft(
       departureLocation: firstContent.defaultZone,
       gearTier: firstContent.defaultGearTier,
       mountRequired: firstContent.defaultMount,
-      minutesFromNow: 15,
-      startTimeUnix: Math.floor(Date.now() / 1000) + 15 * 60,
-      timeLabel: 'En 15 minutos',
+      utcHour: slot.hour,
+      utcMinute: slot.minute,
+      startTimeUnix: nextUtcStartUnix(slot),
+      timeLabel: formatUtc(slot),
       notes: '',
       targetChannelId: config.pingTargetChannelId,
       mentionType: defaultMentionFor(config, firstContent.id),
@@ -355,11 +358,15 @@ export async function handleInteraction(interaction: Interaction) {
           draft.createThread = selected.createThread !== false;
         }
 
-        if (customId === 'wizard_select_time') {
-          const minutes = parseInt(values[0], 10);
-          draft.minutesFromNow = minutes;
-          draft.startTimeUnix = Math.floor(Date.now() / 1000) + minutes * 60;
-          draft.timeLabel = minutes <= 2 ? '¡SALIMOS YA MISMO!' : `En ${minutes} minutos`;
+        if (customId === 'wizard_select_hour' || customId === 'wizard_select_minute') {
+          const slot = draftSlot(draft);
+          const n = parseInt(values[0], 10);
+          if (customId === 'wizard_select_hour' && n >= 0 && n <= 23) slot.hour = n;
+          if (customId === 'wizard_select_minute' && n >= 0 && n <= 59) slot.minute = n;
+          draft.utcHour = slot.hour;
+          draft.utcMinute = slot.minute;
+          draft.startTimeUnix = nextUtcStartUnix(slot);
+          draft.timeLabel = formatUtc(slot);
         }
 
         ConfigManager.setDraft(config.guildId, interaction.user.id, draft);
@@ -479,8 +486,9 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   const initialRoster: ActivePing['roster'] = {};
   for (const r of rolesToUse) initialRoster[r.id] = [];
 
-  const minutes = draft.minutesFromNow || 15;
-  const startTimeUnix = Math.floor(Date.now() / 1000) + minutes * 60;
+  // Se recalcula al publicar: si la hora elegida ya pasó, sale al día siguiente
+  const slot = draftSlot(draft);
+  const startTimeUnix = nextUtcStartUnix(slot);
 
   const newPing: ActivePing = {
     id: pingId,
@@ -497,7 +505,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     gearTier: draft.gearTier || contentConfig.defaultGearTier,
     mountRequired: draft.mountRequired || contentConfig.defaultMount,
     startTimeUnix,
-    timeLabel: draft.timeLabel || `En ${minutes} minutos`,
+    timeLabel: formatUtc(slot),
     notes: draft.notes || '',
     roles: rolesToUse,
     roster: initialRoster,

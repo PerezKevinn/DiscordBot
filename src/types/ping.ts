@@ -141,7 +141,9 @@ export interface DraftPingSession {
   departureLocation?: string;
   gearTier?: string;
   mountRequired?: string;
-  minutesFromNow?: number;
+  /** Hora de salida elegida, en UTC */
+  utcHour?: number;
+  utcMinute?: number;
   startTimeUnix?: number;
   timeLabel?: string;
   notes?: string;

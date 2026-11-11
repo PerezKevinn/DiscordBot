@@ -10,6 +10,7 @@ import {
 import { ContentTypeConfig, DraftPingSession, GuildConfig } from '../types/ping';
 import { panelUrl } from './panelLink';
 import { componentEmoji } from './emoji';
+import { draftSlot, formatUtc, MINUTE_STEP, nextUtcStartUnix } from './pingTime';
 import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt, totalSlots } from './ui';
 
 /** Rol que se mencionará para un contenido (el propio del contenido o el rol por defecto). */
@@ -17,14 +18,9 @@ export function resolvePingRoleId(config: GuildConfig, contentTypeId: string): s
   return config.pingRoles[contentTypeId] || config.defaultPingRoleId;
 }
 
-const TIME_OPTIONS = [
-  { minutes: 2, label: '¡Ya mismo! (2 min)', description: 'Para caerle a alguien o defender' },
-  { minutes: 10, label: 'En 10 minutos', description: 'Masa rápida en portal o HO' },
-  { minutes: 15, label: 'En 15 minutos', description: 'Lo clásico: build, comida y montura' },
-  { minutes: 30, label: 'En 30 minutos', description: 'Para armar con calma' },
-  { minutes: 45, label: 'En 45 minutos', description: 'Para ir avisando a la gente' },
-  { minutes: 60, label: 'En 1 hora', description: 'Masa grande con tiempo de sobra' },
-];
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
+const MINUTE_OPTIONS = Array.from({ length: 60 / MINUTE_STEP }, (_, i) => i * MINUTE_STEP);
+const pad2 = (n: number) => String(n).padStart(2, '0');
 
 /**
  * Panel fijo de Callers que queda en un canal
@@ -37,7 +33,7 @@ export function buildFixedCallerPanel(config: GuildConfig) {
         'Arma un ping con roster por roles, aviso al rol del contenido, voz temporal e hilo de builds.',
         '',
         '**1.** Pulsa **Crear ping**',
-        '**2.** Elige contenido, hora y lugar de masa',
+        '**2.** Elige contenido, hora de salida (UTC) y canal',
         '**3.** Pulsa **Publicar** y la gente se anota en su rol',
       ].join('\n')
     );
@@ -79,15 +75,17 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
   const roles = content.roles;
   const pingRoleId = resolvePingRoleId(config, content.id);
   const slots = totalSlots(roles);
-  const minutes = draft.minutesFromNow || 15;
+  const slot = draftSlot(draft);
+  const startUnix = nextUtcStartUnix(slot);
   const editUrl = panelUrl(config.guildId, 'contenidos');
 
   const embed = baseEmbed(config, 'Nuevo ping')
     .setColor(hexToInt(content.accentColor))
     .setTitle(`${content.emoji}  ${content.name.toUpperCase()}`.slice(0, 256))
-    .setDescription('-# Solo tú ves esto. Elige contenido, hora y canal, y pulsa **Publicar ping**.')
+    .setDescription('-# Solo tú ves esto. Elige contenido, hora de salida en **UTC** y canal, y pulsa **Publicar ping**.')
     .addFields(
-      { name: '⏰ Salida', value: minutes <= 2 ? '¡Ya mismo!' : `En ${minutes} min`, inline: true },
+      { name: '⏰ Salida', value: `**${formatUtc(slot)}**
+<t:${startUnix}:t> tu hora · <t:${startUnix}:R>`, inline: true },
       { name: '📍 Masa en', value: content.defaultZone || '—', inline: true },
       { name: '🛡️ IP / Build', value: content.defaultGearTier || '—', inline: true },
       { name: '🐎 Montura', value: content.defaultMount || '—', inline: true },
@@ -127,17 +125,28 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
     contentSelect.addOptions(opt);
   }
 
-  const timeSelect = new StringSelectMenuBuilder()
-    .setCustomId('wizard_select_time')
-    .setPlaceholder('¿En cuánto salimos?')
+  const hourSelect = new StringSelectMenuBuilder()
+    .setCustomId('wizard_select_hour')
+    .setPlaceholder('Hora de salida (UTC)')
     .addOptions(
-      TIME_OPTIONS.map((t) =>
+      HOUR_OPTIONS.map((h) =>
         new StringSelectMenuOptionBuilder()
-          .setLabel(t.label)
-          .setValue(String(t.minutes))
-          .setDescription(t.description)
+          .setLabel(`${pad2(h)}:xx UTC`)
+          .setValue(String(h))
           .setEmoji('⏰')
-          .setDefault(t.minutes === minutes)
+          .setDefault(h === slot.hour)
+      )
+    );
+
+  const minuteSelect = new StringSelectMenuBuilder()
+    .setCustomId('wizard_select_minute')
+    .setPlaceholder('Minuto')
+    .addOptions(
+      MINUTE_OPTIONS.map((m) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(`${pad2(slot.hour)}:${pad2(m)} UTC`)
+          .setValue(String(m))
+          .setDefault(m === slot.minute)
       )
     );
 
@@ -151,7 +160,8 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
     embeds: [fitEmbed(embed)],
     components: [
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(contentSelect),
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(timeSelect),
+      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(hourSelect),
+      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(minuteSelect),
       new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect),
       new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
