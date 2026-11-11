@@ -9,6 +9,7 @@ import {
 } from 'discord.js';
 import { ContentTypeConfig, DraftPingSession, GuildConfig } from '../types/ping';
 import { panelUrl } from './panelLink';
+import { componentEmoji } from './emoji';
 import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt, totalSlots } from './ui';
 
 /** Rol que se mencionará para un contenido (el propio del contenido o el rol por defecto). */
@@ -121,7 +122,8 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
       .setValue(c.id)
       .setDescription(formatCompoInline(c.roles).slice(0, 100))
       .setDefault(c.id === content.id);
-    if (c.emoji) opt.setEmoji(c.emoji);
+    const emoji = componentEmoji(c.emoji);
+    if (emoji) opt.setEmoji(emoji);
     contentSelect.addOptions(opt);
   }
 

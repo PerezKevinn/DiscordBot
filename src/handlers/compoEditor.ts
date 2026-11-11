@@ -19,6 +19,7 @@ import { ConfigManager } from '../utils/configManager';
 import { buildWizardStepMessage } from '../utils/panelBuilder';
 import { canCreatePings, isGuildManager } from '../utils/permissions';
 import { cleanUserText } from '../utils/security';
+import { componentEmoji, isDiscordSupportedEmoji } from '../utils/emoji';
 import { baseEmbed, composeRoleLabel, fitEmbed, hexToInt, splitRoleLabel, totalSlots, UI_COLORS } from '../utils/ui';
 
 /**
@@ -71,7 +72,8 @@ const CUSTOM_EMOJI_RE = /^<a?:\w{2,32}:\d{15,25}>$/;
 /** Devuelve un emoji válido para Discord o el de respaldo (un emoji inválido rompe los menús). */
 export function sanitizeEmoji(raw: string, fallback = '⚔️'): string {
   const e = raw.trim();
-  return EMOJI_RE.test(e) || CUSTOM_EMOJI_RE.test(e) ? e : fallback;
+  if (CUSTOM_EMOJI_RE.test(e)) return e;
+  return EMOJI_RE.test(e) && isDiscordSupportedEmoji(e) ? e : fallback;
 }
 
 function joinLabel(name: string, weapons: string): string {
@@ -236,14 +238,14 @@ function buildEditorView(config: GuildConfig, s: CompoSession) {
   } else {
     s.roles.forEach((r, i) => {
       const { name, weapons } = splitRoleLabel(r.label);
-      select.addOptions(
-        new StringSelectMenuOptionBuilder()
-          .setLabel(`${name} · ${r.maxSlots > 0 ? r.maxSlots : '∞'} cupos`.slice(0, 100))
-          .setDescription((weapons || r.description || 'Sin armas sugeridas').slice(0, 100))
-          .setValue(String(i))
-          .setEmoji(r.emoji)
-          .setDefault(i === s.selected)
-      );
+      const option = new StringSelectMenuOptionBuilder()
+        .setLabel(`${name} · ${r.maxSlots > 0 ? r.maxSlots : '∞'} cupos`.slice(0, 100))
+        .setDescription((weapons || r.description || 'Sin armas sugeridas').slice(0, 100))
+        .setValue(String(i))
+        .setDefault(i === s.selected);
+      const emoji = componentEmoji(r.emoji);
+      if (emoji) option.setEmoji(emoji);
+      select.addOptions(option);
     });
   }
 

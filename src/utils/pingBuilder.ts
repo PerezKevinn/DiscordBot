@@ -11,6 +11,7 @@ import { ActivePing, ContentTypeConfig, GuildConfig, RoleTemplate, RosterSlotUse
 import { generatePingBanner } from './canvasGenerator';
 import { botBrandName, brandForRender, getLimits } from './plans';
 import { fitEmbed, splitRoleLabel } from './ui';
+import { componentEmoji } from './emoji';
 import { getItem, isTwoHanded } from '../data/items';
 import { hasAnyBuild } from './buildCard';
 
@@ -153,9 +154,8 @@ export async function buildPingMessagePayload(
         (splitRoleLabel(role.label).weapons || role.description || 'Meterme con este rol').slice(0, 100)
       );
 
-    if (role.emoji) {
-      option.setEmoji(role.emoji);
-    }
+    const emoji = componentEmoji(role.emoji);
+    if (emoji) option.setEmoji(emoji);
     roleSelect.addOptions(option);
   }
 
