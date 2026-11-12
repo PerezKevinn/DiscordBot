@@ -86,7 +86,7 @@ export async function buildPingMessagePayload(
   const description = [
     statusText[ping.status],
     '',
-    `⏰ **Salida:** <t:${ping.startTimeUnix}:t> · <t:${ping.startTimeUnix}:R>`,
+    `⏰ **Salida:** ${ping.timeLabel?.endsWith('UTC') ? `**${ping.timeLabel}** · ` : ''}<t:${ping.startTimeUnix}:t> · <t:${ping.startTimeUnix}:R>`,
     `📍 **Masa en:** ${ping.departureLocation}`,
     `🛡️ **IP / Build:** ${ping.gearTier}`,
     `🐎 **Montura:** ${ping.mountRequired}`,

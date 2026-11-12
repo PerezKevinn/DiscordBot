@@ -25,12 +25,33 @@ const blankContent = (): Content => ({
   ],
 });
 
+/** Copia de un contenido como contenido nuevo: misma compo y builds, sin ids. */
+const duplicateContent = (c: Content): Content => {
+  const copy = structuredClone(c);
+  const suffix = ' (copia)';
+  return {
+    ...copy,
+    id: '',
+    name: `${copy.name.slice(0, 60 - suffix.length)}${suffix}`,
+    roles: copy.roles.map(({ id: _id, ...r }) => r),
+  };
+};
+
 export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
   const [editing, setEditing] = useState<Content | null>(null);
   const atLimit = data.contents.length >= data.plan.limits.maxContentTypes;
 
   if (editing) {
-    return <ContentEditor key={editing.id || 'nuevo'} data={data} initial={editing} save={save} onDone={() => setEditing(null)} />;
+    return (
+      <ContentEditor
+        key={editing.id || `nuevo-${editing.name}`}
+        data={data}
+        initial={editing}
+        save={save}
+        onDone={() => setEditing(null)}
+        onDuplicate={atLimit ? undefined : (c) => setEditing(duplicateContent(c))}
+      />
+    );
   }
 
   const builds = (c: Content) => c.roles.filter((r) => Object.keys(r.build).length > 0).length;
@@ -59,6 +80,18 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
               </div>
               <span className="muted small">{c.roles.length} roles{slots ? ` · ${slots} cupos` : ''}</span>
               <span className={`badge${builds(c) > 0 ? ' ok' : ''}`}>🧩 {builds(c)}/{c.roles.length} builds</span>
+              <button
+                className="btn-sm btn-ghost"
+                disabled={atLimit}
+                title={atLimit ? 'Llegaste al límite de contenidos de tu plan' : 'Crear un contenido nuevo con esta compo y sus builds'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditing(duplicateContent(c));
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                ⧉ Duplicar
+              </button>
             </div>
           );
         })}
@@ -78,12 +111,33 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
   );
 }
 
-function ContentEditor({ data, initial, save, onDone }: { data: GuildData; initial: Content; save: Save; onDone: () => void }) {
+function ContentEditor({
+  data,
+  initial,
+  save,
+  onDone,
+  onDuplicate,
+}: {
+  data: GuildData;
+  initial: Content;
+  save: Save;
+  onDone: () => void;
+  /** Sin valor = no se puede duplicar (límite del plan) */
+  onDuplicate?: (c: Content) => void;
+}) {
   const [c, setC] = useState<Content>(initial);
   const isNew = !initial.id;
   const set = <K extends keyof Content>(k: K, v: Content[K]) => setC((p) => ({ ...p, [k]: v }));
   const setRole = (i: number, patch: Partial<Role>) =>
     setC((p) => ({ ...p, roles: p.roles.map((r, j) => (j === i ? { ...r, ...patch } : r)) }));
+  const duplicateRole = (i: number) =>
+    setC((p) => {
+      if (p.roles.length >= 20) return p;
+      const { id: _id, ...copy } = structuredClone(p.roles[i]);
+      const roles = [...p.roles];
+      roles.splice(i + 1, 0, copy);
+      return { ...p, roles };
+    });
   const moveRole = (i: number, d: -1 | 1) =>
     setC((p) => {
       const roles = [...p.roles];
@@ -205,6 +259,8 @@ function ContentEditor({ data, initial, save, onDone }: { data: GuildData; initi
               <div className="row" style={{ gap: 4 }}>
                 <button className="btn-icon btn-ghost" title="Subir" disabled={i === 0} onClick={() => moveRole(i, -1)}>↑</button>
                 <button className="btn-icon btn-ghost" title="Bajar" disabled={i === c.roles.length - 1} onClick={() => moveRole(i, 1)}>↓</button>
+                <button className="btn-icon btn-ghost" title="Duplicar rol con su build" disabled={c.roles.length >= 20}
+                  onClick={() => duplicateRole(i)}>⧉</button>
                 <button className="btn-icon btn-danger" title="Quitar rol" disabled={c.roles.length <= 1}
                   onClick={() => set('roles', c.roles.filter((_, j) => j !== i))}>✕</button>
               </div>
@@ -222,6 +278,16 @@ function ContentEditor({ data, initial, save, onDone }: { data: GuildData; initi
         <button className="btn-primary" onClick={() => void submit()}>{isNew ? 'Crear contenido' : 'Guardar cambios'}</button>
         <button className="btn-ghost" onClick={onDone}>Cancelar</button>
         <span className="spacer" />
+        {!isNew && (
+          <button
+            className="btn-ghost"
+            disabled={!onDuplicate}
+            title={onDuplicate ? 'Crear un contenido nuevo con esta compo y sus builds (incluye cambios sin guardar)' : 'Llegaste al límite de contenidos de tu plan'}
+            onClick={() => onDuplicate?.(c)}
+          >
+            ⧉ Duplicar contenido
+          </button>
+        )}
         {!isNew && <button className="btn-danger" onClick={remove}>Borrar contenido</button>}
       </div>
     </div>
