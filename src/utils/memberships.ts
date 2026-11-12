@@ -42,7 +42,7 @@ export type MembershipEventType =
   | 'subscription_updated'
   | 'subscription_ended'
   | 'expired' // se acabó el tiempo concedido
-  | 'payment' // pago aprobado (ePayco)
+  | 'payment' // pago aprobado (Mercado Pago; antes ePayco)
   | 'payment_reversed'; // pago reversado: se descuentan sus días
 
 export interface MembershipEvent {
@@ -73,7 +73,8 @@ export type OrderStatus = 'created' | 'pending' | 'paid' | 'rejected' | 'reverse
 
 /** Compra de un paquete de Premium. Solo guardamos lo necesario: nada de datos del pagador. */
 export interface PaymentOrder {
-  invoice: string; // nuestra referencia (x_id_invoice)
+  invoice: string; // nuestra referencia (external_reference en Mercado Pago)
+  provider?: 'mercadopago' | 'epayco'; // sin valor = orden antigua de ePayco
   guildId: string;
   guildName?: string;
   userId: string; // quien inició el pago en el panel
@@ -85,7 +86,7 @@ export interface PaymentOrder {
   test: boolean;
   createdAt: number;
   updatedAt: number;
-  refPayco?: string;
+  paymentRef?: string; // id del pago en la pasarela (antes refPayco)
   transactionId?: string;
   paidAt?: number;
 }
@@ -106,6 +107,11 @@ function load(): Store {
   try {
     const raw = JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8')) as Partial<Store>;
     store = { codes: raw.codes ?? {}, history: raw.history ?? [], orders: raw.orders ?? {} };
+    // Órdenes de ePayco guardadas con el nombre de campo antiguo
+    for (const o of Object.values(store.orders) as Array<PaymentOrder & { refPayco?: string }>) {
+      if (o.refPayco && !o.paymentRef) o.paymentRef = o.refPayco;
+      delete o.refPayco;
+    }
   } catch {
     store = { codes: {}, history: [], orders: {} };
   }
@@ -327,25 +333,41 @@ export function listOrders(opts: { guildId?: string; limit?: number } = {}): Pay
 const money = (n: number) => `$${n.toLocaleString('es-CO')} COP`;
 
 /**
- * Aplica el estado que confirma la pasarela a una orden. Idempotente: ePayco reintenta
- * la confirmación y un mismo pago nunca suma días dos veces.
+ * Aplica el estado que confirma la pasarela a una orden. Idempotente: la pasarela reintenta
+ * los avisos y un mismo pago nunca suma días dos veces.
+ *
+ * Con Mercado Pago una misma orden puede tener varios intentos de pago (p. ej. una tarjeta
+ * rechazada y luego un pago aprobado), así que "rechazado" no es final.
  */
 export function settleOrder(
   invoice: string,
   next: Exclude<OrderStatus, 'created'>,
-  ref: { refPayco?: string; transactionId?: string }
+  ref: { paymentRef?: string; transactionId?: string }
 ): { order: PaymentOrder; changed: boolean } {
   const order = load().orders[invoice];
   if (!order) throw new MembershipError(`Orden desconocida: ${invoice}`);
   const prev = order.status;
-  // Estados finales: un pagado solo puede pasar a reversado; reversado/rechazado no cambian
+  const otherPayment = Boolean(ref.paymentRef && order.paymentRef && ref.paymentRef !== order.paymentRef);
+
+  if (prev === 'paid' && next === 'paid' && otherPayment) {
+    // El usuario pagó dos veces la misma orden: los días se dieron una sola vez
+    console.warn(`[Pagos] ${invoice}: segundo pago aprobado (${ref.paymentRef}); ya estaba pagada con ${order.paymentRef}. Revisar y reembolsar a mano.`);
+    return { order, changed: false };
+  }
+  // Un pagado solo pasa a reversado, y solo si es ese mismo pago; reversado es final
   const allowed =
-    prev === 'created' || prev === 'pending' ? true : prev === 'paid' ? next === 'reversed' : false;
+    prev === 'created' || prev === 'pending'
+      ? true
+      : prev === 'rejected'
+        ? next === 'paid' || next === 'pending'
+        : prev === 'paid'
+          ? next === 'reversed' && !otherPayment
+          : false;
   if (!allowed || prev === next) return { order, changed: false };
 
   order.status = next;
   order.updatedAt = Date.now();
-  order.refPayco = ref.refPayco ?? order.refPayco;
+  order.paymentRef = ref.paymentRef ?? order.paymentRef;
   order.transactionId = ref.transactionId ?? order.transactionId;
 
   const config = ConfigManager.getConfig(order.guildId, order.guildName);
@@ -353,12 +375,12 @@ export function settleOrder(
     order.paidAt = Date.now();
     if (hasTimedPremium(config) && !config.premiumUntil) {
       // Ya era de por vida: el pago se registra pero no hay días que sumar
-      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'} · ya tenía Premium de por vida` });
+      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: null, note: `${money(order.amount)} · ref ${order.paymentRef ?? '?'} · ya tenía Premium de por vida` });
     } else {
       addDays(config, order.days);
       config.premiumSource = 'payment';
       ConfigManager.saveConfig(config);
-      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'}${order.test ? ' · PRUEBA' : ''}` });
+      log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.paymentRef ?? '?'}${order.test ? ' · PRUEBA' : ''}` });
     }
   } else if (next === 'reversed') {
     if (hasTimedPremium(config) && config.premiumUntil) {
@@ -370,7 +392,7 @@ export function settleOrder(
       }
       ConfigManager.saveConfig(config);
     }
-    log({ guildId: order.guildId, guildName: config.guildName, type: 'payment_reversed', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.refPayco ?? '?'}` });
+    log({ guildId: order.guildId, guildName: config.guildName, type: 'payment_reversed', actorId: order.userId, days: order.days, until: config.premiumUntil ?? null, note: `${money(order.amount)} · ref ${order.paymentRef ?? '?'}` });
   }
   persist();
   return { order, changed: true };
@@ -467,7 +489,7 @@ function noticeComponents(guildId: string) {
   if (store) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(store).setLabel('Suscribirse a Premium').setEmoji('💎'));
   const panel = panelUrl(guildId, 'plan');
   if (panel) {
-    const sells = Boolean(process.env.EPAYCO_PUBLIC_KEY);
+    const sells = Boolean(process.env.MP_ACCESS_TOKEN);
     row.addComponents(
       new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(panel).setLabel(sells ? 'Renovar Premium' : 'Ver el plan').setEmoji(sells ? '💎' : '🖥️')
     );

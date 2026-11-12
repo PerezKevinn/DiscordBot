@@ -9,7 +9,7 @@ import {
 import { GuildConfig } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
 import { grantPremium, MembershipError, redeemCode, revokePremium } from '../utils/memberships';
-import { epaycoEnv } from '../payments/epayco';
+import { mercadoPagoEnv } from '../payments/mercadopago';
 import { getEffectiveTier, hasActiveSubscription, hasTimedPremium, PLAN_LIMITS, botBrandName, premiumSkuId } from '../utils/plans';
 import { panelButtonRow, panelUrl } from '../utils/panelLink';
 import { baseEmbed, fitEmbed } from '../utils/ui';
@@ -77,7 +77,7 @@ function planComponents(guildId: string, showBuy: boolean) {
   if (showBuy && sku) row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Premium).setSKUId(sku));
   const url = panelUrl(guildId, 'plan');
   if (url) {
-    const sells = Boolean(epaycoEnv());
+    const sells = Boolean(mercadoPagoEnv());
     row.addComponents(
       new ButtonBuilder()
         .setStyle(ButtonStyle.Link)

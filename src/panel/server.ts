@@ -22,7 +22,7 @@ import {
   premiumSkuId,
   premiumStoreUrl,
 } from '../utils/plans';
-import { createCheckoutSession, epaycoEnv, isValidSignature, mapState } from '../payments/epayco';
+import { createPreference, getPayment, isValidSignature, mapStatus, mercadoPagoEnv } from '../payments/mercadopago';
 import {
   codeStatus,
   createCodes,
@@ -130,11 +130,6 @@ export async function startPanel(client: Client) {
   const app = Fastify({ logger: false, bodyLimit: 7 * 1024 * 1024, trustProxy: true });
   await app.register(cookie, { secret: sessionSecret });
   await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
-  // ePayco envía la confirmación (y a veces la respuesta) como formulario
-  app.addContentTypeParser('application/x-www-form-urlencoded', { parseAs: 'string', bodyLimit: 64 * 1024 }, (_req, body, done) => {
-    done(null, Object.fromEntries(new URLSearchParams(String(body))));
-  });
-
   // ---------- Cabeceras de seguridad ----------
   app.addHook('onSend', async (_req, reply, payload) => {
     reply.header('X-Content-Type-Options', 'nosniff');
@@ -144,16 +139,15 @@ export async function startPanel(client: Client) {
       'Content-Security-Policy',
       [
         "default-src 'self'",
-        // checkout.epayco.co: script del checkout de pagos (se carga solo al pulsar "Pagar")
-        "script-src 'self' https://checkout.epayco.co",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.epayco.co",
-        "font-src 'self' https://fonts.gstatic.com https://*.epayco.co",
-        "img-src 'self' data: https://cdn.discordapp.com https://render.albiononline.com https://*.epayco.co",
-        "connect-src 'self' https://*.epayco.co",
-        "frame-src https://*.epayco.co",
+        // El pago con Mercado Pago es una redirección a su web: no carga nada de terceros aquí
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: https://cdn.discordapp.com https://render.albiononline.com",
+        "connect-src 'self'",
         "frame-ancestors 'none'",
         "base-uri 'none'",
-        "form-action 'self' https://*.epayco.co",
+        "form-action 'self'",
       ].join('; ')
     );
     if (secureCookies) reply.header('Strict-Transport-Security', 'max-age=31536000');
@@ -344,9 +338,9 @@ export async function startPanel(client: Client) {
         timed: hasTimedPremium(config) ? { source: config.premiumSource ?? 'manual', until: config.premiumUntil ?? null } : null,
         subscription: hasActiveSubscription(config) ? { endsAt: config.subscription!.endsAt ?? null } : null,
         storeUrl: premiumStoreUrl(),
-        payments: epaycoEnv()
+        payments: mercadoPagoEnv()
           ? {
-              test: epaycoEnv()!.test,
+              test: mercadoPagoEnv()!.test,
               packages: premiumPackages().map(({ id, label, days, priceCop }) => ({ id, label, days, priceCop })),
             }
           : null,
@@ -663,9 +657,9 @@ export async function startPanel(client: Client) {
     }
   };
 
-  // ---------- Pagos con ePayco (paquetes prepagados) ----------
+  // ---------- Pagos con Mercado Pago (paquetes prepagados) ----------
   app.post('/api/guilds/:guildId/checkout', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
-    const pay = epaycoEnv();
+    const pay = mercadoPagoEnv();
     if (!pay) throw new HttpError(404, 'Los pagos no están activados');
     const { guild, config, session } = await requireGuild(req);
     const { packageId } = parse(checkoutSchema, req.body);
@@ -682,20 +676,20 @@ export async function startPanel(client: Client) {
       amount: pkg.priceCop,
       currency: 'COP',
       test: pay.test,
+      provider: 'mercadopago',
     });
     try {
-      const sessionId = await createCheckoutSession(pay, {
+      const url = await createPreference(pay, {
         invoice: order.invoice,
-        name: `${botBrandName()} Premium`,
-        description: `Premium ${pkg.label} para ${guild.name}`.slice(0, 100),
+        title: `${botBrandName()} Premium · ${pkg.label}`,
+        description: `Premium ${pkg.label} para ${guild.name}`.slice(0, 250),
         amount: pkg.priceCop,
-        responseUrl: `${panelUrl}/pago/respuesta/${order.invoice}`,
-        confirmationUrl: `${panelUrl}/webhooks/epayco`,
-        extras: { extra1: guild.id, extra2: pkg.id },
+        returnUrl: `${panelUrl}/pago/respuesta/${order.invoice}`,
+        notificationUrl: `${panelUrl}/webhooks/mercadopago`,
       });
-      return { sessionId, test: pay.test, invoice: order.invoice };
+      return { url, test: pay.test, invoice: order.invoice };
     } catch (err) {
-      console.error('[ePayco] Error creando la sesión de pago:', (err as Error).message);
+      console.error('[Mercado Pago] Error creando la preferencia:', (err as Error).message);
       throw new HttpError(502, 'No se pudo iniciar el pago. Inténtalo en unos minutos.');
     }
   });
@@ -708,52 +702,76 @@ export async function startPanel(client: Client) {
     return { status: order.status, days: order.days, amount: order.amount };
   });
 
-  // Página a la que vuelve el usuario tras pagar: solo informa, el Premium lo da la confirmación
-  const paymentReturn = async (req: FastifyRequest, reply: FastifyReply) => {
+  /**
+   * Consulta un pago a la API de Mercado Pago y lo aplica a su orden. Es lo ÚNICO que da o quita
+   * Premium: el aviso del webhook o la vuelta del usuario solo traen el id del pago.
+   */
+  const syncMercadoPagoPayment = async (paymentId: string, source: string) => {
+    const pay = mercadoPagoEnv();
+    if (!pay || !/^\d{1,20}$/.test(paymentId)) return;
+    const p = await getPayment(pay, paymentId);
+    if (!p) {
+      console.warn(`[Mercado Pago] ${source}: el pago ${paymentId} no existe o no es de esta cuenta.`);
+      return;
+    }
+    const order = getOrder(p.external_reference ?? '');
+    if (!order) {
+      console.warn(`[Mercado Pago] ${source}: pago ${paymentId} de una orden desconocida (${p.external_reference ?? 'sin referencia'}).`);
+      return;
+    }
+    if (Number(p.transaction_amount) !== order.amount || p.currency_id !== order.currency) {
+      console.warn(`[Mercado Pago] ${order.invoice}: importe ${p.transaction_amount} ${p.currency_id} no coincide con ${order.amount} ${order.currency}.`);
+      return;
+    }
+    const state = mapStatus(p.status);
+    if (!state) return;
+    const { changed } = membershipCall(() => settleOrder(order.invoice, state, { paymentRef: String(p.id) }));
+    if (changed) console.log(`💳 Mercado Pago ${order.invoice} (${order.guildName ?? order.guildId}): ${state} · pago ${p.id}${order.test ? ' [prueba]' : ''}.`);
+  };
+
+  // Página a la que vuelve el usuario tras pagar. Si trae el id del pago lo consultamos ya
+  // (por si el webhook tarda); el resultado se toma de la API, nunca de la URL.
+  app.get('/pago/respuesta/:invoice', async (req, reply) => {
     const { invoice } = req.params as { invoice: string };
     const order = /^MU-[0-9A-F]{12}$/.test(invoice) ? getOrder(invoice) : undefined;
     if (!order) return reply.redirect('/', 303);
+    const q = req.query as Record<string, unknown>;
+    const paymentId = String(q.payment_id ?? q.collection_id ?? '');
+    if (paymentId && paymentId !== 'null') {
+      await syncMercadoPagoPayment(paymentId, 'vuelta del usuario').catch((err) =>
+        console.warn('[Mercado Pago] No se pudo consultar el pago al volver:', (err as Error).message)
+      );
+    }
     return reply.redirect(`/?pago=${order.invoice}#/g/${order.guildId}/plan`, 303);
-  };
-  app.get('/pago/respuesta/:invoice', paymentReturn);
-  app.post('/pago/respuesta/:invoice', paymentReturn);
+  });
 
-  // Confirmación de ePayco (servidor a servidor). Responde 200 salvo firma inválida.
-  const epaycoWebhook = async (req: FastifyRequest, reply: FastifyReply) => {
-    const pay = epaycoEnv();
+  // Avisos de Mercado Pago (servidor a servidor). Formato webhook (?data.id=&type=payment, cuerpo JSON)
+  // o IPN antiguo (?topic=payment&id=). Error 500 = Mercado Pago lo reintenta.
+  app.post('/webhooks/mercadopago', { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } }, async (req, reply) => {
+    const pay = mercadoPagoEnv();
     if (!pay) return reply.status(404).send('pagos desactivados');
-    const raw = { ...(req.query as object), ...(req.body && typeof req.body === 'object' ? (req.body as object) : {}) };
-    const f: Record<string, string> = {};
-    for (const [k, v] of Object.entries(raw)) if (typeof v === 'string' || typeof v === 'number') f[k] = String(v);
+    const q = req.query as Record<string, unknown>;
+    const body = (req.body && typeof req.body === 'object' ? req.body : {}) as { type?: string; data?: { id?: unknown } };
+    const type = String(q.type ?? q.topic ?? body.type ?? '');
+    if (type !== 'payment') return reply.send('ok'); // merchant_order y demás: no hacen falta
+    const dataId = String(q['data.id'] ?? body.data?.id ?? q.id ?? '');
 
-    if (!isValidSignature(pay, f)) {
-      console.warn(`[ePayco] Confirmación con firma inválida (ref ${f.x_ref_payco ?? '?'}).`);
-      return reply.status(400).send('firma inválida');
+    const signature = req.headers['x-signature'];
+    if (pay.webhookSecret && typeof signature === 'string') {
+      const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
+      if (!isValidSignature(pay.webhookSecret, signature, requestId, String(q['data.id'] ?? dataId))) {
+        console.warn(`[Mercado Pago] Aviso con firma inválida (pago ${dataId || '?'}).`);
+        return reply.status(401).send('firma inválida');
+      }
     }
-    const order = getOrder(f.x_id_invoice ?? '');
-    if (!order) {
-      console.warn(`[ePayco] Confirmación de una orden desconocida: ${f.x_id_invoice}`);
-      return reply.send('ok');
+    try {
+      await syncMercadoPagoPayment(dataId, 'webhook');
+    } catch (err) {
+      console.error('[Mercado Pago] Error procesando el aviso:', (err as Error).message);
+      return reply.status(500).send('reintentar');
     }
-    const isTest = String(f.x_test_request).toLowerCase() === 'true';
-    if (isTest !== order.test) {
-      console.warn(`[ePayco] ${order.invoice}: el modo prueba no coincide con la orden; se ignora.`);
-      return reply.send('ok');
-    }
-    if (Number(f.x_amount) !== order.amount || f.x_currency_code !== order.currency) {
-      console.warn(`[ePayco] ${order.invoice}: importe ${f.x_amount} ${f.x_currency_code} no coincide con ${order.amount} ${order.currency}.`);
-      return reply.send('ok');
-    }
-    const state = mapState(f);
-    if (!state) return reply.send('ok');
-    const { changed } = membershipCall(() =>
-      settleOrder(order.invoice, state, { refPayco: f.x_ref_payco, transactionId: f.x_transaction_id })
-    );
-    if (changed) console.log(`💳 ePayco ${order.invoice} (${order.guildName ?? order.guildId}): ${state}${order.test ? ' [prueba]' : ''}.`);
     return reply.send('ok');
-  };
-  app.get('/webhooks/epayco', epaycoWebhook);
-  app.post('/webhooks/epayco', epaycoWebhook);
+  });
 
   // ---------- Administración (solo el dueño del bot) ----------
   const ownerId = process.env.BOT_OWNER_ID;
@@ -811,8 +829,8 @@ export async function startPanel(client: Client) {
       codes: listCodes().map(serializeCode),
       history: getHistory({ limit: 300 }),
       payments: {
-        enabled: Boolean(epaycoEnv()),
-        test: epaycoEnv()?.test ?? true,
+        enabled: Boolean(mercadoPagoEnv()),
+        test: mercadoPagoEnv()?.test ?? true,
         orders: listOrders({ limit: 200 }).filter((o) => o.status !== 'created'),
         revenue30d: listOrders({ limit: 100000 })
           .filter((o) => o.status === 'paid' && !o.test && (o.paidAt ?? 0) > Date.now() - 30 * 24 * 60 * 60 * 1000)

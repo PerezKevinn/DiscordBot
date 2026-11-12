@@ -4,21 +4,6 @@ import { cop, EVENT_LABELS, fmtDate, type GuildData, type PremiumPackage } from 
 import type { Save } from './GuildPanel';
 import { useToast } from './Toast';
 
-type EpaycoGlobal = { checkout: { configure(o: { sessionId: string; type: 'standard' | 'onpage'; test: boolean }): { open(): void } } };
-
-/** Carga el checkout de ePayco solo cuando hace falta. */
-function loadEpayco(): Promise<EpaycoGlobal> {
-  const w = window as unknown as { ePayco?: EpaycoGlobal };
-  if (w.ePayco) return Promise.resolve(w.ePayco);
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://checkout.epayco.co/checkout-v2.js';
-    s.onload = () => (w.ePayco ? resolve(w.ePayco) : reject(new Error('ePayco no cargó')));
-    s.onerror = () => reject(new Error('No se pudo cargar el checkout de ePayco'));
-    document.head.appendChild(s);
-  });
-}
-
 const SOURCE_LABEL = { manual: 'Premium concedido', code: 'Código canjeado', payment: 'Premium pagado' } as const;
 
 export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
@@ -31,7 +16,7 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
   const toast = useToast();
   const lifetime = Boolean(plan.timed && !plan.timed.until);
 
-  // Al volver de ePayco: esperar la confirmación (llega servidor a servidor, puede tardar unos segundos)
+  // Al volver de Mercado Pago: esperar la confirmación (llega servidor a servidor, puede tardar unos segundos)
   useEffect(() => {
     const invoice = new URLSearchParams(window.location.search).get('pago');
     if (!invoice) return;
@@ -62,11 +47,11 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
   const buy = async (pkg: PremiumPackage) => {
     setPaying(pkg.id);
     try {
-      const [{ sessionId, test }, ePayco] = await Promise.all([api.checkout(data.guild.id, pkg.id), loadEpayco()]);
-      ePayco.checkout.configure({ sessionId, type: 'standard', test }).open();
+      const { url } = await api.checkout(data.guild.id, pkg.id);
+      // Se paga en la web de Mercado Pago; al terminar vuelve a /pago/respuesta/<orden>
+      window.location.assign(url);
     } catch (e) {
       toast((e as Error).message, true);
-    } finally {
       setPaying(null);
     }
   };
@@ -133,11 +118,11 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
 
       {returning && (
         <p className="notice">
-          {returning === 'waiting' && '⏳ Esperando la confirmación de ePayco… Puede tardar unos segundos.'}
+          {returning === 'waiting' && '⏳ Esperando la confirmación de Mercado Pago… Puede tardar unos segundos.'}
           {returning === 'paid' && '✅ Pago aprobado. Tu Premium ya está activo.'}
           {returning === 'rejected' && '❌ El pago no se aprobó. No se te cobró; puedes intentarlo de nuevo.'}
           {returning === 'pending' &&
-            '⏳ El pago sigue pendiente (por ejemplo, PSE o efectivo). Cuando ePayco lo confirme, el Premium se activa solo.'}
+            '⏳ El pago sigue pendiente (por ejemplo, PSE o Efecty). Cuando Mercado Pago lo confirme, el Premium se activa solo.'}
         </p>
       )}
 
@@ -148,7 +133,7 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
             {plan.payments.test && <span className="badge">Modo prueba</span>}
           </div>
           <p className="muted" style={{ margin: 0 }}>
-            Pago único con tarjeta, PSE, Nequi o efectivo a través de ePayco. Los días se suman al Premium que ya tengas; no hay
+            Pago único con tarjeta, PSE, Efecty o saldo de Mercado Pago. Los días se suman al Premium que ya tengas; no hay
             renovación automática, te avisamos antes de que venza.
           </p>
           {lifetime ? (

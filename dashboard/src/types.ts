@@ -102,7 +102,8 @@ export interface PaymentOrder {
   test: boolean;
   createdAt: number;
   updatedAt: number;
-  refPayco?: string;
+  paymentRef?: string;
+  provider?: 'mercadopago' | 'epayco';
   paidAt?: number;
 }
 

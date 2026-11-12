@@ -54,7 +54,7 @@ export const api = {
     request<GuildData>('POST', `/api/guilds/${id}/pings/${encodeURIComponent(pingId)}/close`, { status }),
   redeem: (id: string, code: string) => request<GuildData>('POST', `/api/guilds/${id}/redeem`, { code }),
   checkout: (id: string, packageId: string) =>
-    request<{ sessionId: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
+    request<{ url: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
   order: (id: string, invoice: string) =>
     request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
 

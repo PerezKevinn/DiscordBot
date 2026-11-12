@@ -75,7 +75,7 @@ export function premiumStoreUrl(): string | null {
 }
 
 /**
- * Paquetes de Premium prepagado (ePayco). Precio en pesos colombianos, sin decimales.
+ * Paquetes de Premium prepagado (Mercado Pago). Precio en pesos colombianos, sin decimales.
  * Se pueden cambiar con PREMIUM_PRICE_1M / _3M / _12M en el .env.
  */
 export interface PremiumPackage {

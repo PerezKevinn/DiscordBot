@@ -403,8 +403,8 @@ function PaymentsSection({ payments }: { payments: AdminOverview['payments'] }) 
   if (!payments.enabled) {
     return (
       <p className="notice">
-        Los pagos con ePayco están desactivados. Pon <code>EPAYCO_PUBLIC_KEY</code>, <code>EPAYCO_PRIVATE_KEY</code>,{' '}
-        <code>EPAYCO_CUST_ID</code> y <code>EPAYCO_P_KEY</code> en el <code>.env</code>.
+        Los pagos con Mercado Pago están desactivados. Pon <code>MP_ACCESS_TOKEN</code> (y opcionalmente{' '}
+        <code>MP_WEBHOOK_SECRET</code>) en el <code>.env</code>.
       </p>
     );
   }
@@ -417,7 +417,8 @@ function PaymentsSection({ payments }: { payments: AdminOverview['payments'] }) 
       </div>
       {payments.test && (
         <p className="notice">
-          Modo prueba activo (<code>EPAYCO_TEST</code>): los pagos son simulados. Pon <code>EPAYCO_TEST=false</code> para cobrar de verdad.
+          Modo prueba activo (<code>MP_TEST</code>): las órdenes se marcan como prueba. Usa credenciales de una cuenta de prueba
+          de Mercado Pago, y para cobrar de verdad pon las credenciales reales y <code>MP_TEST=false</code>.
         </p>
       )}
       <div className="card">
@@ -433,7 +434,7 @@ function PaymentsSection({ payments }: { payments: AdminOverview['payments'] }) 
                   {o.test && <span className="badge"> Prueba</span>}
                   <div className="muted small">
                     {o.guildName ?? o.guildId} · {o.days} días · {o.invoice}
-                    {o.refPayco && ` · ref ePayco ${o.refPayco}`} · usuario {o.userId}
+                    {o.paymentRef && ` · ${o.provider === 'mercadopago' ? 'pago MP' : 'ref ePayco'} ${o.paymentRef}`} · usuario {o.userId}
                   </div>
                 </div>
                 <span className="muted small">{fmtDate(o.paidAt ?? o.updatedAt, true)}</span>
