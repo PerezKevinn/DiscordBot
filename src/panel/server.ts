@@ -505,12 +505,16 @@ export async function startPanel(client: Client) {
 
   // ---------- Pings activos ----------
   app.post('/api/guilds/:guildId/pings/:pingId/close', async (req) => {
-    const { guild, config } = await requireGuild(req);
+    const { guild, config, session } = await requireGuild(req);
     const { pingId } = req.params as { pingId: string };
     const { status } = parse(closePingSchema, req.body);
     const ping = ConfigManager.getPing(guild.id, pingId);
     if (!ping || (ping.status !== 'OPEN' && ping.status !== 'IN_PROGRESS')) throw new HttpError(404, 'Ping no encontrado');
-    await closePingExternally(guild, ping, status);
+    const member = guild.members.cache.get(session.userId);
+    await closePingExternally(guild, ping, status, {
+      id: session.userId,
+      name: member?.displayName ?? session.globalName ?? session.username,
+    });
     return serializeGuild(guild, config);
   });
 

@@ -113,11 +113,21 @@ async function editPingMessage(guild: Guild, ping: ActivePing) {
 }
 
 /** Cierra un ping desde el panel web: borra voz e hilo y actualiza el mensaje. */
-export async function closePingExternally(guild: Guild, ping: ActivePing, status: 'CLOSED' | 'CANCELLED') {
+export async function closePingExternally(
+  guild: Guild,
+  ping: ActivePing,
+  status: 'CLOSED' | 'CANCELLED',
+  actor: { id: string; name: string }
+) {
   ping.status = status;
   ping.closedAt = Date.now();
-  await cleanupPingChannels(guild, ping, status === 'CLOSED' ? 'Cerrado desde el panel' : 'Cancelado desde el panel');
+  ping.closedBy = actor.id;
+  ping.closedByName = actor.name;
+  ping.closedVia = 'panel';
+  const reason = `${status === 'CLOSED' ? 'GG' : 'Salida cancelada'} desde el panel web por ${actor.name} (${actor.id})`.slice(0, 500);
+  await cleanupPingChannels(guild, ping, reason);
   ConfigManager.savePing(guild.id, ping);
+  console.log(`🔒 [${guild.id}] Ping ${ping.id} "${ping.title}": ${reason}`);
   await editPingMessage(guild, ping);
   // Una salida cancelada no tiene nada que guardar: fuera el mensaje
   if (status === 'CANCELLED') await deletePingMessage(guild, ping);
@@ -127,7 +137,10 @@ export async function closePingExternally(guild: Guild, ping: ActivePing, status
 async function autoClose(guild: Guild, ping: ActivePing, why: string) {
   ping.status = 'CLOSED';
   ping.closedAt = Date.now();
-  await cleanupPingChannels(guild, ping, why);
+  ping.closedBy = undefined;
+  ping.closedByName = undefined;
+  ping.closedVia = 'auto';
+  await cleanupPingChannels(guild, ping, `Cierre automático: ${why}`);
   ConfigManager.savePing(guild.id, ping);
   await editPingMessage(guild, ping);
   console.log(`🧹 [${guild.id}] Ping ${ping.id} cerrado: ${why}`);

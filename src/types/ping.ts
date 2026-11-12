@@ -127,6 +127,9 @@ export interface ActivePing {
   status: 'OPEN' | 'IN_PROGRESS' | 'CLOSED' | 'CANCELLED';
   createdAt: number;
   closedAt?: number;
+  closedBy?: string; // ID de quien dio GG o canceló (sin valor = cierre automático o ping antiguo)
+  closedByName?: string; // nombre visible en ese momento, para los registros
+  closedVia?: 'discord' | 'panel' | 'auto';
   messageDeleteAt?: number; // cuándo borrar el mensaje del ping (p. ej. unos minutos después de repartir puntos)
   messageDeleted?: boolean; // el mensaje del ping ya se borró de Discord
 }

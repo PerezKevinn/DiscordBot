@@ -947,16 +947,19 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
     }
     ping.status = subAction === 'close' ? 'CLOSED' : 'CANCELLED';
     ping.closedAt = Date.now();
+    // Quién lo cerró: queda en el ping, en el registro de auditoría de Discord y en los logs
+    const who = displayNameOf(interaction);
+    const role = interaction.user.id === ping.callerId ? 'Caller' : 'oficial';
+    ping.closedBy = interaction.user.id;
+    ping.closedByName = who;
+    ping.closedVia = 'discord';
+    const action = subAction === 'close' ? 'GG' : 'Salida cancelada';
+    const reason = `${action} por ${who} (${role}, ${interaction.user.id})`.slice(0, 500);
 
-    if (interaction.guild) {
-      await cleanupPingChannels(
-        interaction.guild,
-        ping,
-        subAction === 'close' ? 'Contenido terminado por el Caller' : 'Salida cancelada por el Caller'
-      );
-    }
+    if (interaction.guild) await cleanupPingChannels(interaction.guild, ping, reason);
 
     ConfigManager.savePing(config.guildId, ping);
+    console.log(`🔒 [${config.guildId}] Ping ${ping.id} "${ping.title}": ${reason}`);
     const btn = pointsButton(config, ping);
     await interaction.update({
       content:

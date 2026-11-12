@@ -77,6 +77,14 @@ export async function buildPingMessagePayload(
     CLOSED: '🔒 **GG** — contenido terminado',
     CANCELLED: '🔴 **Cancelado**',
   };
+  // Quién lo cerró (las menciones dentro de un embed no notifican a nadie)
+  const closedByText = !isClosed
+    ? ''
+    : ping.closedBy
+      ? ` · por <@${ping.closedBy}>${ping.closedVia === 'panel' ? ' (panel web)' : ''}`
+      : ping.closedVia === 'auto'
+        ? ' · cierre automático'
+        : '';
 
   const extras = [
     ping.voiceChannelId && !isClosed ? `🔊 <#${ping.voiceChannelId}>` : '',
@@ -84,7 +92,7 @@ export async function buildPingMessagePayload(
   ].filter(Boolean);
 
   const description = [
-    statusText[ping.status],
+    statusText[ping.status] + closedByText,
     '',
     `⏰ **Salida:** ${ping.timeLabel?.endsWith('UTC') ? `**${ping.timeLabel}** · ` : ''}<t:${ping.startTimeUnix}:t> · <t:${ping.startTimeUnix}:R>`,
     `📍 **Masa en:** ${ping.departureLocation}`,
