@@ -685,7 +685,8 @@ export async function startPanel(client: Client) {
         description: `Premium ${pkg.label} para ${guild.name}`.slice(0, 250),
         amount: pkg.priceCop,
         returnUrl: `${panelUrl}/pago/respuesta/${order.invoice}`,
-        notificationUrl: `${panelUrl}/webhooks/mercadopago`,
+        // source_news=webhooks: solo avisos en formato Webhooks (firmados), no IPN antiguo
+        notificationUrl: `${panelUrl}/webhooks/mercadopago?source_news=webhooks`,
       });
       return { url, test: pay.test, invoice: order.invoice };
     } catch (err) {
@@ -760,8 +761,10 @@ export async function startPanel(client: Client) {
     if (type !== 'payment') return reply.send('ok'); // merchant_order y demás: no hacen falta
     const dataId = String(q['data.id'] ?? body.data?.id ?? q.id ?? '');
 
+    // Los avisos IPN (?topic=&id=) no usan la firma de Webhooks: no se valida, solo se consulta la API
+    const isIpn = q.topic !== undefined && q['data.id'] === undefined;
     const signature = req.headers['x-signature'];
-    if (pay.webhookSecret && typeof signature === 'string') {
+    if (pay.webhookSecret && typeof signature === 'string' && !isIpn) {
       const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
       const secret = pay.webhookSecret;
       if (!isValidSignature(secret, signature, requestId, String(q['data.id'] ?? dataId))) {
