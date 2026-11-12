@@ -1,1 +1,3332 @@
-[{"id":"ARMOR_PLATE_FEY","slot":"armor","name":"Armadura crepuscular","en":"Duskweaver Armor","icon":"T8_ARMOR_PLATE_FEY"},{"id":"ARMOR_PLATE_SET2","slot":"armor","name":"Armadura de caballero","en":"Knight Armor","icon":"T8_ARMOR_PLATE_SET2"},{"id":"ARMOR_PLATE_HELL","slot":"armor","name":"Armadura de demonio","en":"Demon Armor","icon":"T8_ARMOR_PLATE_HELL"},{"id":"ARMOR_PLATE_UNDEAD","slot":"armor","name":"Armadura de guardatumbas","en":"Graveguard Armor","icon":"T8_ARMOR_PLATE_UNDEAD"},{"id":"ARMOR_PLATE_SET3","slot":"armor","name":"Armadura de guardián","en":"Guardian Armor","icon":"T8_ARMOR_PLATE_SET3"},{"id":"ARMOR_PLATE_KEEPER","slot":"armor","name":"Armadura de juez","en":"Judicator Armor","icon":"T8_ARMOR_PLATE_KEEPER"},{"id":"ARMOR_PLATE_SET1","slot":"armor","name":"Armadura de soldado","en":"Soldier Armor","icon":"T8_ARMOR_PLATE_SET1"},{"id":"ARMOR_PLATE_AVALON","slot":"armor","name":"Armadura de valor","en":"Armor of Valor","icon":"T8_ARMOR_PLATE_AVALON"},{"id":"ARMOR_PLATE_ROYAL","slot":"armor","name":"Armadura real","en":"Royal Armor","icon":"T8_ARMOR_PLATE_ROYAL"},{"id":"ARMOR_GATHERER_ROCK","slot":"armor","name":"Atuendo de cantero","en":"Quarrier Garb","icon":"T8_ARMOR_GATHERER_ROCK"},{"id":"ARMOR_GATHERER_FIBER","slot":"armor","name":"Atuendo de cosechador","en":"Harvester Garb","icon":"T8_ARMOR_GATHERER_FIBER"},{"id":"ARMOR_GATHERER_WOOD","slot":"armor","name":"Atuendo de leñador","en":"Lumberjack Garb","icon":"T8_ARMOR_GATHERER_WOOD"},{"id":"ARMOR_GATHERER_ORE","slot":"armor","name":"Atuendo de minero","en":"Miner Garb","icon":"T8_ARMOR_GATHERER_ORE"},{"id":"ARMOR_GATHERER_HIDE","slot":"armor","name":"Atuendo de peletero","en":"Skinner Garb","icon":"T8_ARMOR_GATHERER_HIDE"},{"id":"ARMOR_GATHERER_FISH","slot":"armor","name":"Atuendo de pescador","en":"Fisherman Garb","icon":"T8_ARMOR_GATHERER_FISH"},{"id":"ARMOR_LEATHER_MORGANA","slot":"armor","name":"Chaqueta de acechador","en":"Stalker Jacket","icon":"T8_ARMOR_LEATHER_MORGANA"},{"id":"ARMOR_LEATHER_SET3","slot":"armor","name":"Chaqueta de asesino","en":"Assassin Jacket","icon":"T8_ARMOR_LEATHER_SET3"},{"id":"ARMOR_LEATHER_FEY","slot":"armor","name":"Chaqueta de caminanieblas","en":"Mistwalker Jacket","icon":"T8_ARMOR_LEATHER_FEY"},{"id":"ARMOR_LEATHER_SET2","slot":"armor","name":"Chaqueta de cazador","en":"Hunter Jacket","icon":"T8_ARMOR_LEATHER_SET2"},{"id":"ARMOR_LEATHER_UNDEAD","slot":"armor","name":"Chaqueta de espectro","en":"Specter Jacket","icon":"T8_ARMOR_LEATHER_UNDEAD"},{"id":"ARMOR_LEATHER_DRAGON","slot":"armor","name":"Chaqueta de Matadragones","en":"Dragonslayer Jacket","icon":"T8_ARMOR_LEATHER_DRAGON"},{"id":"ARMOR_LEATHER_SET1","slot":"armor","name":"Chaqueta de mercenario","en":"Mercenary Jacket","icon":"T8_ARMOR_LEATHER_SET1"},{"id":"ARMOR_LEATHER_AVALON","slot":"armor","name":"Chaqueta de tenacidad","en":"Jacket of Tenacity","icon":"T8_ARMOR_LEATHER_AVALON"},{"id":"ARMOR_LEATHER_HELL","slot":"armor","name":"Chaqueta de vándalo","en":"Hellion Jacket","icon":"T8_ARMOR_LEATHER_HELL"},{"id":"ARMOR_LEATHER_ROYAL","slot":"armor","name":"Chaqueta real","en":"Royal Jacket","icon":"T8_ARMOR_LEATHER_ROYAL"},{"id":"ARMOR_CLOTH_SET2","slot":"armor","name":"Túnica de clérigo","en":"Cleric Robe","icon":"T8_ARMOR_CLOTH_SET2"},{"id":"ARMOR_CLOTH_HELL","slot":"armor","name":"Túnica de diablo","en":"Fiend Robe","icon":"T8_ARMOR_CLOTH_HELL"},{"id":"ARMOR_CLOTH_KEEPER","slot":"armor","name":"Túnica de druida","en":"Druid Robe","icon":"T8_ARMOR_CLOTH_KEEPER"},{"id":"ARMOR_CLOTH_SET1","slot":"armor","name":"Túnica de erudito","en":"Scholar Robe","icon":"T8_ARMOR_CLOTH_SET1"},{"id":"ARMOR_CLOTH_FEY","slot":"armor","name":"Túnica de escamas feéricas","en":"Feyscale Robe","icon":"T8_ARMOR_CLOTH_FEY"},{"id":"ARMOR_CLOTH_SET3","slot":"armor","name":"Túnica de mago","en":"Mage Robe","icon":"T8_ARMOR_CLOTH_SET3"},{"id":"ARMOR_CLOTH_AVALON","slot":"armor","name":"Túnica de pureza","en":"Robe of Purity","icon":"T8_ARMOR_CLOTH_AVALON"},{"id":"ARMOR_CLOTH_MORGANA","slot":"armor","name":"Túnica de sectario","en":"Cultist Robe","icon":"T8_ARMOR_CLOTH_MORGANA"},{"id":"ARMOR_CLOTH_ROYAL","slot":"armor","name":"Túnica real","en":"Royal Robe","icon":"T8_ARMOR_CLOTH_ROYAL"},{"id":"CAPE","slot":"cape","name":"Capa","en":"Cape","icon":"T8_CAPE"},{"id":"CAPEITEM_AVALON","slot":"cape","name":"Capa avaloniana","en":"Avalonian Cape","icon":"T8_CAPEITEM_AVALON"},{"id":"CAPEITEM_FW_BRECILIEN","slot":"cape","name":"Capa de Brecilien","en":"Brecilien Cape","icon":"T8_CAPEITEM_FW_BRECILIEN"},{"id":"CAPEITEM_FW_BRIDGEWATCH","slot":"cape","name":"Capa de Bridgewatch","en":"Bridgewatch Cape","icon":"T8_CAPEITEM_FW_BRIDGEWATCH"},{"id":"CAPEITEM_FW_CAERLEON","slot":"cape","name":"Capa de Caerleon","en":"Caerleon Cape","icon":"T8_CAPEITEM_FW_CAERLEON"},{"id":"CAPEITEM_SMUGGLER","slot":"cape","name":"Capa de Contrabandista","en":"Smuggler Cape","icon":"T8_CAPEITEM_SMUGGLER"},{"id":"CAPEITEM_FW_FORTSTERLING","slot":"cape","name":"Capa de Fort Sterling","en":"Fort Sterling Cape","icon":"T8_CAPEITEM_FW_FORTSTERLING"},{"id":"CAPEITEM_KEEPER","slot":"cape","name":"Capa de guardián","en":"Keeper Cape","icon":"T8_CAPEITEM_KEEPER"},{"id":"CAPEITEM_FW_LYMHURST","slot":"cape","name":"Capa de Lymhurst","en":"Lymhurst Cape","icon":"T8_CAPEITEM_FW_LYMHURST"},{"id":"CAPEITEM_FW_MARTLOCK","slot":"cape","name":"Capa de Martlock","en":"Martlock Cape","icon":"T8_CAPEITEM_FW_MARTLOCK"},{"id":"CAPEITEM_MORGANA","slot":"cape","name":"Capa de Morgana","en":"Morgana Cape","icon":"T8_CAPEITEM_MORGANA"},{"id":"CAPEITEM_UNDEAD","slot":"cape","name":"Capa de muerto viviente","en":"Undead Cape","icon":"T8_CAPEITEM_UNDEAD"},{"id":"CAPEITEM_FW_THETFORD","slot":"cape","name":"Capa de Thetford","en":"Thetford Cape","icon":"T8_CAPEITEM_FW_THETFORD"},{"id":"CAPEITEM_DEMON","slot":"cape","name":"Capa demoníaca","en":"Demon Cape","icon":"T8_CAPEITEM_DEMON"},{"id":"CAPEITEM_HERETIC","slot":"cape","name":"Capa hereje","en":"Heretic Cape","icon":"T8_CAPEITEM_HERETIC"},{"id":"CAPE_ARENA_BANNER","slot":"cape","name":"Estandarte grande del veterano de arena","en":"Arena Veteran's Large Banner","icon":"T8_CAPE_ARENA_BANNER"},{"id":"CAPEITEM_AVALON_BP","slot":"cape","name":"Insignia avaloniana","en":"Avalonian Crest","icon":"T8_CAPEITEM_AVALON_BP"},{"id":"CAPEITEM_FW_BRECILIEN_BP","slot":"cape","name":"Insignia de Brecilien","en":"Brecilien Crest","icon":"T8_CAPEITEM_FW_BRECILIEN_BP"},{"id":"CAPEITEM_FW_BRIDGEWATCH_BP","slot":"cape","name":"Insignia de Bridgewatch","en":"Bridgewatch Crest","icon":"T8_CAPEITEM_FW_BRIDGEWATCH_BP"},{"id":"CAPEITEM_FW_CAERLEON_BP","slot":"cape","name":"Insignia de Caerleon","en":"Caerleon Crest","icon":"T8_CAPEITEM_FW_CAERLEON_BP"},{"id":"CAPEITEM_SMUGGLER_BP","slot":"cape","name":"Insignia de Contrabandista","en":"Smuggler Crest","icon":"T8_CAPEITEM_SMUGGLER_BP"},{"id":"CAPEITEM_FW_FORTSTERLING_BP","slot":"cape","name":"Insignia de Fort Sterling","en":"Fort Sterling Crest","icon":"T8_CAPEITEM_FW_FORTSTERLING_BP"},{"id":"CAPEITEM_KEEPER_BP","slot":"cape","name":"Insignia de guardián","en":"Keeper Crest","icon":"T8_CAPEITEM_KEEPER_BP"},{"id":"CAPEITEM_FW_LYMHURST_BP","slot":"cape","name":"Insignia de Lymhurst","en":"Lymhurst Crest","icon":"T8_CAPEITEM_FW_LYMHURST_BP"},{"id":"CAPEITEM_FW_MARTLOCK_BP","slot":"cape","name":"Insignia de Martlock","en":"Martlock Crest","icon":"T8_CAPEITEM_FW_MARTLOCK_BP"},{"id":"CAPEITEM_MORGANA_BP","slot":"cape","name":"Insignia de Morgana","en":"Morgana Crest","icon":"T8_CAPEITEM_MORGANA_BP"},{"id":"CAPEITEM_UNDEAD_BP","slot":"cape","name":"Insignia de muerto viviente","en":"Undead Crest","icon":"T8_CAPEITEM_UNDEAD_BP"},{"id":"CAPEITEM_FW_THETFORD_BP","slot":"cape","name":"Insignia de Thetford","en":"Thetford Crest","icon":"T8_CAPEITEM_FW_THETFORD_BP"},{"id":"CAPEITEM_DEMON_BP","slot":"cape","name":"Insignia demoníaca","en":"Demon Crest","icon":"T8_CAPEITEM_DEMON_BP"},{"id":"CAPEITEM_HERETIC_BP","slot":"cape","name":"Insignia hereje","en":"Heretic Crest","icon":"T8_CAPEITEM_HERETIC_BP"},{"id":"T4_MEAL_SANDWICH","slot":"food","name":"Bocadillo de cabra","en":"Goat Sandwich","icon":"T4_MEAL_SANDWICH","tier":4},{"id":"T4_MEAL_SANDWICH_AVALON","slot":"food","name":"Bocadillo de cabra avaloniano","en":"Avalonian Goat Sandwich","icon":"T4_MEAL_SANDWICH_AVALON","tier":4},{"id":"T6_MEAL_SANDWICH","slot":"food","name":"Bocadillo de carnero","en":"Mutton Sandwich","icon":"T6_MEAL_SANDWICH","tier":6},{"id":"T6_MEAL_SANDWICH_AVALON","slot":"food","name":"Bocadillo de cordero avaloniano","en":"Avalonian Mutton Sandwich","icon":"T6_MEAL_SANDWICH_AVALON","tier":6},{"id":"T6_MEAL_SANDWICH_FISH","slot":"food","name":"Bocadillo de locha de agua corriente","en":"Rushwater Lurcher Sandwich","icon":"T6_MEAL_SANDWICH_FISH","tier":6},{"id":"T8_MEAL_SANDWICH_FISH","slot":"food","name":"Bocadillo de locha de trueno","en":"Thunderfall Lurcher Sandwich","icon":"T8_MEAL_SANDWICH_FISH","tier":8},{"id":"T4_MEAL_SANDWICH_FISH","slot":"food","name":"Bocadillo de locha pedregosa","en":"Stonestream Lurcher Sandwich","icon":"T4_MEAL_SANDWICH_FISH","tier":4},{"id":"T8_MEAL_SANDWICH","slot":"food","name":"Bocadillo de ternera","en":"Beef Sandwich","icon":"T8_MEAL_SANDWICH","tier":8},{"id":"T8_MEAL_SANDWICH_AVALON","slot":"food","name":"Bocadillo de ternera avaloniano","en":"Avalonian Beef Sandwich","icon":"T8_MEAL_SANDWICH_AVALON","tier":8},{"id":"T7_MEAL_ROAST","slot":"food","name":"Cerdo asado","en":"Roast Pork","icon":"T7_MEAL_ROAST","tier":7},{"id":"T1_MEAL_SEAWEEDSALAD","slot":"food","name":"Ensalada de alga","en":"Seaweed Salad","icon":"T1_MEAL_SEAWEEDSALAD","tier":1},{"id":"T2_MEAL_SALAD_FISH","slot":"food","name":"Ensalada de calamar de aguas poco profundas","en":"Shallowshore Squid Salad","icon":"T2_MEAL_SALAD_FISH","tier":2},{"id":"T2_MEAL_SALAD","slot":"food","name":"Ensalada de frijoles","en":"Bean Salad","icon":"T2_MEAL_SALAD","tier":2},{"id":"T6_MEAL_SALAD_FISH","slot":"food","name":"Ensalada de kraken de agua profunda","en":"Deepwater Kraken Salad","icon":"T6_MEAL_SALAD_FISH","tier":6},{"id":"T6_MEAL_SALAD","slot":"food","name":"Ensalada de patata","en":"Potato Salad","icon":"T6_MEAL_SALAD","tier":6},{"id":"T4_MEAL_SALAD_FISH","slot":"food","name":"Ensalada de pulpo de aguas medias","en":"Midwater Octopus Salad","icon":"T4_MEAL_SALAD_FISH","tier":4},{"id":"T4_MEAL_SALAD","slot":"food","name":"Ensalada de rábano","en":"Turnip Salad","icon":"T4_MEAL_SALAD","tier":4},{"id":"T8_MEAL_SPECIAL_FOOD_DRAKE_EGG","slot":"food","name":"Galletas de Huevo de Draco","en":"Drake Egg Biscuits","icon":"T8_MEAL_SPECIAL_FOOD_DRAKE_EGG","tier":8},{"id":"T5_MEAL_ROAST","slot":"food","name":"Ganso asado","en":"Roast Goose","icon":"T5_MEAL_ROAST","tier":5},{"id":"T8_MEAL_STEW_FISH","slot":"food","name":"Guiso de anguila de agua podrida","en":"Deadwater Eel Stew","icon":"T8_MEAL_STEW_FISH","tier":8},{"id":"T4_MEAL_STEW_FISH","slot":"food","name":"Guiso de anguila de agua verdosa","en":"Greenriver Eel Stew","icon":"T4_MEAL_STEW_FISH","tier":4},{"id":"T6_MEAL_STEW_FISH","slot":"food","name":"Guiso de anguila rojiza","en":"Redspring Eel Stew","icon":"T6_MEAL_STEW_FISH","tier":6},{"id":"T4_MEAL_STEW","slot":"food","name":"Guiso de cabra","en":"Goat Stew","icon":"T4_MEAL_STEW","tier":4},{"id":"T4_MEAL_STEW_AVALON","slot":"food","name":"Guiso de cabra avaloniano","en":"Avalonian Goat Stew","icon":"T4_MEAL_STEW_AVALON","tier":4},{"id":"T6_MEAL_STEW","slot":"food","name":"Guiso de carnero","en":"Mutton Stew","icon":"T6_MEAL_STEW","tier":6},{"id":"T6_MEAL_STEW_AVALON","slot":"food","name":"Guiso de cordero avaloniano","en":"Avalonian Mutton Stew","icon":"T6_MEAL_STEW_AVALON","tier":6},{"id":"T8_MEAL_STEW","slot":"food","name":"Guiso de ternera","en":"Beef Stew","icon":"T8_MEAL_STEW","tier":8},{"id":"T8_MEAL_STEW_AVALON","slot":"food","name":"Guiso de ternera avaloniano","en":"Avalonian Beef Stew","icon":"T8_MEAL_STEW_AVALON","tier":8},{"id":"T3_MEAL_ROAST_FISH","slot":"food","name":"Pargo de niebla blanca asado","en":"Roasted Whitefog Snapper","icon":"T3_MEAL_ROAST_FISH","tier":3},{"id":"T5_MEAL_ROAST_FISH","slot":"food","name":"Pargo de niebla ligera asado","en":"Roasted Clearhaze Snapper","icon":"T5_MEAL_ROAST_FISH","tier":5},{"id":"T7_MEAL_ROAST_FISH","slot":"food","name":"Pargo de niebla pura asado","en":"Roasted Puremist Snapper","icon":"T7_MEAL_ROAST_FISH","tier":7},{"id":"T7_MEAL_PIE","slot":"food","name":"Pastel de cerdo","en":"Pork Pie","icon":"T7_MEAL_PIE","tier":7},{"id":"T5_MEAL_PIE","slot":"food","name":"Pastel de ganso","en":"Goose Pie","icon":"T5_MEAL_PIE","tier":5},{"id":"T5_MEAL_PIE_FISH","slot":"food","name":"Pastel de ojo muerto de las montañas","en":"Mountain Blindeye Pie","icon":"T5_MEAL_PIE_FISH","tier":5},{"id":"T3_MEAL_PIE_FISH","slot":"food","name":"Pastel de ojo muerto de las sierras","en":"Upland Coldeye Pie","icon":"T3_MEAL_PIE_FISH","tier":3},{"id":"T7_MEAL_PIE_FISH","slot":"food","name":"Pastel de ojo muerto dos picos","en":"Frostpeak Deadeye Pie","icon":"T7_MEAL_PIE_FISH","tier":7},{"id":"T3_MEAL_PIE","slot":"food","name":"Pastel de pollo","en":"Chicken Pie","icon":"T3_MEAL_PIE","tier":3},{"id":"T1_MEAL_GRILLEDFISH","slot":"food","name":"Pescado a la plancha","en":"Grilled Fish","icon":"T1_MEAL_GRILLEDFISH","tier":1},{"id":"T3_MEAL_ROAST","slot":"food","name":"Pollo asado","en":"Roast Chicken","icon":"T3_MEAL_ROAST","tier":3},{"id":"T3_MEAL_SOUP_FISH","slot":"food","name":"Sopa de almeja de aguas turbias","en":"Murkwater Clam Soup","icon":"T3_MEAL_SOUP_FISH","tier":3},{"id":"T5_MEAL_SOUP_FISH","slot":"food","name":"Sopa de almeja de pantano negro","en":"Blackbog Clam Soup","icon":"T5_MEAL_SOUP_FISH","tier":5},{"id":"T1_MEAL_SOUP_FISH","slot":"food","name":"Sopa de almeja verdosa","en":"Greenmoor Clam Soup","icon":"T1_MEAL_SOUP_FISH","tier":1},{"id":"T5_MEAL_SOUP","slot":"food","name":"Sopa de col","en":"Cabbage Soup","icon":"T5_MEAL_SOUP","tier":5},{"id":"T3_MEAL_SOUP","slot":"food","name":"Sopa de trigo","en":"Wheat Soup","icon":"T3_MEAL_SOUP","tier":3},{"id":"T1_MEAL_SOUP","slot":"food","name":"Sopa de zanahoria","en":"Carrot Soup","icon":"T1_MEAL_SOUP","tier":1},{"id":"T7_MEAL_OMELETTE_FISH","slot":"food","name":"Tortilla de cangrejo de pozo","en":"Dusthole Crab Omelette","icon":"T7_MEAL_OMELETTE_FISH","tier":7},{"id":"T5_MEAL_OMELETTE_FISH","slot":"food","name":"Tortilla de cangrejo de río","en":"Drybrook Crab Omelette","icon":"T5_MEAL_OMELETTE_FISH","tier":5},{"id":"T3_MEAL_OMELETTE_FISH","slot":"food","name":"Tortilla de cangrejo de río abajo","en":"Lowriver Crab Omelette","icon":"T3_MEAL_OMELETTE_FISH","tier":3},{"id":"T7_MEAL_OMELETTE","slot":"food","name":"Tortilla de cerdo","en":"Pork Omelette","icon":"T7_MEAL_OMELETTE","tier":7},{"id":"T7_MEAL_OMELETTE_AVALON","slot":"food","name":"Tortilla de cerdo avaloniana","en":"Avalonian Pork Omelette","icon":"T7_MEAL_OMELETTE_AVALON","tier":7},{"id":"T5_MEAL_OMELETTE","slot":"food","name":"Tortilla de ganso","en":"Goose Omelette","icon":"T5_MEAL_OMELETTE","tier":5},{"id":"T5_MEAL_OMELETTE_AVALON","slot":"food","name":"Tortilla de ganso avaloniana","en":"Avalonian Goose Omelette","icon":"T5_MEAL_OMELETTE_AVALON","tier":5},{"id":"T5_MEAL_OMELETTE_DRAGONAREA","slot":"food","name":"Tortilla de Leyaleta Almabrillante","en":"Brightsoul Leyfin Omelette","icon":"T5_MEAL_OMELETTE_DRAGONAREA","tier":5},{"id":"T7_MEAL_OMELETTE_DRAGONAREA","slot":"food","name":"Tortilla de Leyaleta Dragontina","en":"Dragonbound Leyfin Omelette","icon":"T7_MEAL_OMELETTE_DRAGONAREA","tier":7},{"id":"T3_MEAL_OMELETTE_DRAGONAREA","slot":"food","name":"Tortilla de Leyaleta Serena","en":"Carefree Leyfin Omelette","icon":"T3_MEAL_OMELETTE_DRAGONAREA","tier":3},{"id":"T3_MEAL_OMELETTE","slot":"food","name":"Tortilla de pollo","en":"Chicken Omelette","icon":"T3_MEAL_OMELETTE","tier":3},{"id":"T3_MEAL_OMELETTE_AVALON","slot":"food","name":"Tortilla de pollo avaloniana","en":"Avalonian Chicken Omelette","icon":"T3_MEAL_OMELETTE_AVALON","tier":3},{"id":"HEAD_LEATHER_MORGANA","slot":"head","name":"Capucha de acechador","en":"Stalker Hood","icon":"T8_HEAD_LEATHER_MORGANA"},{"id":"HEAD_LEATHER_SET3","slot":"head","name":"Capucha de asesino","en":"Assassin Hood","icon":"T8_HEAD_LEATHER_SET3"},{"id":"HEAD_LEATHER_FEY","slot":"head","name":"Capucha de caminanieblas","en":"Mistwalker Hood","icon":"T8_HEAD_LEATHER_FEY"},{"id":"HEAD_LEATHER_SET2","slot":"head","name":"Capucha de cazador","en":"Hunter Hood","icon":"T8_HEAD_LEATHER_SET2"},{"id":"HEAD_LEATHER_UNDEAD","slot":"head","name":"Capucha de espectro","en":"Specter Hood","icon":"T8_HEAD_LEATHER_UNDEAD"},{"id":"HEAD_LEATHER_DRAGON","slot":"head","name":"Capucha de Matadragones","en":"Dragonslayer Hood","icon":"T8_HEAD_LEATHER_DRAGON"},{"id":"HEAD_LEATHER_SET1","slot":"head","name":"Capucha de mercenario","en":"Mercenary Hood","icon":"T8_HEAD_LEATHER_SET1"},{"id":"HEAD_LEATHER_AVALON","slot":"head","name":"Capucha de tenacidad","en":"Hood of Tenacity","icon":"T8_HEAD_LEATHER_AVALON"},{"id":"HEAD_LEATHER_HELL","slot":"head","name":"Capucha de vándalo","en":"Hellion Hood","icon":"T8_HEAD_LEATHER_HELL"},{"id":"HEAD_LEATHER_ROYAL","slot":"head","name":"Capucha real","en":"Royal Hood","icon":"T8_HEAD_LEATHER_ROYAL"},{"id":"HEAD_PLATE_FEY","slot":"head","name":"Casco crepuscular","en":"Duskweaver Helmet","icon":"T8_HEAD_PLATE_FEY"},{"id":"HEAD_PLATE_SET2","slot":"head","name":"Casco de caballero","en":"Knight Helmet","icon":"T8_HEAD_PLATE_SET2"},{"id":"HEAD_PLATE_HELL","slot":"head","name":"Casco de demonio","en":"Demon Helmet","icon":"T8_HEAD_PLATE_HELL"},{"id":"HEAD_PLATE_UNDEAD","slot":"head","name":"Casco de guardatumbas","en":"Graveguard Helmet","icon":"T8_HEAD_PLATE_UNDEAD"},{"id":"HEAD_PLATE_SET3","slot":"head","name":"Casco de guardián","en":"Guardian Helmet","icon":"T8_HEAD_PLATE_SET3"},{"id":"HEAD_PLATE_KEEPER","slot":"head","name":"Casco de juez","en":"Judicator Helmet","icon":"T8_HEAD_PLATE_KEEPER"},{"id":"HEAD_PLATE_SET1","slot":"head","name":"Casco de soldado","en":"Soldier Helmet","icon":"T8_HEAD_PLATE_SET1"},{"id":"HEAD_PLATE_AVALON","slot":"head","name":"Casco de valor","en":"Helmet of Valor","icon":"T8_HEAD_PLATE_AVALON"},{"id":"HEAD_PLATE_ROYAL","slot":"head","name":"Casco real","en":"Royal Helmet","icon":"T8_HEAD_PLATE_ROYAL"},{"id":"HEAD_GATHERER_ROCK","slot":"head","name":"Gorro de cantero","en":"Quarrier Cap","icon":"T8_HEAD_GATHERER_ROCK"},{"id":"HEAD_GATHERER_FIBER","slot":"head","name":"Gorro de cosechador","en":"Harvester Cap","icon":"T8_HEAD_GATHERER_FIBER"},{"id":"HEAD_GATHERER_WOOD","slot":"head","name":"Gorro de leñador","en":"Lumberjack Cap","icon":"T8_HEAD_GATHERER_WOOD"},{"id":"HEAD_GATHERER_ORE","slot":"head","name":"Gorro de minero","en":"Miner Cap","icon":"T8_HEAD_GATHERER_ORE"},{"id":"HEAD_GATHERER_HIDE","slot":"head","name":"Gorro de peletero","en":"Skinner Cap","icon":"T8_HEAD_GATHERER_HIDE"},{"id":"HEAD_GATHERER_FISH","slot":"head","name":"Gorro de pescador","en":"Fisherman Cap","icon":"T8_HEAD_GATHERER_FISH"},{"id":"HEAD_CLOTH_SET2","slot":"head","name":"Hábito de clérigo","en":"Cleric Cowl","icon":"T8_HEAD_CLOTH_SET2"},{"id":"HEAD_CLOTH_HELL","slot":"head","name":"Hábito de diablo","en":"Fiend Cowl","icon":"T8_HEAD_CLOTH_HELL"},{"id":"HEAD_CLOTH_KEEPER","slot":"head","name":"Hábito de druida","en":"Druid Cowl","icon":"T8_HEAD_CLOTH_KEEPER"},{"id":"HEAD_CLOTH_SET1","slot":"head","name":"Hábito de erudito","en":"Scholar Cowl","icon":"T8_HEAD_CLOTH_SET1"},{"id":"HEAD_CLOTH_SET3","slot":"head","name":"Hábito de mago","en":"Mage Cowl","icon":"T8_HEAD_CLOTH_SET3"},{"id":"HEAD_CLOTH_AVALON","slot":"head","name":"Hábito de pureza","en":"Cowl of Purity","icon":"T8_HEAD_CLOTH_AVALON"},{"id":"HEAD_CLOTH_MORGANA","slot":"head","name":"Hábito de sectario","en":"Cultist Cowl","icon":"T8_HEAD_CLOTH_MORGANA"},{"id":"HEAD_CLOTH_ROYAL","slot":"head","name":"Hábito real","en":"Royal Cowl","icon":"T8_HEAD_CLOTH_ROYAL"},{"id":"HEAD_CLOTH_FEY","slot":"head","name":"Sombrero de escamas feéricas","en":"Feyscale Hat","icon":"T8_HEAD_CLOTH_FEY"},{"id":"T6_MOUNT_GIANTSTAG_MOOSE","slot":"mount","name":"Alce","en":"Moose","icon":"T6_MOUNT_GIANTSTAG_MOOSE","tier":6},{"id":"T8_MOUNT_MOABIRD_FW_BRIDGEWATCH_ELITE","slot":"mount","name":"Ave de terror de élite","en":"Elite Terrorbird","icon":"T8_MOUNT_MOABIRD_FW_BRIDGEWATCH_ELITE","tier":8},{"id":"T7_MOUNT_TERRORBIRD_ADC","slot":"mount","name":"Ave de terror ensillada","en":"Saddled Terrorbird","icon":"T7_MOUNT_TERRORBIRD_ADC","tier":7},{"id":"T5_MOUNT_MOABIRD_FW_BRIDGEWATCH","slot":"mount","name":"Ave moa ensillada","en":"Saddled Moabird","icon":"T5_MOUNT_MOABIRD_FW_BRIDGEWATCH","tier":5},{"id":"T6_MOUNT_SIEGE_BALLISTA","slot":"mount","name":"Balista de asedio","en":"Siege Ballista","icon":"T6_MOUNT_SIEGE_BALLISTA","tier":6},{"id":"T7_MOUNT_SWAMPDRAGON_AVALON_BASILISK","slot":"mount","name":"Basilisco avaloniano","en":"Avalonian Basilisk","icon":"T7_MOUNT_SWAMPDRAGON_AVALON_BASILISK","tier":7},{"id":"T7_MOUNT_SWAMPDRAGON_BATTLE","slot":"mount","name":"Basilisco de fuego","en":"Flame Basilisk","icon":"T7_MOUNT_SWAMPDRAGON_BATTLE","tier":7},{"id":"T7_MOUNT_ARMORED_SWAMPDRAGON_BATTLE","slot":"mount","name":"Basilisco venenoso","en":"Venom Basilisk","icon":"T7_MOUNT_ARMORED_SWAMPDRAGON_BATTLE","tier":7},{"id":"T8_MOUNT_OX","slot":"mount","name":"Buey de transporte","en":"Transport Ox","icon":"T8_MOUNT_OX","tier":8},{"id":"T5_MOUNT_OX","slot":"mount","name":"Buey de transporte del experto","en":"Expert's Transport Ox","icon":"T5_MOUNT_OX","tier":5},{"id":"T7_MOUNT_OX","slot":"mount","name":"Buey de transporte del gran maestro","en":"Grandmaster's Transport Ox","icon":"T7_MOUNT_OX","tier":7},{"id":"T4_MOUNT_OX","slot":"mount","name":"Buey de transporte del iniciado","en":"Adept's Transport Ox","icon":"T4_MOUNT_OX","tier":4},{"id":"T6_MOUNT_OX","slot":"mount","name":"Buey de transporte del maestro","en":"Master's Transport Ox","icon":"T6_MOUNT_OX","tier":6},{"id":"T3_MOUNT_OX","slot":"mount","name":"Buey de transporte del obrero","en":"Journeyman's Transport Ox","icon":"T3_MOUNT_OX","tier":3},{"id":"T8_MOUNT_OWL_FW_BRECILIEN_ELITE","slot":"mount","name":"Búho místico de élite","en":"Elite Mystic Owl","icon":"T8_MOUNT_OWL_FW_BRECILIEN_ELITE","tier":8},{"id":"T5_MOUNT_OWL_FW_BRECILIEN","slot":"mount","name":"Búho místico ensillado","en":"Saddled Mystic Owl","icon":"T5_MOUNT_OWL_FW_BRECILIEN","tier":5},{"id":"T8_MOUNT_ARMORED_HORSE","slot":"mount","name":"Caballo blindado","en":"Armored Horse","icon":"T8_MOUNT_ARMORED_HORSE","tier":8},{"id":"T5_MOUNT_ARMORED_HORSE","slot":"mount","name":"Caballo blindado del experto","en":"Expert's Armored Horse","icon":"T5_MOUNT_ARMORED_HORSE","tier":5},{"id":"T7_MOUNT_ARMORED_HORSE","slot":"mount","name":"Caballo blindado del gran maestro","en":"Grandmaster's Armored Horse","icon":"T7_MOUNT_ARMORED_HORSE","tier":7},{"id":"T6_MOUNT_ARMORED_HORSE","slot":"mount","name":"Caballo blindado del maestro","en":"Master's Armored Horse","icon":"T6_MOUNT_ARMORED_HORSE","tier":6},{"id":"T8_MOUNT_HORSE","slot":"mount","name":"Caballo de montar","en":"Riding Horse","icon":"T8_MOUNT_HORSE","tier":8},{"id":"T5_MOUNT_HORSE","slot":"mount","name":"Caballo de montar del experto","en":"Expert's Riding Horse","icon":"T5_MOUNT_HORSE","tier":5},{"id":"T7_MOUNT_HORSE","slot":"mount","name":"Caballo de montar del gran maestro","en":"Grandmaster's Riding Horse","icon":"T7_MOUNT_HORSE","tier":7},{"id":"T4_MOUNT_HORSE","slot":"mount","name":"Caballo de montar del iniciado","en":"Adept's Riding Horse","icon":"T4_MOUNT_HORSE","tier":4},{"id":"T6_MOUNT_HORSE","slot":"mount","name":"Caballo de montar del maestro","en":"Master's Riding Horse","icon":"T6_MOUNT_HORSE","tier":6},{"id":"T3_MOUNT_HORSE","slot":"mount","name":"Caballo de montar del obrero","en":"Journeyman's Riding Horse","icon":"T3_MOUNT_HORSE","tier":3},{"id":"T8_MOUNT_HORSE_UNDEAD@1","slot":"mount","name":"Caballo huesudo espectral","en":"Spectral Bonehorse","icon":"T8_MOUNT_HORSE_UNDEAD@1","tier":8},{"id":"T8_MOUNT_RAM_FW_MARTLOCK_ELITE","slot":"mount","name":"Carnero cimarrón de élite","en":"Elite Bighorn Ram","icon":"T8_MOUNT_RAM_FW_MARTLOCK_ELITE","tier":8},{"id":"T5_MOUNT_RAM_FW_MARTLOCK","slot":"mount","name":"Carnero cimarrón ensillado","en":"Saddled Bighorn Ram","icon":"T5_MOUNT_RAM_FW_MARTLOCK","tier":5},{"id":"T6_MOUNT_FROSTRAM_ADC","slot":"mount","name":"Carnero de hielo","en":"Frost Ram","icon":"T6_MOUNT_FROSTRAM_ADC","tier":6},{"id":"T4_MOUNT_GIANTSTAG","slot":"mount","name":"Ciervo gigante del iniciado","en":"Adept's Giant Stag","icon":"T4_MOUNT_GIANTSTAG","tier":4},{"id":"T8_MOUNT_RABBIT_EASTER_DARK@1","slot":"mount","name":"Conejo de Caerleon","en":"Caerleon Cottontail","icon":"T8_MOUNT_RABBIT_EASTER_DARK@1","tier":8},{"id":"T8_MOUNT_RABBIT_EASTER","slot":"mount","name":"Conejo primaveral","en":"Spring Cottontail","icon":"T8_MOUNT_RABBIT_EASTER","tier":8},{"id":"T8_MOUNT_DRAKE_FIRE","slot":"mount","name":"Draco Ala de Fuego","en":"Firewing Drake","icon":"T8_MOUNT_DRAKE_FIRE","tier":8},{"id":"T7_MOUNT_SWAMPDRAGON","slot":"mount","name":"Dragón de pantano ensillado","en":"Saddled Swamp Dragon","icon":"T7_MOUNT_SWAMPDRAGON","tier":7},{"id":"T8_MOUNT_COUGAR_KEEPER@1","slot":"mount","name":"Garrafuria","en":"Rageclaw","icon":"T8_MOUNT_COUGAR_KEEPER@1","tier":8},{"id":"T5_MOUNT_COUGAR_KEEPER@1","slot":"mount","name":"Garrapresta","en":"Swiftclaw","icon":"T5_MOUNT_COUGAR_KEEPER@1","tier":5},{"id":"T6_MOUNT_DIREWOLF","slot":"mount","name":"Huargo","en":"Direwolf","icon":"T6_MOUNT_DIREWOLF","tier":6},{"id":"T7_MOUNT_HUSKY_ADC","slot":"mount","name":"Husky de nieve","en":"Snow Husky","icon":"T7_MOUNT_HUSKY_ADC","tier":7},{"id":"T7_MOUNT_DIREBOAR","slot":"mount","name":"Jabalí ensillado","en":"Saddled Direboar","icon":"T7_MOUNT_DIREBOAR","tier":7},{"id":"T8_MOUNT_DIREBOAR_FW_LYMHURST_ELITE","slot":"mount","name":"Jabalí salvaje de élite","en":"Elite Wild Boar","icon":"T8_MOUNT_DIREBOAR_FW_LYMHURST_ELITE","tier":8},{"id":"T5_MOUNT_DIREBOAR_FW_LYMHURST","slot":"mount","name":"Jabalí salvaje ensillado","en":"Saddled Wild Boar","icon":"T5_MOUNT_DIREBOAR_FW_LYMHURST","tier":5},{"id":"T7_MOUNT_MONITORLIZARD_ADC","slot":"mount","name":"Lagartija de plaga","en":"Pest Lizard","icon":"T7_MOUNT_MONITORLIZARD_ADC","tier":7},{"id":"T8_MOUNT_GREYWOLF_FW_CAERLEON_ELITE","slot":"mount","name":"Lobo gris de élite","en":"Elite Greywolf","icon":"T8_MOUNT_GREYWOLF_FW_CAERLEON_ELITE","tier":8},{"id":"T5_MOUNT_GREYWOLF_FW_CAERLEON","slot":"mount","name":"Lobo gris ensillado","en":"Saddled Greywolf","icon":"T5_MOUNT_GREYWOLF_FW_CAERLEON","tier":5},{"id":"T8_MOUNT_MAMMOTH_BATTLE@1","slot":"mount","name":"Mamut de comando","en":"Command Mammoth","icon":"T8_MOUNT_MAMMOTH_BATTLE@1","tier":8},{"id":"T8_MOUNT_MAMMOTH_TRANSPORT","slot":"mount","name":"Mamut de transporte","en":"Transport Mammoth","icon":"T8_MOUNT_MAMMOTH_TRANSPORT","tier":8},{"id":"T8_MOUNT_DIREBEAR_FW_FORTSTERLING_ELITE","slot":"mount","name":"Oso de invierno de élite","en":"Elite Winter Bear","icon":"T8_MOUNT_DIREBEAR_FW_FORTSTERLING_ELITE","tier":8},{"id":"T5_MOUNT_DIREBEAR_FW_FORTSTERLING","slot":"mount","name":"Oso de invierno ensillado","en":"Saddled Winter Bear","icon":"T5_MOUNT_DIREBEAR_FW_FORTSTERLING","tier":5},{"id":"T8_MOUNT_DIREBEAR","slot":"mount","name":"Oso gigante ensillado","en":"Saddled Direbear","icon":"T8_MOUNT_DIREBEAR","tier":8},{"id":"T8_MOUNT_ARMORED_HORSE_MORGANA@1","slot":"mount","name":"Pesadilla de Morgana","en":"Morgana Nightmare","icon":"T8_MOUNT_ARMORED_HORSE_MORGANA@1","tier":8},{"id":"T8_MOUNT_SWAMPDRAGON_FW_THETFORD_ELITE","slot":"mount","name":"Salamandra de pantano de élite","en":"Elite Swamp Salamander","icon":"T8_MOUNT_SWAMPDRAGON_FW_THETFORD_ELITE","tier":8},{"id":"T5_MOUNT_SWAMPDRAGON_FW_THETFORD","slot":"mount","name":"Salamandra de pantano ensillada","en":"Saddled Swamp Salamander","icon":"T5_MOUNT_SWAMPDRAGON_FW_THETFORD","tier":5},{"id":"T8_MOUNT_SPIDER_HELL","slot":"mount","name":"Tejedor de Almas","en":"Soulspinner","icon":"T8_MOUNT_SPIDER_HELL","tier":8},{"id":"T5_MOUNT_SPIDER_HELL","slot":"mount","name":"Tejedor de Infiernos","en":"Hellspinner","icon":"T5_MOUNT_SPIDER_HELL","tier":5},{"id":"OFF_SHIELD_AVALON","slot":"offhand","name":"Aegis Astral","en":"Astral Aegis","icon":"T8_OFF_SHIELD_AVALON"},{"id":"OFF_TORCH","slot":"offhand","name":"Antorcha","en":"Torch","icon":"T8_OFF_TORCH"},{"id":"OFF_TORCH_CRYSTAL","slot":"offhand","name":"Antorcha Llamazul","en":"Blueflame Torch","icon":"T8_OFF_TORCH_CRYSTAL"},{"id":"OFF_SHIELD_CRYSTAL","slot":"offhand","name":"Barrera Inquebrantable","en":"Unbreakable Ward","icon":"T8_OFF_SHIELD_CRYSTAL"},{"id":"OFF_JESTERCANE_HELL","slot":"offhand","name":"Bastón malicioso","en":"Leering Cane","icon":"T8_OFF_JESTERCANE_HELL"},{"id":"OFF_TALISMAN_AVALON","slot":"offhand","name":"Cetro sagrado","en":"Sacred Scepter","icon":"T8_OFF_TALISMAN_AVALON"},{"id":"OFF_BOOK","slot":"offhand","name":"Diario de Rosalia","en":"Rosalia's Diary","icon":"T8_OFF_BOOK"},{"id":"OFF_SHIELD","slot":"offhand","name":"Escudo","en":"Shield","icon":"T8_OFF_SHIELD"},{"id":"OFF_SHIELD_HELL","slot":"offhand","name":"Escudo de villano","en":"Caitiff Shield","icon":"T8_OFF_SHIELD_HELL"},{"id":"OFF_TOME_CRYSTAL","slot":"offhand","name":"Grimorio Cronoestático","en":"Timelocked Grimoire","icon":"T8_OFF_TOME_CRYSTAL"},{"id":"OFF_CENSER_AVALON","slot":"offhand","name":"Incensario celestial","en":"Celestial Censer","icon":"T8_OFF_CENSER_AVALON"},{"id":"OFF_HORN_KEEPER","slot":"offhand","name":"Invocanieblas","en":"Mistcaller","icon":"T8_OFF_HORN_KEEPER"},{"id":"OFF_DEMONSKULL_HELL","slot":"offhand","name":"Muisak","en":"Muisak","icon":"T8_OFF_DEMONSKULL_HELL"},{"id":"OFF_ORB_MORGANA","slot":"offhand","name":"Ojo de los secretos","en":"Eye of Secrets","icon":"T8_OFF_ORB_MORGANA"},{"id":"OFF_SPIKEDSHIELD_MORGANA","slot":"offhand","name":"Partecaras","en":"Facebreaker","icon":"T8_OFF_SPIKEDSHIELD_MORGANA"},{"id":"OFF_TOTEM_KEEPER","slot":"offhand","name":"Raíz primaria","en":"Taproot","icon":"T8_OFF_TOTEM_KEEPER"},{"id":"OFF_TOWERSHIELD_UNDEAD","slot":"offhand","name":"Sarcófago","en":"Sarcophagus","icon":"T8_OFF_TOWERSHIELD_UNDEAD"},{"id":"OFF_LAMP_UNDEAD","slot":"offhand","name":"Vela de cripta","en":"Cryptcandle","icon":"T8_OFF_LAMP_UNDEAD"},{"id":"T5_POTION_ACID","slot":"potion","name":"Poción de ácido","en":"Acid Potion","icon":"T5_POTION_ACID","tier":5},{"id":"T7_POTION_ACID","slot":"potion","name":"Poción de ácido mayor","en":"Major Acid Potion","icon":"T7_POTION_ACID","tier":7},{"id":"T3_POTION_ACID","slot":"potion","name":"Poción de ácido menor","en":"Minor Acid Potion","icon":"T3_POTION_ACID","tier":3},{"id":"T6_POTION_BERSERK","slot":"potion","name":"Poción de berserker","en":"Berserk Potion","icon":"T6_POTION_BERSERK","tier":6},{"id":"T8_POTION_BERSERK","slot":"potion","name":"Poción de berserker mayor","en":"Major Berserk Potion","icon":"T8_POTION_BERSERK","tier":8},{"id":"T4_POTION_BERSERK","slot":"potion","name":"Poción de berserker menor","en":"Minor Berserk Potion","icon":"T4_POTION_BERSERK","tier":4},{"id":"T5_POTION_MOB_RESET","slot":"potion","name":"Poción de calma","en":"Calming Potion","icon":"T5_POTION_MOB_RESET","tier":5},{"id":"T7_POTION_MOB_RESET","slot":"potion","name":"Poción de calma mayor","en":"Major Calming Potion","icon":"T7_POTION_MOB_RESET","tier":7},{"id":"T3_POTION_MOB_RESET","slot":"potion","name":"Poción de calma menor","en":"Minor Calming Potion","icon":"T3_POTION_MOB_RESET","tier":3},{"id":"T4_POTION_HEAL","slot":"potion","name":"Poción de curación","en":"Healing Potion","icon":"T4_POTION_HEAL","tier":4},{"id":"T6_POTION_HEAL","slot":"potion","name":"Poción de curación mayor","en":"Major Healing Potion","icon":"T6_POTION_HEAL","tier":6},{"id":"T2_POTION_HEAL","slot":"potion","name":"Poción de curación menor","en":"Minor Healing Potion","icon":"T2_POTION_HEAL","tier":2},{"id":"T4_POTION_ENERGY","slot":"potion","name":"Poción de energía","en":"Energy Potion","icon":"T4_POTION_ENERGY","tier":4},{"id":"T6_POTION_ENERGY","slot":"potion","name":"Poción de energía mayor","en":"Major Energy Potion","icon":"T6_POTION_ENERGY","tier":6},{"id":"T2_POTION_ENERGY","slot":"potion","name":"Poción de energía menor","en":"Minor Energy Potion","icon":"T2_POTION_ENERGY","tier":2},{"id":"T6_POTION_LAVA","slot":"potion","name":"Poción de fuego infernal","en":"Hellfire Potion","icon":"T6_POTION_LAVA","tier":6},{"id":"T8_POTION_LAVA","slot":"potion","name":"Poción de fuego infernal mayor","en":"Major Hellfire Potion","icon":"T8_POTION_LAVA","tier":8},{"id":"T4_POTION_LAVA","slot":"potion","name":"Poción de fuego infernal menor","en":"Minor Hellfire Potion","icon":"T4_POTION_LAVA","tier":4},{"id":"T5_POTION_REVIVE","slot":"potion","name":"Poción de gigantismo","en":"Gigantify Potion","icon":"T5_POTION_REVIVE","tier":5},{"id":"T7_POTION_REVIVE","slot":"potion","name":"Poción de gigantismo mayor","en":"Major Gigantify Potion","icon":"T7_POTION_REVIVE","tier":7},{"id":"T3_POTION_REVIVE","slot":"potion","name":"Poción de gigantismo menor","en":"Minor Gigantify Potion","icon":"T3_POTION_REVIVE","tier":3},{"id":"T8_POTION_CLEANSE","slot":"potion","name":"Poción de invisibilidad","en":"Invisibility Potion","icon":"T8_POTION_CLEANSE","tier":8},{"id":"T5_POTION_CLEANSE2","slot":"potion","name":"Poción de limpieza","en":"Cleansing Potion","icon":"T5_POTION_CLEANSE2","tier":5},{"id":"T7_POTION_CLEANSE2","slot":"potion","name":"Poción de limpieza mayor","en":"Major Cleansing Potion","icon":"T7_POTION_CLEANSE2","tier":7},{"id":"T3_POTION_CLEANSE2","slot":"potion","name":"Poción de limpieza menor","en":"Minor Cleansing Potion","icon":"T3_POTION_CLEANSE2","tier":3},{"id":"T6_POTION_GATHER","slot":"potion","name":"Poción de recolección","en":"Gathering Potion","icon":"T6_POTION_GATHER","tier":6},{"id":"T8_POTION_GATHER","slot":"potion","name":"Poción de recolección mayor","en":"Major Gathering Potion","icon":"T8_POTION_GATHER","tier":8},{"id":"T4_POTION_GATHER","slot":"potion","name":"Poción de recolección menor","en":"Minor Gathering Potion","icon":"T4_POTION_GATHER","tier":4},{"id":"T6_POTION_COOLDOWN","slot":"potion","name":"Poción de veneno","en":"Poison Potion","icon":"T6_POTION_COOLDOWN","tier":6},{"id":"T8_POTION_COOLDOWN","slot":"potion","name":"Poción de veneno mayor","en":"Major Poison Potion","icon":"T8_POTION_COOLDOWN","tier":8},{"id":"T4_POTION_COOLDOWN","slot":"potion","name":"Poción de veneno menor","en":"Minor Poison Potion","icon":"T4_POTION_COOLDOWN","tier":4},{"id":"T6_POTION_LIFEWARD","slot":"potion","name":"Poción Guardavida","en":"Lifeward Potion","icon":"T6_POTION_LIFEWARD","tier":6},{"id":"T8_POTION_LIFEWARD","slot":"potion","name":"Poción Guardavida Mayor","en":"Major Lifeward Potion","icon":"T8_POTION_LIFEWARD","tier":8},{"id":"T4_POTION_LIFEWARD","slot":"potion","name":"Poción Guardavida Menor","en":"Minor Lifeward Potion","icon":"T4_POTION_LIFEWARD","tier":4},{"id":"T5_POTION_SLOWFIELD","slot":"potion","name":"Poción pegajosa","en":"Sticky Potion","icon":"T5_POTION_SLOWFIELD","tier":5},{"id":"T7_POTION_SLOWFIELD","slot":"potion","name":"Poción pegajosa mayor","en":"Major Sticky Potion","icon":"T7_POTION_SLOWFIELD","tier":7},{"id":"T3_POTION_SLOWFIELD","slot":"potion","name":"Poción pegajosa menor","en":"Minor Sticky Potion","icon":"T3_POTION_SLOWFIELD","tier":3},{"id":"T6_POTION_TORNADO","slot":"potion","name":"Tornado en botella","en":"Tornado in a Bottle","icon":"T6_POTION_TORNADO","tier":6},{"id":"T8_POTION_TORNADO","slot":"potion","name":"Tornado en botella mayor","en":"Major Tornado in a Bottle","icon":"T8_POTION_TORNADO","tier":8},{"id":"T4_POTION_TORNADO","slot":"potion","name":"Tornado en botella menor","en":"Minor Tornado in a Bottle","icon":"T4_POTION_TORNADO","tier":4},{"id":"SHOES_PLATE_FEY","slot":"shoes","name":"Botas crepusculares","en":"Duskweaver Boots","icon":"T8_SHOES_PLATE_FEY"},{"id":"SHOES_PLATE_SET2","slot":"shoes","name":"Botas de caballero","en":"Knight Boots","icon":"T8_SHOES_PLATE_SET2"},{"id":"SHOES_PLATE_HELL","slot":"shoes","name":"Botas de demonio","en":"Demon Boots","icon":"T8_SHOES_PLATE_HELL"},{"id":"SHOES_PLATE_UNDEAD","slot":"shoes","name":"Botas de guardatumbas","en":"Graveguard Boots","icon":"T8_SHOES_PLATE_UNDEAD"},{"id":"SHOES_PLATE_SET3","slot":"shoes","name":"Botas de guardián","en":"Guardian Boots","icon":"T8_SHOES_PLATE_SET3"},{"id":"SHOES_PLATE_KEEPER","slot":"shoes","name":"Botas de juez","en":"Judicator Boots","icon":"T8_SHOES_PLATE_KEEPER"},{"id":"SHOES_PLATE_SET1","slot":"shoes","name":"Botas de soldado","en":"Soldier Boots","icon":"T8_SHOES_PLATE_SET1"},{"id":"SHOES_GATHERER_ROCK","slot":"shoes","name":"Botas de trabajo de cantero","en":"Quarrier Workboots","icon":"T8_SHOES_GATHERER_ROCK"},{"id":"SHOES_GATHERER_FIBER","slot":"shoes","name":"Botas de trabajo de cosechador","en":"Harvester Workboots","icon":"T8_SHOES_GATHERER_FIBER"},{"id":"SHOES_GATHERER_WOOD","slot":"shoes","name":"Botas de trabajo de leñador","en":"Lumberjack Workboots","icon":"T8_SHOES_GATHERER_WOOD"},{"id":"SHOES_GATHERER_ORE","slot":"shoes","name":"Botas de trabajo de minero","en":"Miner Workboots","icon":"T8_SHOES_GATHERER_ORE"},{"id":"SHOES_GATHERER_HIDE","slot":"shoes","name":"Botas de trabajo de peletero","en":"Skinner Workboots","icon":"T8_SHOES_GATHERER_HIDE"},{"id":"SHOES_GATHERER_FISH","slot":"shoes","name":"Botas de trabajo de pescador","en":"Fisherman Workboots","icon":"T8_SHOES_GATHERER_FISH"},{"id":"SHOES_PLATE_AVALON","slot":"shoes","name":"Botas de valor","en":"Boots of Valor","icon":"T8_SHOES_PLATE_AVALON"},{"id":"SHOES_PLATE_ROYAL","slot":"shoes","name":"Botas reales","en":"Royal Boots","icon":"T8_SHOES_PLATE_ROYAL"},{"id":"SHOES_CLOTH_SET2","slot":"shoes","name":"Sandalias de clérigo","en":"Cleric Sandals","icon":"T8_SHOES_CLOTH_SET2"},{"id":"SHOES_CLOTH_HELL","slot":"shoes","name":"Sandalias de diablo","en":"Fiend Sandals","icon":"T8_SHOES_CLOTH_HELL"},{"id":"SHOES_CLOTH_KEEPER","slot":"shoes","name":"Sandalias de druida","en":"Druid Sandals","icon":"T8_SHOES_CLOTH_KEEPER"},{"id":"SHOES_CLOTH_SET1","slot":"shoes","name":"Sandalias de erudito","en":"Scholar Sandals","icon":"T8_SHOES_CLOTH_SET1"},{"id":"SHOES_CLOTH_FEY","slot":"shoes","name":"Sandalias de escamas feéricas","en":"Feyscale Sandals","icon":"T8_SHOES_CLOTH_FEY"},{"id":"SHOES_CLOTH_SET3","slot":"shoes","name":"Sandalias de mago","en":"Mage Sandals","icon":"T8_SHOES_CLOTH_SET3"},{"id":"SHOES_CLOTH_AVALON","slot":"shoes","name":"Sandalias de pureza","en":"Sandals of Purity","icon":"T8_SHOES_CLOTH_AVALON"},{"id":"SHOES_CLOTH_MORGANA","slot":"shoes","name":"Sandalias de sectario","en":"Cultist Sandals","icon":"T8_SHOES_CLOTH_MORGANA"},{"id":"SHOES_CLOTH_ROYAL","slot":"shoes","name":"Sandalias reales","en":"Royal Sandals","icon":"T8_SHOES_CLOTH_ROYAL"},{"id":"SHOES_LEATHER_MORGANA","slot":"shoes","name":"Zapatos de acechador","en":"Stalker Shoes","icon":"T8_SHOES_LEATHER_MORGANA"},{"id":"SHOES_LEATHER_SET3","slot":"shoes","name":"Zapatos de asesino","en":"Assassin Shoes","icon":"T8_SHOES_LEATHER_SET3"},{"id":"SHOES_LEATHER_FEY","slot":"shoes","name":"Zapatos de caminanieblas","en":"Mistwalker Shoes","icon":"T8_SHOES_LEATHER_FEY"},{"id":"SHOES_LEATHER_SET2","slot":"shoes","name":"Zapatos de cazador","en":"Hunter Shoes","icon":"T8_SHOES_LEATHER_SET2"},{"id":"SHOES_LEATHER_UNDEAD","slot":"shoes","name":"Zapatos de espectro","en":"Specter Shoes","icon":"T8_SHOES_LEATHER_UNDEAD"},{"id":"SHOES_LEATHER_DRAGON","slot":"shoes","name":"Zapatos de Matadragones","en":"Dragonslayer Shoes","icon":"T8_SHOES_LEATHER_DRAGON"},{"id":"SHOES_LEATHER_SET1","slot":"shoes","name":"Zapatos de mercenario","en":"Mercenary Shoes","icon":"T8_SHOES_LEATHER_SET1"},{"id":"SHOES_LEATHER_AVALON","slot":"shoes","name":"Zapatos de tenacidad","en":"Shoes of Tenacity","icon":"T8_SHOES_LEATHER_AVALON"},{"id":"SHOES_LEATHER_HELL","slot":"shoes","name":"Zapatos de vándalo","en":"Hellion Shoes","icon":"T8_SHOES_LEATHER_HELL"},{"id":"SHOES_LEATHER_ROYAL","slot":"shoes","name":"Zapatos reales","en":"Royal Shoes","icon":"T8_SHOES_LEATHER_ROYAL"},{"id":"2H_HALBERD","slot":"weapon","name":"Alabarda","en":"Halberd","icon":"T8_2H_HALBERD"},{"id":"2H_BOW","slot":"weapon","name":"Arco","en":"Bow","icon":"T8_2H_BOW"},{"id":"2H_BOW_CRYSTAL","slot":"weapon","name":"Arco Cruzacielos","en":"Skystrider Bow","icon":"T8_2H_BOW_CRYSTAL"},{"id":"2H_CROSSBOWLARGE_MORGANA","slot":"weapon","name":"Arco de asedio","en":"Siegebow","icon":"T8_2H_CROSSBOWLARGE_MORGANA"},{"id":"2H_BOW_KEEPER","slot":"weapon","name":"Arco de Badon","en":"Bow of Badon","icon":"T8_2H_BOW_KEEPER"},{"id":"2H_WARBOW","slot":"weapon","name":"Arco de guerra","en":"Warbow","icon":"T8_2H_WARBOW"},{"id":"2H_BOW_HELL","slot":"weapon","name":"Arco de lamentaciones","en":"Wailing Bow","icon":"T8_2H_BOW_HELL"},{"id":"2H_LONGBOW","slot":"weapon","name":"Arco largo","en":"Longbow","icon":"T8_2H_LONGBOW"},{"id":"2H_LONGBOW_UNDEAD","slot":"weapon","name":"Arco susurrante","en":"Whispering Bow","icon":"T8_2H_LONGBOW_UNDEAD"},{"id":"2H_CROSSBOW","slot":"weapon","name":"Ballesta","en":"Crossbow","icon":"T8_2H_CROSSBOW"},{"id":"MAIN_1HCROSSBOW","slot":"weapon","name":"Ballesta ligera","en":"Light Crossbow","icon":"T8_MAIN_1HCROSSBOW"},{"id":"2H_CROSSBOWLARGE","slot":"weapon","name":"Ballesta pesada","en":"Heavy Crossbow","icon":"T8_2H_CROSSBOWLARGE"},{"id":"MAIN_ARCANESTAFF","slot":"weapon","name":"Bastón arcano","en":"Arcane Staff","icon":"T8_MAIN_ARCANESTAFF"},{"id":"2H_FROSTSTAFF_CRYSTAL","slot":"weapon","name":"Bastón ártico","en":"Arctic Staff","icon":"T8_2H_FROSTSTAFF_CRYSTAL"},{"id":"2H_ARCANESTAFF_CRYSTAL","slot":"weapon","name":"Bastón astral","en":"Astral Staff","icon":"T8_2H_ARCANESTAFF_CRYSTAL"},{"id":"2H_HOLYSTAFF_HELL","slot":"weapon","name":"Bastón caído","en":"Fallen Staff","icon":"T8_2H_HOLYSTAFF_HELL"},{"id":"2H_FIRESTAFF_HELL","slot":"weapon","name":"Bastón de azufre","en":"Brimstone Staff","icon":"T8_2H_FIRESTAFF_HELL"},{"id":"MAIN_ARCANESTAFF_UNDEAD","slot":"weapon","name":"Bastón de brujería","en":"Witchwork Staff","icon":"T8_MAIN_ARCANESTAFF_UNDEAD"},{"id":"MAIN_FIRESTAFF_CRYSTAL","slot":"weapon","name":"Bastón de Caminallamas","en":"Flamewalker Staff","icon":"T8_MAIN_FIRESTAFF_CRYSTAL"},{"id":"2H_ICEGAUNTLETS_HELL","slot":"weapon","name":"Bastón de carámbanos","en":"Icicle Staff","icon":"T8_2H_ICEGAUNTLETS_HELL"},{"id":"2H_SHAPESHIFTER_HELL","slot":"weapon","name":"Bastón de criatura infernal","en":"Hellspawn Staff","icon":"T8_2H_SHAPESHIFTER_HELL"},{"id":"2H_DOUBLEBLADEDSTAFF","slot":"weapon","name":"Bastón de doble filo","en":"Double Bladed Staff","icon":"T8_2H_DOUBLEBLADEDSTAFF"},{"id":"2H_ROCKSTAFF_KEEPER","slot":"weapon","name":"Bastón de equilibrio","en":"Staff of Balance","icon":"T8_2H_ROCKSTAFF_KEEPER"},{"id":"MAIN_FROSTSTAFF_KEEPER","slot":"weapon","name":"Bastón de escarcha","en":"Hoarfrost Staff","icon":"T8_MAIN_FROSTSTAFF_KEEPER"},{"id":"MAIN_NATURESTAFF_CRYSTAL","slot":"weapon","name":"Bastón de Forjacorteza","en":"Forgebark Staff","icon":"T8_MAIN_NATURESTAFF_CRYSTAL"},{"id":"MAIN_FIRESTAFF_KEEPER","slot":"weapon","name":"Bastón de fuego incontrolable","en":"Wildfire Staff","icon":"T8_MAIN_FIRESTAFF_KEEPER"},{"id":"MAIN_FROSTSTAFF","slot":"weapon","name":"Bastón de hielo","en":"Frost Staff","icon":"T8_MAIN_FROSTSTAFF"},{"id":"2H_NATURESTAFF_HELL","slot":"weapon","name":"Bastón de infortunio","en":"Blight Staff","icon":"T8_2H_NATURESTAFF_HELL"},{"id":"2H_SHAPESHIFTER_MORGANA","slot":"weapon","name":"Bastón de luna sangrienta","en":"Bloodmoon Staff","icon":"T8_2H_SHAPESHIFTER_MORGANA"},{"id":"MAIN_CURSEDSTAFF_UNDEAD","slot":"weapon","name":"Bastón de maldición de vida","en":"Lifecurse Staff","icon":"T8_MAIN_CURSEDSTAFF_UNDEAD"},{"id":"2H_CURSEDSTAFF_MORGANA","slot":"weapon","name":"Bastón de maldiciones","en":"Damnation Staff","icon":"T8_2H_CURSEDSTAFF_MORGANA"},{"id":"2H_SHAPESHIFTER_SET1","slot":"weapon","name":"Bastón de merodeador","en":"Prowling Staff","icon":"T8_2H_SHAPESHIFTER_SET1"},{"id":"2H_SHAPESHIFTER_CRYSTAL","slot":"weapon","name":"Bastón de Mirada Firme","en":"Stillgaze Staff","icon":"T8_2H_SHAPESHIFTER_CRYSTAL"},{"id":"2H_COMBATSTAFF_MORGANA","slot":"weapon","name":"Bastón de monje negro","en":"Black Monk Staff","icon":"T8_2H_COMBATSTAFF_MORGANA"},{"id":"MAIN_NATURESTAFF_AVALON","slot":"weapon","name":"Bastón de raíz férrea","en":"Ironroot Staff","icon":"T8_MAIN_NATURESTAFF_AVALON"},{"id":"2H_HOLYSTAFF_UNDEAD","slot":"weapon","name":"Bastón de redención","en":"Redemption Staff","icon":"T8_2H_HOLYSTAFF_UNDEAD"},{"id":"MAIN_HOLYSTAFF_MORGANA","slot":"weapon","name":"Bastón de toque de vida","en":"Lifetouch Staff","icon":"T8_MAIN_HOLYSTAFF_MORGANA"},{"id":"2H_DEMONICSTAFF","slot":"weapon","name":"Bastón demoníaco","en":"Demonic Staff","icon":"T8_2H_DEMONICSTAFF"},{"id":"2H_NATURESTAFF_KEEPER","slot":"weapon","name":"Bastón desenfrenado","en":"Rampant Staff","icon":"T8_2H_NATURESTAFF_KEEPER"},{"id":"2H_DIVINESTAFF","slot":"weapon","name":"Bastón divino","en":"Divine Staff","icon":"T8_2H_DIVINESTAFF"},{"id":"MAIN_NATURESTAFF_KEEPER","slot":"weapon","name":"Bastón druida","en":"Druidic Staff","icon":"T8_MAIN_NATURESTAFF_KEEPER"},{"id":"2H_ENIGMATICSTAFF","slot":"weapon","name":"Bastón enigmático","en":"Enigmatic Staff","icon":"T8_2H_ENIGMATICSTAFF"},{"id":"2H_SHAPESHIFTER_SET2","slot":"weapon","name":"Bastón enraizado","en":"Rootbound Staff","icon":"T8_2H_SHAPESHIFTER_SET2"},{"id":"2H_HOLYSTAFF_CRYSTAL","slot":"weapon","name":"Bastón exaltado","en":"Exalted Staff","icon":"T8_2H_HOLYSTAFF_CRYSTAL"},{"id":"2H_INFERNOSTAFF_MORGANA","slot":"weapon","name":"Bastón flamígero","en":"Blazing Staff","icon":"T8_2H_INFERNOSTAFF_MORGANA"},{"id":"2H_GLACIALSTAFF","slot":"weapon","name":"Bastón glacial","en":"Glacial Staff","icon":"T8_2H_GLACIALSTAFF"},{"id":"MAIN_FIRESTAFF","slot":"weapon","name":"Bastón ígneo","en":"Fire Staff","icon":"T8_MAIN_FIRESTAFF"},{"id":"2H_INFERNOSTAFF","slot":"weapon","name":"Bastón infernal","en":"Infernal Staff","icon":"T8_2H_INFERNOSTAFF"},{"id":"MAIN_CURSEDSTAFF","slot":"weapon","name":"Bastón maldito","en":"Cursed Staff","icon":"T8_MAIN_CURSEDSTAFF"},{"id":"2H_IRONCLADEDSTAFF","slot":"weapon","name":"Bastón metálico","en":"Iron-clad Staff","icon":"T8_2H_IRONCLADEDSTAFF"},{"id":"MAIN_NATURESTAFF","slot":"weapon","name":"Bastón natural","en":"Nature Staff","icon":"T8_MAIN_NATURESTAFF"},{"id":"2H_ARCANESTAFF_HELL","slot":"weapon","name":"Bastón oculto","en":"Occult Staff","icon":"T8_2H_ARCANESTAFF_HELL"},{"id":"2H_SHAPESHIFTER_SET3","slot":"weapon","name":"Bastón primitivo","en":"Primal Staff","icon":"T8_2H_SHAPESHIFTER_SET3"},{"id":"MAIN_CURSEDSTAFF_CRYSTAL","slot":"weapon","name":"Bastón Putrefacto","en":"Rotcaller Staff","icon":"T8_MAIN_CURSEDSTAFF_CRYSTAL"},{"id":"MAIN_HOLYSTAFF","slot":"weapon","name":"Bastón sagrado","en":"Holy Staff","icon":"T8_MAIN_HOLYSTAFF"},{"id":"2H_WILDSTAFF","slot":"weapon","name":"Bastón salvaje","en":"Wild Staff","icon":"T8_2H_WILDSTAFF"},{"id":"2H_SHAPESHIFTER_KEEPER","slot":"weapon","name":"Bastón terrúnico","en":"Earthrune Staff","icon":"T8_2H_SHAPESHIFTER_KEEPER"},{"id":"2H_KNUCKLES_SET2","slot":"weapon","name":"Brazales de batalla","en":"Battle Bracers","icon":"T8_2H_KNUCKLES_SET2"},{"id":"2H_KNUCKLES_CRYSTAL","slot":"weapon","name":"Brazales de Fuerza Pulsante","en":"Forcepulse Bracers","icon":"T8_2H_KNUCKLES_CRYSTAL"},{"id":"2H_QUARTERSTAFF_AVALON","slot":"weapon","name":"Buscador de grial","en":"Grailseeker","icon":"T8_2H_QUARTERSTAFF_AVALON"},{"id":"2H_SKULLORB_HELL","slot":"weapon","name":"Calavera maldita","en":"Cursed Skull","icon":"T8_2H_SKULLORB_HELL"},{"id":"2H_FIRE_RINGPAIR_AVALON","slot":"weapon","name":"Canción del despertar","en":"Dawnsong","icon":"T8_2H_FIRE_RINGPAIR_AVALON"},{"id":"2H_TOOL_FISHINGROD","slot":"weapon","name":"Caña de pescar","en":"Fishing Rod","icon":"T8_2H_TOOL_FISHINGROD"},{"id":"2H_TOOL_FISHINGROD_AVALON","slot":"weapon","name":"Caña de pescar avaloniana","en":"Avalonian Fishing Rod","icon":"T8_2H_TOOL_FISHINGROD_AVALON"},{"id":"2H_HARPOON_HELL","slot":"weapon","name":"Cazaespíritus","en":"Spirithunter","icon":"T8_2H_HARPOON_HELL"},{"id":"2H_KNUCKLES_MORGANA","slot":"weapon","name":"Cestus córvidos","en":"Ravenstrike Cestus","icon":"T8_2H_KNUCKLES_MORGANA"},{"id":"2H_CLAYMORE","slot":"weapon","name":"Claymore","en":"Claymore","icon":"T8_2H_CLAYMORE"},{"id":"MAIN_DAGGER_HELL","slot":"weapon","name":"Colmillo demoníaco","en":"Demonfang","icon":"T8_MAIN_DAGGER_HELL"},{"id":"2H_DUALSICKLE_UNDEAD","slot":"weapon","name":"Concedemuertes","en":"Deathgivers","icon":"T8_2H_DUALSICKLE_UNDEAD"},{"id":"2H_CLAYMORE_AVALON","slot":"weapon","name":"Crea-reyes","en":"Kingmaker","icon":"T8_2H_CLAYMORE_AVALON"},{"id":"2H_TOOL_KNIFE","slot":"weapon","name":"Cuchillo de despellejar","en":"Skinning Knife","icon":"T8_2H_TOOL_KNIFE"},{"id":"2H_TOOL_KNIFE_AVALON","slot":"weapon","name":"Cuchillo de despellejar avaloniano","en":"Avalonian Skinning Knife","icon":"T8_2H_TOOL_KNIFE_AVALON"},{"id":"MAIN_DAGGER","slot":"weapon","name":"Daga","en":"Dagger","icon":"T8_MAIN_DAGGER"},{"id":"2H_DAGGERPAIR","slot":"weapon","name":"Daga doble","en":"Dagger Pair","icon":"T8_2H_DAGGERPAIR"},{"id":"2H_DUALCROSSBOW_CRYSTAL","slot":"weapon","name":"Desintegradoras de Luz","en":"Arclight Blasters","icon":"T8_2H_DUALCROSSBOW_CRYSTAL"},{"id":"2H_DUALSWORD","slot":"weapon","name":"Dos espadas","en":"Dual Swords","icon":"T8_2H_DUALSWORD"},{"id":"2H_DUALSCIMITAR_UNDEAD","slot":"weapon","name":"Dos galatinas","en":"Galatine Pair","icon":"T8_2H_DUALSCIMITAR_UNDEAD"},{"id":"MAIN_SWORD","slot":"weapon","name":"Espada ancha","en":"Broadsword","icon":"T8_MAIN_SWORD"},{"id":"2H_CLEAVER_HELL","slot":"weapon","name":"Espada tallada","en":"Carving Sword","icon":"T8_2H_CLEAVER_HELL"},{"id":"2H_SCYTHE_CRYSTAL","slot":"weapon","name":"Falce de cristal","en":"Crystal Reaper","icon":"T8_2H_SCYTHE_CRYSTAL"},{"id":"2H_DAGGER_KATAR_AVALON","slot":"weapon","name":"Furia contenida","en":"Bridled Fury","icon":"T8_2H_DAGGER_KATAR_AVALON"},{"id":"2H_CLAWPAIR","slot":"weapon","name":"Garras","en":"Claws","icon":"T8_2H_CLAWPAIR"},{"id":"2H_DAGGERPAIR_CRYSTAL","slot":"weapon","name":"Gemelas asesinas","en":"Twin Slayers","icon":"T8_2H_DAGGERPAIR_CRYSTAL"},{"id":"2H_ARCANESTAFF","slot":"weapon","name":"Gran bastón arcano","en":"Great Arcane Staff","icon":"T8_2H_ARCANESTAFF"},{"id":"2H_FROSTSTAFF","slot":"weapon","name":"Gran bastón de hielo","en":"Great Frost Staff","icon":"T8_2H_FROSTSTAFF"},{"id":"2H_CURSEDSTAFF","slot":"weapon","name":"Gran bastón maldito","en":"Great Cursed Staff","icon":"T8_2H_CURSEDSTAFF"},{"id":"2H_NATURESTAFF","slot":"weapon","name":"Gran bastón natural","en":"Great Nature Staff","icon":"T8_2H_NATURESTAFF"},{"id":"2H_HOLYSTAFF","slot":"weapon","name":"Gran bastón sagrado","en":"Great Holy Staff","icon":"T8_2H_HOLYSTAFF"},{"id":"2H_HAMMER","slot":"weapon","name":"Gran martillo","en":"Great Hammer","icon":"T8_2H_HAMMER"},{"id":"MAIN_FROSTSTAFF_AVALON","slot":"weapon","name":"Grito gélido","en":"Chillhowl","icon":"T8_MAIN_FROSTSTAFF_AVALON"},{"id":"2H_TWINSCYTHE_HELL","slot":"weapon","name":"Guadaña de almas","en":"Soulscythe","icon":"T8_2H_TWINSCYTHE_HELL"},{"id":"2H_SCYTHE_HELL","slot":"weapon","name":"Guadaña infernal","en":"Infernal Scythe","icon":"T8_2H_SCYTHE_HELL"},{"id":"2H_KNUCKLES_SET3","slot":"weapon","name":"Guanteletes de púas","en":"Spiked Gauntlets","icon":"T8_2H_KNUCKLES_SET3"},{"id":"2H_KNUCKLES_SET1","slot":"weapon","name":"Guantes de peleador","en":"Brawler Gloves","icon":"T8_2H_KNUCKLES_SET1"},{"id":"2H_RAM_KEEPER","slot":"weapon","name":"Guardabosques","en":"Grovekeeper","icon":"T8_2H_RAM_KEEPER"},{"id":"2H_GLAIVE","slot":"weapon","name":"Guja","en":"Glaive","icon":"T8_2H_GLAIVE"},{"id":"2H_GLAIVE_CRYSTAL","slot":"weapon","name":"Guja fisurante","en":"Rift Glaive","icon":"T8_2H_GLAIVE_CRYSTAL"},{"id":"2H_TOOL_AXE","slot":"weapon","name":"Hacha","en":"Axe","icon":"T8_2H_TOOL_AXE"},{"id":"2H_TOOL_AXE_AVALON","slot":"weapon","name":"Hacha avaloniana","en":"Avalonian Axe","icon":"T8_2H_TOOL_AXE_AVALON"},{"id":"MAIN_AXE","slot":"weapon","name":"Hacha de guerra","en":"Battleaxe","icon":"T8_MAIN_AXE"},{"id":"MAIN_SCIMITAR_MORGANA","slot":"weapon","name":"Hoja Clarent","en":"Clarent Blade","icon":"T8_MAIN_SCIMITAR_MORGANA"},{"id":"2H_DOUBLEBLADEDSTAFF_CRYSTAL","slot":"weapon","name":"Hoja doble fantasma","en":"Phantom Twinblade","icon":"T8_2H_DOUBLEBLADEDSTAFF_CRYSTAL"},{"id":"MAIN_SWORD_CRYSTAL","slot":"weapon","name":"Hoja infinita","en":"Infinity Blade","icon":"T8_MAIN_SWORD_CRYSTAL"},{"id":"2H_TOOL_SICKLE","slot":"weapon","name":"Hoz","en":"Sickle","icon":"T8_2H_TOOL_SICKLE"},{"id":"2H_TOOL_SICKLE_AVALON","slot":"weapon","name":"Hoz avaloniana","en":"Avalonian Sickle","icon":"T8_2H_TOOL_SICKLE_AVALON"},{"id":"2H_SHAPESHIFTER_AVALON","slot":"weapon","name":"Invocador de luz","en":"Lightcaller","icon":"T8_2H_SHAPESHIFTER_AVALON"},{"id":"MAIN_CURSEDSTAFF_AVALON","slot":"weapon","name":"Invocador oscuro","en":"Shadowcaller","icon":"T8_MAIN_CURSEDSTAFF_AVALON"},{"id":"2H_FIRESTAFF","slot":"weapon","name":"Ira de Vendetta","en":"Vendetta's Wrath","icon":"T8_2H_FIRESTAFF"},{"id":"2H_DUALMACE_AVALON","slot":"weapon","name":"Juradores","en":"Oathkeepers","icon":"T8_2H_DUALMACE_AVALON"},{"id":"2H_TOOL_TRACKING","slot":"weapon","name":"Kit de rastreo","en":"Tracking Toolkit","icon":"T8_2H_TOOL_TRACKING"},{"id":"2H_AXE","slot":"weapon","name":"La mano de Khor","en":"The Hand of Khor","icon":"T8_2H_AXE"},{"id":"MAIN_SPEAR","slot":"weapon","name":"Lanza","en":"Spear","icon":"T8_MAIN_SPEAR"},{"id":"MAIN_SPEAR_KEEPER","slot":"weapon","name":"Lanza de garza","en":"Heron Spear","icon":"T8_MAIN_SPEAR_KEEPER"},{"id":"2H_TRIDENT_UNDEAD","slot":"weapon","name":"Lanza de trinidad","en":"Trinity Spear","icon":"T8_2H_TRIDENT_UNDEAD"},{"id":"2H_DUALCROSSBOW_HELL","slot":"weapon","name":"Lanzasaetas","en":"Boltcasters","icon":"T8_2H_DUALCROSSBOW_HELL"},{"id":"2H_HALBERD_MORGANA","slot":"weapon","name":"Llamacarroña","en":"Carrioncaller","icon":"T8_2H_HALBERD_MORGANA"},{"id":"2H_ENIGMATICORB_MORGANA","slot":"weapon","name":"Locus malévolo","en":"Malevolent Locus","icon":"T8_2H_ENIGMATICORB_MORGANA"},{"id":"2H_FLAIL","slot":"weapon","name":"Mangual","en":"Morning Star","icon":"T8_2H_FLAIL"},{"id":"2H_HAMMER_AVALON","slot":"weapon","name":"Mano de justicia","en":"Hand of Justice","icon":"T8_2H_HAMMER_AVALON"},{"id":"2H_KNUCKLES_HELL","slot":"weapon","name":"Manos infernales","en":"Hellfire Hands","icon":"T8_2H_KNUCKLES_HELL"},{"id":"2H_IRONGAUNTLETS_HELL","slot":"weapon","name":"Manos negras","en":"Black Hands","icon":"T8_2H_IRONGAUNTLETS_HELL"},{"id":"MAIN_HAMMER","slot":"weapon","name":"Martillo","en":"Hammer","icon":"T8_MAIN_HAMMER"},{"id":"2H_TOOL_SIEGEHAMMER","slot":"weapon","name":"Martillo de asedio","en":"Siege Hammer","icon":"T8_2H_TOOL_SIEGEHAMMER"},{"id":"2H_TOOL_SIEGEHAMMER_AVALON","slot":"weapon","name":"Martillo de asedio avaloniano","en":"Avalonian Siege Hammer","icon":"T8_2H_TOOL_SIEGEHAMMER_AVALON"},{"id":"2H_HAMMER_UNDEAD","slot":"weapon","name":"Martillo de la tumba","en":"Tombhammer","icon":"T8_2H_HAMMER_UNDEAD"},{"id":"2H_TOOL_HAMMER","slot":"weapon","name":"Martillo de piedra","en":"Stone Hammer","icon":"T8_2H_TOOL_HAMMER"},{"id":"2H_TOOL_HAMMER_AVALON","slot":"weapon","name":"Martillo de piedra avaloniano","en":"Avalonian Stone Hammer","icon":"T8_2H_TOOL_HAMMER_AVALON"},{"id":"2H_POLEHAMMER","slot":"weapon","name":"Martillo largo","en":"Polehammer","icon":"T8_2H_POLEHAMMER"},{"id":"2H_HAMMER_CRYSTAL","slot":"weapon","name":"Martillo Relámpago","en":"Truebolt Hammer","icon":"T8_2H_HAMMER_CRYSTAL"},{"id":"2H_DUALHAMMER_HELL","slot":"weapon","name":"Martillos de forja","en":"Forge Hammers","icon":"T8_2H_DUALHAMMER_HELL"},{"id":"MAIN_MACE","slot":"weapon","name":"Maza","en":"Mace","icon":"T8_MAIN_MACE"},{"id":"2H_MACE_MORGANA","slot":"weapon","name":"Maza de Camlann","en":"Camlann Mace","icon":"T8_2H_MACE_MORGANA"},{"id":"MAIN_ROCKMACE_KEEPER","slot":"weapon","name":"Maza de lecho de roca","en":"Bedrock Mace","icon":"T8_MAIN_ROCKMACE_KEEPER"},{"id":"MAIN_MACE_HELL","slot":"weapon","name":"Maza íncubo","en":"Incubus Mace","icon":"T8_MAIN_MACE_HELL"},{"id":"2H_MACE","slot":"weapon","name":"Maza pesada","en":"Heavy Mace","icon":"T8_2H_MACE"},{"id":"2H_CROSSBOW_CANNON_AVALON","slot":"weapon","name":"Modelador de energía","en":"Energy Shaper","icon":"T8_2H_CROSSBOW_CANNON_AVALON"},{"id":"MAIN_MACE_CRYSTAL","slot":"weapon","name":"Monarca de la tormenta","en":"Dreadstorm Monarch","icon":"T8_MAIN_MACE_CRYSTAL"},{"id":"2H_DUALAXE_KEEPER","slot":"weapon","name":"Patas de oso","en":"Bear Paws","icon":"T8_2H_DUALAXE_KEEPER"},{"id":"2H_BOW_AVALON","slot":"weapon","name":"Perforador de niebla","en":"Mistpiercer","icon":"T8_2H_BOW_AVALON"},{"id":"2H_SPEAR","slot":"weapon","name":"Pica","en":"Pike","icon":"T8_2H_SPEAR"},{"id":"2H_TOOL_PICK","slot":"weapon","name":"Pico","en":"Pickaxe","icon":"T8_2H_TOOL_PICK"},{"id":"2H_TOOL_PICK_AVALON","slot":"weapon","name":"Pico avaloniano","en":"Avalonian Pickaxe","icon":"T8_2H_TOOL_PICK_AVALON"},{"id":"MAIN_SPEAR_LANCE_AVALON","slot":"weapon","name":"Portador del alba","en":"Daybreaker","icon":"T8_MAIN_SPEAR_LANCE_AVALON"},{"id":"2H_ICECRYSTAL_UNDEAD","slot":"weapon","name":"Prisma de hielos perpetuos","en":"Permafrost Prism","icon":"T8_2H_ICECRYSTAL_UNDEAD"},{"id":"2H_KNUCKLES_AVALON","slot":"weapon","name":"Puños de Avalon","en":"Fists of Avalon","icon":"T8_2H_KNUCKLES_AVALON"},{"id":"2H_REPEATINGCROSSBOW_UNDEAD","slot":"weapon","name":"Repetidora de desconsuelo","en":"Weeping Repeater","icon":"T8_2H_REPEATINGCROSSBOW_UNDEAD"},{"id":"2H_AXE_AVALON","slot":"weapon","name":"Romperreinos","en":"Realmbreaker","icon":"T8_2H_AXE_AVALON"},{"id":"MAIN_RAPIER_MORGANA","slot":"weapon","name":"Sangradora","en":"Bloodletter","icon":"T8_MAIN_RAPIER_MORGANA"},{"id":"MAIN_HOLYSTAFF_AVALON","slot":"weapon","name":"Santificador","en":"Hallowfall","icon":"T8_MAIN_HOLYSTAFF_AVALON"},{"id":"2H_ARCANE_RINGPAIR_AVALON","slot":"weapon","name":"Sonido equilibrado","en":"Evensong","icon":"T8_2H_ARCANE_RINGPAIR_AVALON"},{"id":"2H_QUARTERSTAFF","slot":"weapon","name":"Vara","en":"Quarterstaff","icon":"T8_2H_QUARTERSTAFF"},{"id":"2H_KNUCKLES_KEEPER","slot":"weapon","name":"Zarpas osunas","en":"Ursine Maulers","icon":"T8_2H_KNUCKLES_KEEPER"}]
+[
+  {
+    "id": "ARMOR_PLATE_FEY",
+    "slot": "armor",
+    "name": "Armadura crepuscular",
+    "en": "Duskweaver Armor",
+    "icon": "T8_ARMOR_PLATE_FEY"
+  },
+  {
+    "id": "ARMOR_PLATE_SET2",
+    "slot": "armor",
+    "name": "Armadura de caballero",
+    "en": "Knight Armor",
+    "icon": "T8_ARMOR_PLATE_SET2"
+  },
+  {
+    "id": "ARMOR_PLATE_HELL",
+    "slot": "armor",
+    "name": "Armadura de demonio",
+    "en": "Demon Armor",
+    "icon": "T8_ARMOR_PLATE_HELL"
+  },
+  {
+    "id": "ARMOR_PLATE_UNDEAD",
+    "slot": "armor",
+    "name": "Armadura de guardatumbas",
+    "en": "Graveguard Armor",
+    "icon": "T8_ARMOR_PLATE_UNDEAD"
+  },
+  {
+    "id": "ARMOR_PLATE_SET3",
+    "slot": "armor",
+    "name": "Armadura de guardián",
+    "en": "Guardian Armor",
+    "icon": "T8_ARMOR_PLATE_SET3"
+  },
+  {
+    "id": "ARMOR_PLATE_KEEPER",
+    "slot": "armor",
+    "name": "Armadura de juez",
+    "en": "Judicator Armor",
+    "icon": "T8_ARMOR_PLATE_KEEPER"
+  },
+  {
+    "id": "ARMOR_PLATE_SET1",
+    "slot": "armor",
+    "name": "Armadura de soldado",
+    "en": "Soldier Armor",
+    "icon": "T8_ARMOR_PLATE_SET1"
+  },
+  {
+    "id": "ARMOR_PLATE_AVALON",
+    "slot": "armor",
+    "name": "Armadura de valor",
+    "en": "Armor of Valor",
+    "icon": "T8_ARMOR_PLATE_AVALON"
+  },
+  {
+    "id": "ARMOR_PLATE_ROYAL",
+    "slot": "armor",
+    "name": "Armadura real",
+    "en": "Royal Armor",
+    "icon": "T8_ARMOR_PLATE_ROYAL"
+  },
+  {
+    "id": "ARMOR_GATHERER_ROCK",
+    "slot": "armor",
+    "name": "Atuendo de cantero",
+    "en": "Quarrier Garb",
+    "icon": "T8_ARMOR_GATHERER_ROCK"
+  },
+  {
+    "id": "ARMOR_GATHERER_FIBER",
+    "slot": "armor",
+    "name": "Atuendo de cosechador",
+    "en": "Harvester Garb",
+    "icon": "T8_ARMOR_GATHERER_FIBER"
+  },
+  {
+    "id": "ARMOR_GATHERER_WOOD",
+    "slot": "armor",
+    "name": "Atuendo de leñador",
+    "en": "Lumberjack Garb",
+    "icon": "T8_ARMOR_GATHERER_WOOD"
+  },
+  {
+    "id": "ARMOR_GATHERER_ORE",
+    "slot": "armor",
+    "name": "Atuendo de minero",
+    "en": "Miner Garb",
+    "icon": "T8_ARMOR_GATHERER_ORE"
+  },
+  {
+    "id": "ARMOR_GATHERER_HIDE",
+    "slot": "armor",
+    "name": "Atuendo de peletero",
+    "en": "Skinner Garb",
+    "icon": "T8_ARMOR_GATHERER_HIDE"
+  },
+  {
+    "id": "ARMOR_GATHERER_FISH",
+    "slot": "armor",
+    "name": "Atuendo de pescador",
+    "en": "Fisherman Garb",
+    "icon": "T8_ARMOR_GATHERER_FISH"
+  },
+  {
+    "id": "ARMOR_LEATHER_MORGANA",
+    "slot": "armor",
+    "name": "Chaqueta de acechador",
+    "en": "Stalker Jacket",
+    "icon": "T8_ARMOR_LEATHER_MORGANA"
+  },
+  {
+    "id": "ARMOR_LEATHER_SET3",
+    "slot": "armor",
+    "name": "Chaqueta de asesino",
+    "en": "Assassin Jacket",
+    "icon": "T8_ARMOR_LEATHER_SET3"
+  },
+  {
+    "id": "ARMOR_LEATHER_FEY",
+    "slot": "armor",
+    "name": "Chaqueta de caminanieblas",
+    "en": "Mistwalker Jacket",
+    "icon": "T8_ARMOR_LEATHER_FEY"
+  },
+  {
+    "id": "ARMOR_LEATHER_SET2",
+    "slot": "armor",
+    "name": "Chaqueta de cazador",
+    "en": "Hunter Jacket",
+    "icon": "T8_ARMOR_LEATHER_SET2"
+  },
+  {
+    "id": "ARMOR_LEATHER_UNDEAD",
+    "slot": "armor",
+    "name": "Chaqueta de espectro",
+    "en": "Specter Jacket",
+    "icon": "T8_ARMOR_LEATHER_UNDEAD"
+  },
+  {
+    "id": "ARMOR_LEATHER_DRAGON",
+    "slot": "armor",
+    "name": "Chaqueta de Matadragones",
+    "en": "Dragonslayer Jacket",
+    "icon": "T8_ARMOR_LEATHER_DRAGON"
+  },
+  {
+    "id": "ARMOR_LEATHER_SET1",
+    "slot": "armor",
+    "name": "Chaqueta de mercenario",
+    "en": "Mercenary Jacket",
+    "icon": "T8_ARMOR_LEATHER_SET1"
+  },
+  {
+    "id": "ARMOR_LEATHER_AVALON",
+    "slot": "armor",
+    "name": "Chaqueta de tenacidad",
+    "en": "Jacket of Tenacity",
+    "icon": "T8_ARMOR_LEATHER_AVALON"
+  },
+  {
+    "id": "ARMOR_LEATHER_HELL",
+    "slot": "armor",
+    "name": "Chaqueta de vándalo",
+    "en": "Hellion Jacket",
+    "icon": "T8_ARMOR_LEATHER_HELL"
+  },
+  {
+    "id": "ARMOR_LEATHER_ROYAL",
+    "slot": "armor",
+    "name": "Chaqueta real",
+    "en": "Royal Jacket",
+    "icon": "T8_ARMOR_LEATHER_ROYAL"
+  },
+  {
+    "id": "ARMOR_CLOTH_SET2",
+    "slot": "armor",
+    "name": "Túnica de clérigo",
+    "en": "Cleric Robe",
+    "icon": "T8_ARMOR_CLOTH_SET2"
+  },
+  {
+    "id": "ARMOR_CLOTH_HELL",
+    "slot": "armor",
+    "name": "Túnica de diablo",
+    "en": "Fiend Robe",
+    "icon": "T8_ARMOR_CLOTH_HELL"
+  },
+  {
+    "id": "ARMOR_CLOTH_KEEPER",
+    "slot": "armor",
+    "name": "Túnica de druida",
+    "en": "Druid Robe",
+    "icon": "T8_ARMOR_CLOTH_KEEPER"
+  },
+  {
+    "id": "ARMOR_CLOTH_SET1",
+    "slot": "armor",
+    "name": "Túnica de erudito",
+    "en": "Scholar Robe",
+    "icon": "T8_ARMOR_CLOTH_SET1"
+  },
+  {
+    "id": "ARMOR_CLOTH_FEY",
+    "slot": "armor",
+    "name": "Túnica de escamas feéricas",
+    "en": "Feyscale Robe",
+    "icon": "T8_ARMOR_CLOTH_FEY"
+  },
+  {
+    "id": "ARMOR_CLOTH_SET3",
+    "slot": "armor",
+    "name": "Túnica de mago",
+    "en": "Mage Robe",
+    "icon": "T8_ARMOR_CLOTH_SET3"
+  },
+  {
+    "id": "ARMOR_CLOTH_AVALON",
+    "slot": "armor",
+    "name": "Túnica de pureza",
+    "en": "Robe of Purity",
+    "icon": "T8_ARMOR_CLOTH_AVALON"
+  },
+  {
+    "id": "ARMOR_CLOTH_MORGANA",
+    "slot": "armor",
+    "name": "Túnica de sectario",
+    "en": "Cultist Robe",
+    "icon": "T8_ARMOR_CLOTH_MORGANA"
+  },
+  {
+    "id": "ARMOR_CLOTH_ROYAL",
+    "slot": "armor",
+    "name": "Túnica real",
+    "en": "Royal Robe",
+    "icon": "T8_ARMOR_CLOTH_ROYAL"
+  },
+  {
+    "id": "CAPE",
+    "slot": "cape",
+    "name": "Capa",
+    "en": "Cape",
+    "icon": "T8_CAPE"
+  },
+  {
+    "id": "CAPEITEM_AVALON",
+    "slot": "cape",
+    "name": "Capa avaloniana",
+    "en": "Avalonian Cape",
+    "icon": "T8_CAPEITEM_AVALON"
+  },
+  {
+    "id": "CAPEITEM_FW_BRECILIEN",
+    "slot": "cape",
+    "name": "Capa de Brecilien",
+    "en": "Brecilien Cape",
+    "icon": "T8_CAPEITEM_FW_BRECILIEN"
+  },
+  {
+    "id": "CAPEITEM_FW_BRIDGEWATCH",
+    "slot": "cape",
+    "name": "Capa de Bridgewatch",
+    "en": "Bridgewatch Cape",
+    "icon": "T8_CAPEITEM_FW_BRIDGEWATCH"
+  },
+  {
+    "id": "CAPEITEM_FW_CAERLEON",
+    "slot": "cape",
+    "name": "Capa de Caerleon",
+    "en": "Caerleon Cape",
+    "icon": "T8_CAPEITEM_FW_CAERLEON"
+  },
+  {
+    "id": "CAPEITEM_SMUGGLER",
+    "slot": "cape",
+    "name": "Capa de Contrabandista",
+    "en": "Smuggler Cape",
+    "icon": "T8_CAPEITEM_SMUGGLER"
+  },
+  {
+    "id": "CAPEITEM_FW_FORTSTERLING",
+    "slot": "cape",
+    "name": "Capa de Fort Sterling",
+    "en": "Fort Sterling Cape",
+    "icon": "T8_CAPEITEM_FW_FORTSTERLING"
+  },
+  {
+    "id": "CAPEITEM_KEEPER",
+    "slot": "cape",
+    "name": "Capa de guardián",
+    "en": "Keeper Cape",
+    "icon": "T8_CAPEITEM_KEEPER"
+  },
+  {
+    "id": "CAPEITEM_FW_LYMHURST",
+    "slot": "cape",
+    "name": "Capa de Lymhurst",
+    "en": "Lymhurst Cape",
+    "icon": "T8_CAPEITEM_FW_LYMHURST"
+  },
+  {
+    "id": "CAPEITEM_FW_MARTLOCK",
+    "slot": "cape",
+    "name": "Capa de Martlock",
+    "en": "Martlock Cape",
+    "icon": "T8_CAPEITEM_FW_MARTLOCK"
+  },
+  {
+    "id": "CAPEITEM_MORGANA",
+    "slot": "cape",
+    "name": "Capa de Morgana",
+    "en": "Morgana Cape",
+    "icon": "T8_CAPEITEM_MORGANA"
+  },
+  {
+    "id": "CAPEITEM_UNDEAD",
+    "slot": "cape",
+    "name": "Capa de muerto viviente",
+    "en": "Undead Cape",
+    "icon": "T8_CAPEITEM_UNDEAD"
+  },
+  {
+    "id": "CAPEITEM_FW_THETFORD",
+    "slot": "cape",
+    "name": "Capa de Thetford",
+    "en": "Thetford Cape",
+    "icon": "T8_CAPEITEM_FW_THETFORD"
+  },
+  {
+    "id": "CAPEITEM_DEMON",
+    "slot": "cape",
+    "name": "Capa demoníaca",
+    "en": "Demon Cape",
+    "icon": "T8_CAPEITEM_DEMON"
+  },
+  {
+    "id": "CAPEITEM_HERETIC",
+    "slot": "cape",
+    "name": "Capa hereje",
+    "en": "Heretic Cape",
+    "icon": "T8_CAPEITEM_HERETIC"
+  },
+  {
+    "id": "CAPE_ARENA_BANNER",
+    "slot": "cape",
+    "name": "Estandarte grande del veterano de arena",
+    "en": "Arena Veteran's Large Banner",
+    "icon": "T8_CAPE_ARENA_BANNER"
+  },
+  {
+    "id": "CAPEITEM_AVALON_BP",
+    "slot": "cape",
+    "name": "Insignia avaloniana",
+    "en": "Avalonian Crest",
+    "icon": "T8_CAPEITEM_AVALON_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_BRECILIEN_BP",
+    "slot": "cape",
+    "name": "Insignia de Brecilien",
+    "en": "Brecilien Crest",
+    "icon": "T8_CAPEITEM_FW_BRECILIEN_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_BRIDGEWATCH_BP",
+    "slot": "cape",
+    "name": "Insignia de Bridgewatch",
+    "en": "Bridgewatch Crest",
+    "icon": "T8_CAPEITEM_FW_BRIDGEWATCH_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_CAERLEON_BP",
+    "slot": "cape",
+    "name": "Insignia de Caerleon",
+    "en": "Caerleon Crest",
+    "icon": "T8_CAPEITEM_FW_CAERLEON_BP"
+  },
+  {
+    "id": "CAPEITEM_SMUGGLER_BP",
+    "slot": "cape",
+    "name": "Insignia de Contrabandista",
+    "en": "Smuggler Crest",
+    "icon": "T8_CAPEITEM_SMUGGLER_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_FORTSTERLING_BP",
+    "slot": "cape",
+    "name": "Insignia de Fort Sterling",
+    "en": "Fort Sterling Crest",
+    "icon": "T8_CAPEITEM_FW_FORTSTERLING_BP"
+  },
+  {
+    "id": "CAPEITEM_KEEPER_BP",
+    "slot": "cape",
+    "name": "Insignia de guardián",
+    "en": "Keeper Crest",
+    "icon": "T8_CAPEITEM_KEEPER_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_LYMHURST_BP",
+    "slot": "cape",
+    "name": "Insignia de Lymhurst",
+    "en": "Lymhurst Crest",
+    "icon": "T8_CAPEITEM_FW_LYMHURST_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_MARTLOCK_BP",
+    "slot": "cape",
+    "name": "Insignia de Martlock",
+    "en": "Martlock Crest",
+    "icon": "T8_CAPEITEM_FW_MARTLOCK_BP"
+  },
+  {
+    "id": "CAPEITEM_MORGANA_BP",
+    "slot": "cape",
+    "name": "Insignia de Morgana",
+    "en": "Morgana Crest",
+    "icon": "T8_CAPEITEM_MORGANA_BP"
+  },
+  {
+    "id": "CAPEITEM_UNDEAD_BP",
+    "slot": "cape",
+    "name": "Insignia de muerto viviente",
+    "en": "Undead Crest",
+    "icon": "T8_CAPEITEM_UNDEAD_BP"
+  },
+  {
+    "id": "CAPEITEM_FW_THETFORD_BP",
+    "slot": "cape",
+    "name": "Insignia de Thetford",
+    "en": "Thetford Crest",
+    "icon": "T8_CAPEITEM_FW_THETFORD_BP"
+  },
+  {
+    "id": "CAPEITEM_DEMON_BP",
+    "slot": "cape",
+    "name": "Insignia demoníaca",
+    "en": "Demon Crest",
+    "icon": "T8_CAPEITEM_DEMON_BP"
+  },
+  {
+    "id": "CAPEITEM_HERETIC_BP",
+    "slot": "cape",
+    "name": "Insignia hereje",
+    "en": "Heretic Crest",
+    "icon": "T8_CAPEITEM_HERETIC_BP"
+  },
+  {
+    "id": "T4_MEAL_SANDWICH",
+    "slot": "food",
+    "name": "Bocadillo de cabra",
+    "en": "Goat Sandwich",
+    "icon": "T4_MEAL_SANDWICH",
+    "tier": 4
+  },
+  {
+    "id": "T4_MEAL_SANDWICH_AVALON",
+    "slot": "food",
+    "name": "Bocadillo de cabra avaloniano",
+    "en": "Avalonian Goat Sandwich",
+    "icon": "T4_MEAL_SANDWICH_AVALON",
+    "tier": 4
+  },
+  {
+    "id": "T6_MEAL_SANDWICH",
+    "slot": "food",
+    "name": "Bocadillo de carnero",
+    "en": "Mutton Sandwich",
+    "icon": "T6_MEAL_SANDWICH",
+    "tier": 6
+  },
+  {
+    "id": "T6_MEAL_SANDWICH_AVALON",
+    "slot": "food",
+    "name": "Bocadillo de cordero avaloniano",
+    "en": "Avalonian Mutton Sandwich",
+    "icon": "T6_MEAL_SANDWICH_AVALON",
+    "tier": 6
+  },
+  {
+    "id": "T6_MEAL_SANDWICH_FISH",
+    "slot": "food",
+    "name": "Bocadillo de locha de agua corriente",
+    "en": "Rushwater Lurcher Sandwich",
+    "icon": "T6_MEAL_SANDWICH_FISH",
+    "tier": 6
+  },
+  {
+    "id": "T8_MEAL_SANDWICH_FISH",
+    "slot": "food",
+    "name": "Bocadillo de locha de trueno",
+    "en": "Thunderfall Lurcher Sandwich",
+    "icon": "T8_MEAL_SANDWICH_FISH",
+    "tier": 8
+  },
+  {
+    "id": "T4_MEAL_SANDWICH_FISH",
+    "slot": "food",
+    "name": "Bocadillo de locha pedregosa",
+    "en": "Stonestream Lurcher Sandwich",
+    "icon": "T4_MEAL_SANDWICH_FISH",
+    "tier": 4
+  },
+  {
+    "id": "T8_MEAL_SANDWICH",
+    "slot": "food",
+    "name": "Bocadillo de ternera",
+    "en": "Beef Sandwich",
+    "icon": "T8_MEAL_SANDWICH",
+    "tier": 8
+  },
+  {
+    "id": "T8_MEAL_SANDWICH_AVALON",
+    "slot": "food",
+    "name": "Bocadillo de ternera avaloniano",
+    "en": "Avalonian Beef Sandwich",
+    "icon": "T8_MEAL_SANDWICH_AVALON",
+    "tier": 8
+  },
+  {
+    "id": "T7_MEAL_ROAST",
+    "slot": "food",
+    "name": "Cerdo asado",
+    "en": "Roast Pork",
+    "icon": "T7_MEAL_ROAST",
+    "tier": 7
+  },
+  {
+    "id": "T1_MEAL_SEAWEEDSALAD",
+    "slot": "food",
+    "name": "Ensalada de alga",
+    "en": "Seaweed Salad",
+    "icon": "T1_MEAL_SEAWEEDSALAD",
+    "tier": 1
+  },
+  {
+    "id": "T2_MEAL_SALAD_FISH",
+    "slot": "food",
+    "name": "Ensalada de calamar de aguas poco profundas",
+    "en": "Shallowshore Squid Salad",
+    "icon": "T2_MEAL_SALAD_FISH",
+    "tier": 2
+  },
+  {
+    "id": "T2_MEAL_SALAD",
+    "slot": "food",
+    "name": "Ensalada de frijoles",
+    "en": "Bean Salad",
+    "icon": "T2_MEAL_SALAD",
+    "tier": 2
+  },
+  {
+    "id": "T6_MEAL_SALAD_FISH",
+    "slot": "food",
+    "name": "Ensalada de kraken de agua profunda",
+    "en": "Deepwater Kraken Salad",
+    "icon": "T6_MEAL_SALAD_FISH",
+    "tier": 6
+  },
+  {
+    "id": "T6_MEAL_SALAD",
+    "slot": "food",
+    "name": "Ensalada de patata",
+    "en": "Potato Salad",
+    "icon": "T6_MEAL_SALAD",
+    "tier": 6
+  },
+  {
+    "id": "T4_MEAL_SALAD_FISH",
+    "slot": "food",
+    "name": "Ensalada de pulpo de aguas medias",
+    "en": "Midwater Octopus Salad",
+    "icon": "T4_MEAL_SALAD_FISH",
+    "tier": 4
+  },
+  {
+    "id": "T4_MEAL_SALAD",
+    "slot": "food",
+    "name": "Ensalada de rábano",
+    "en": "Turnip Salad",
+    "icon": "T4_MEAL_SALAD",
+    "tier": 4
+  },
+  {
+    "id": "T8_MEAL_SPECIAL_FOOD_DRAKE_EGG",
+    "slot": "food",
+    "name": "Galletas de Huevo de Draco",
+    "en": "Drake Egg Biscuits",
+    "icon": "T8_MEAL_SPECIAL_FOOD_DRAKE_EGG",
+    "tier": 8
+  },
+  {
+    "id": "T5_MEAL_ROAST",
+    "slot": "food",
+    "name": "Ganso asado",
+    "en": "Roast Goose",
+    "icon": "T5_MEAL_ROAST",
+    "tier": 5
+  },
+  {
+    "id": "T8_MEAL_STEW_FISH",
+    "slot": "food",
+    "name": "Guiso de anguila de agua podrida",
+    "en": "Deadwater Eel Stew",
+    "icon": "T8_MEAL_STEW_FISH",
+    "tier": 8
+  },
+  {
+    "id": "T4_MEAL_STEW_FISH",
+    "slot": "food",
+    "name": "Guiso de anguila de agua verdosa",
+    "en": "Greenriver Eel Stew",
+    "icon": "T4_MEAL_STEW_FISH",
+    "tier": 4
+  },
+  {
+    "id": "T6_MEAL_STEW_FISH",
+    "slot": "food",
+    "name": "Guiso de anguila rojiza",
+    "en": "Redspring Eel Stew",
+    "icon": "T6_MEAL_STEW_FISH",
+    "tier": 6
+  },
+  {
+    "id": "T4_MEAL_STEW",
+    "slot": "food",
+    "name": "Guiso de cabra",
+    "en": "Goat Stew",
+    "icon": "T4_MEAL_STEW",
+    "tier": 4
+  },
+  {
+    "id": "T4_MEAL_STEW_AVALON",
+    "slot": "food",
+    "name": "Guiso de cabra avaloniano",
+    "en": "Avalonian Goat Stew",
+    "icon": "T4_MEAL_STEW_AVALON",
+    "tier": 4
+  },
+  {
+    "id": "T6_MEAL_STEW",
+    "slot": "food",
+    "name": "Guiso de carnero",
+    "en": "Mutton Stew",
+    "icon": "T6_MEAL_STEW",
+    "tier": 6
+  },
+  {
+    "id": "T6_MEAL_STEW_AVALON",
+    "slot": "food",
+    "name": "Guiso de cordero avaloniano",
+    "en": "Avalonian Mutton Stew",
+    "icon": "T6_MEAL_STEW_AVALON",
+    "tier": 6
+  },
+  {
+    "id": "T8_MEAL_STEW",
+    "slot": "food",
+    "name": "Guiso de ternera",
+    "en": "Beef Stew",
+    "icon": "T8_MEAL_STEW",
+    "tier": 8
+  },
+  {
+    "id": "T8_MEAL_STEW_AVALON",
+    "slot": "food",
+    "name": "Guiso de ternera avaloniano",
+    "en": "Avalonian Beef Stew",
+    "icon": "T8_MEAL_STEW_AVALON",
+    "tier": 8
+  },
+  {
+    "id": "T3_MEAL_ROAST_FISH",
+    "slot": "food",
+    "name": "Pargo de niebla blanca asado",
+    "en": "Roasted Whitefog Snapper",
+    "icon": "T3_MEAL_ROAST_FISH",
+    "tier": 3
+  },
+  {
+    "id": "T5_MEAL_ROAST_FISH",
+    "slot": "food",
+    "name": "Pargo de niebla ligera asado",
+    "en": "Roasted Clearhaze Snapper",
+    "icon": "T5_MEAL_ROAST_FISH",
+    "tier": 5
+  },
+  {
+    "id": "T7_MEAL_ROAST_FISH",
+    "slot": "food",
+    "name": "Pargo de niebla pura asado",
+    "en": "Roasted Puremist Snapper",
+    "icon": "T7_MEAL_ROAST_FISH",
+    "tier": 7
+  },
+  {
+    "id": "T7_MEAL_PIE",
+    "slot": "food",
+    "name": "Pastel de cerdo",
+    "en": "Pork Pie",
+    "icon": "T7_MEAL_PIE",
+    "tier": 7
+  },
+  {
+    "id": "T5_MEAL_PIE",
+    "slot": "food",
+    "name": "Pastel de ganso",
+    "en": "Goose Pie",
+    "icon": "T5_MEAL_PIE",
+    "tier": 5
+  },
+  {
+    "id": "T5_MEAL_PIE_FISH",
+    "slot": "food",
+    "name": "Pastel de ojo muerto de las montañas",
+    "en": "Mountain Blindeye Pie",
+    "icon": "T5_MEAL_PIE_FISH",
+    "tier": 5
+  },
+  {
+    "id": "T3_MEAL_PIE_FISH",
+    "slot": "food",
+    "name": "Pastel de ojo muerto de las sierras",
+    "en": "Upland Coldeye Pie",
+    "icon": "T3_MEAL_PIE_FISH",
+    "tier": 3
+  },
+  {
+    "id": "T7_MEAL_PIE_FISH",
+    "slot": "food",
+    "name": "Pastel de ojo muerto dos picos",
+    "en": "Frostpeak Deadeye Pie",
+    "icon": "T7_MEAL_PIE_FISH",
+    "tier": 7
+  },
+  {
+    "id": "T3_MEAL_PIE",
+    "slot": "food",
+    "name": "Pastel de pollo",
+    "en": "Chicken Pie",
+    "icon": "T3_MEAL_PIE",
+    "tier": 3
+  },
+  {
+    "id": "T1_MEAL_GRILLEDFISH",
+    "slot": "food",
+    "name": "Pescado a la plancha",
+    "en": "Grilled Fish",
+    "icon": "T1_MEAL_GRILLEDFISH",
+    "tier": 1
+  },
+  {
+    "id": "T3_MEAL_ROAST",
+    "slot": "food",
+    "name": "Pollo asado",
+    "en": "Roast Chicken",
+    "icon": "T3_MEAL_ROAST",
+    "tier": 3
+  },
+  {
+    "id": "T3_MEAL_SOUP_FISH",
+    "slot": "food",
+    "name": "Sopa de almeja de aguas turbias",
+    "en": "Murkwater Clam Soup",
+    "icon": "T3_MEAL_SOUP_FISH",
+    "tier": 3
+  },
+  {
+    "id": "T5_MEAL_SOUP_FISH",
+    "slot": "food",
+    "name": "Sopa de almeja de pantano negro",
+    "en": "Blackbog Clam Soup",
+    "icon": "T5_MEAL_SOUP_FISH",
+    "tier": 5
+  },
+  {
+    "id": "T1_MEAL_SOUP_FISH",
+    "slot": "food",
+    "name": "Sopa de almeja verdosa",
+    "en": "Greenmoor Clam Soup",
+    "icon": "T1_MEAL_SOUP_FISH",
+    "tier": 1
+  },
+  {
+    "id": "T5_MEAL_SOUP",
+    "slot": "food",
+    "name": "Sopa de col",
+    "en": "Cabbage Soup",
+    "icon": "T5_MEAL_SOUP",
+    "tier": 5
+  },
+  {
+    "id": "T3_MEAL_SOUP",
+    "slot": "food",
+    "name": "Sopa de trigo",
+    "en": "Wheat Soup",
+    "icon": "T3_MEAL_SOUP",
+    "tier": 3
+  },
+  {
+    "id": "T1_MEAL_SOUP",
+    "slot": "food",
+    "name": "Sopa de zanahoria",
+    "en": "Carrot Soup",
+    "icon": "T1_MEAL_SOUP",
+    "tier": 1
+  },
+  {
+    "id": "T7_MEAL_OMELETTE_FISH",
+    "slot": "food",
+    "name": "Tortilla de cangrejo de pozo",
+    "en": "Dusthole Crab Omelette",
+    "icon": "T7_MEAL_OMELETTE_FISH",
+    "tier": 7
+  },
+  {
+    "id": "T5_MEAL_OMELETTE_FISH",
+    "slot": "food",
+    "name": "Tortilla de cangrejo de río",
+    "en": "Drybrook Crab Omelette",
+    "icon": "T5_MEAL_OMELETTE_FISH",
+    "tier": 5
+  },
+  {
+    "id": "T3_MEAL_OMELETTE_FISH",
+    "slot": "food",
+    "name": "Tortilla de cangrejo de río abajo",
+    "en": "Lowriver Crab Omelette",
+    "icon": "T3_MEAL_OMELETTE_FISH",
+    "tier": 3
+  },
+  {
+    "id": "T7_MEAL_OMELETTE",
+    "slot": "food",
+    "name": "Tortilla de cerdo",
+    "en": "Pork Omelette",
+    "icon": "T7_MEAL_OMELETTE",
+    "tier": 7
+  },
+  {
+    "id": "T7_MEAL_OMELETTE_AVALON",
+    "slot": "food",
+    "name": "Tortilla de cerdo avaloniana",
+    "en": "Avalonian Pork Omelette",
+    "icon": "T7_MEAL_OMELETTE_AVALON",
+    "tier": 7
+  },
+  {
+    "id": "T5_MEAL_OMELETTE",
+    "slot": "food",
+    "name": "Tortilla de ganso",
+    "en": "Goose Omelette",
+    "icon": "T5_MEAL_OMELETTE",
+    "tier": 5
+  },
+  {
+    "id": "T5_MEAL_OMELETTE_AVALON",
+    "slot": "food",
+    "name": "Tortilla de ganso avaloniana",
+    "en": "Avalonian Goose Omelette",
+    "icon": "T5_MEAL_OMELETTE_AVALON",
+    "tier": 5
+  },
+  {
+    "id": "T5_MEAL_OMELETTE_DRAGONAREA",
+    "slot": "food",
+    "name": "Tortilla de Leyaleta Almabrillante",
+    "en": "Brightsoul Leyfin Omelette",
+    "icon": "T5_MEAL_OMELETTE_DRAGONAREA",
+    "tier": 5
+  },
+  {
+    "id": "T7_MEAL_OMELETTE_DRAGONAREA",
+    "slot": "food",
+    "name": "Tortilla de Leyaleta Dragontina",
+    "en": "Dragonbound Leyfin Omelette",
+    "icon": "T7_MEAL_OMELETTE_DRAGONAREA",
+    "tier": 7
+  },
+  {
+    "id": "T3_MEAL_OMELETTE_DRAGONAREA",
+    "slot": "food",
+    "name": "Tortilla de Leyaleta Serena",
+    "en": "Carefree Leyfin Omelette",
+    "icon": "T3_MEAL_OMELETTE_DRAGONAREA",
+    "tier": 3
+  },
+  {
+    "id": "T3_MEAL_OMELETTE",
+    "slot": "food",
+    "name": "Tortilla de pollo",
+    "en": "Chicken Omelette",
+    "icon": "T3_MEAL_OMELETTE",
+    "tier": 3
+  },
+  {
+    "id": "T3_MEAL_OMELETTE_AVALON",
+    "slot": "food",
+    "name": "Tortilla de pollo avaloniana",
+    "en": "Avalonian Chicken Omelette",
+    "icon": "T3_MEAL_OMELETTE_AVALON",
+    "tier": 3
+  },
+  {
+    "id": "HEAD_LEATHER_MORGANA",
+    "slot": "head",
+    "name": "Capucha de acechador",
+    "en": "Stalker Hood",
+    "icon": "T8_HEAD_LEATHER_MORGANA"
+  },
+  {
+    "id": "HEAD_LEATHER_SET3",
+    "slot": "head",
+    "name": "Capucha de asesino",
+    "en": "Assassin Hood",
+    "icon": "T8_HEAD_LEATHER_SET3"
+  },
+  {
+    "id": "HEAD_LEATHER_FEY",
+    "slot": "head",
+    "name": "Capucha de caminanieblas",
+    "en": "Mistwalker Hood",
+    "icon": "T8_HEAD_LEATHER_FEY"
+  },
+  {
+    "id": "HEAD_LEATHER_SET2",
+    "slot": "head",
+    "name": "Capucha de cazador",
+    "en": "Hunter Hood",
+    "icon": "T8_HEAD_LEATHER_SET2"
+  },
+  {
+    "id": "HEAD_LEATHER_UNDEAD",
+    "slot": "head",
+    "name": "Capucha de espectro",
+    "en": "Specter Hood",
+    "icon": "T8_HEAD_LEATHER_UNDEAD"
+  },
+  {
+    "id": "HEAD_LEATHER_DRAGON",
+    "slot": "head",
+    "name": "Capucha de Matadragones",
+    "en": "Dragonslayer Hood",
+    "icon": "T8_HEAD_LEATHER_DRAGON"
+  },
+  {
+    "id": "HEAD_LEATHER_SET1",
+    "slot": "head",
+    "name": "Capucha de mercenario",
+    "en": "Mercenary Hood",
+    "icon": "T8_HEAD_LEATHER_SET1"
+  },
+  {
+    "id": "HEAD_LEATHER_AVALON",
+    "slot": "head",
+    "name": "Capucha de tenacidad",
+    "en": "Hood of Tenacity",
+    "icon": "T8_HEAD_LEATHER_AVALON"
+  },
+  {
+    "id": "HEAD_LEATHER_HELL",
+    "slot": "head",
+    "name": "Capucha de vándalo",
+    "en": "Hellion Hood",
+    "icon": "T8_HEAD_LEATHER_HELL"
+  },
+  {
+    "id": "HEAD_LEATHER_ROYAL",
+    "slot": "head",
+    "name": "Capucha real",
+    "en": "Royal Hood",
+    "icon": "T8_HEAD_LEATHER_ROYAL"
+  },
+  {
+    "id": "HEAD_PLATE_FEY",
+    "slot": "head",
+    "name": "Casco crepuscular",
+    "en": "Duskweaver Helmet",
+    "icon": "T8_HEAD_PLATE_FEY"
+  },
+  {
+    "id": "HEAD_PLATE_SET2",
+    "slot": "head",
+    "name": "Casco de caballero",
+    "en": "Knight Helmet",
+    "icon": "T8_HEAD_PLATE_SET2"
+  },
+  {
+    "id": "HEAD_PLATE_HELL",
+    "slot": "head",
+    "name": "Casco de demonio",
+    "en": "Demon Helmet",
+    "icon": "T8_HEAD_PLATE_HELL"
+  },
+  {
+    "id": "HEAD_PLATE_UNDEAD",
+    "slot": "head",
+    "name": "Casco de guardatumbas",
+    "en": "Graveguard Helmet",
+    "icon": "T8_HEAD_PLATE_UNDEAD"
+  },
+  {
+    "id": "HEAD_PLATE_SET3",
+    "slot": "head",
+    "name": "Casco de guardián",
+    "en": "Guardian Helmet",
+    "icon": "T8_HEAD_PLATE_SET3"
+  },
+  {
+    "id": "HEAD_PLATE_KEEPER",
+    "slot": "head",
+    "name": "Casco de juez",
+    "en": "Judicator Helmet",
+    "icon": "T8_HEAD_PLATE_KEEPER"
+  },
+  {
+    "id": "HEAD_PLATE_SET1",
+    "slot": "head",
+    "name": "Casco de soldado",
+    "en": "Soldier Helmet",
+    "icon": "T8_HEAD_PLATE_SET1"
+  },
+  {
+    "id": "HEAD_PLATE_AVALON",
+    "slot": "head",
+    "name": "Casco de valor",
+    "en": "Helmet of Valor",
+    "icon": "T8_HEAD_PLATE_AVALON"
+  },
+  {
+    "id": "HEAD_PLATE_ROYAL",
+    "slot": "head",
+    "name": "Casco real",
+    "en": "Royal Helmet",
+    "icon": "T8_HEAD_PLATE_ROYAL"
+  },
+  {
+    "id": "HEAD_GATHERER_ROCK",
+    "slot": "head",
+    "name": "Gorro de cantero",
+    "en": "Quarrier Cap",
+    "icon": "T8_HEAD_GATHERER_ROCK"
+  },
+  {
+    "id": "HEAD_GATHERER_FIBER",
+    "slot": "head",
+    "name": "Gorro de cosechador",
+    "en": "Harvester Cap",
+    "icon": "T8_HEAD_GATHERER_FIBER"
+  },
+  {
+    "id": "HEAD_GATHERER_WOOD",
+    "slot": "head",
+    "name": "Gorro de leñador",
+    "en": "Lumberjack Cap",
+    "icon": "T8_HEAD_GATHERER_WOOD"
+  },
+  {
+    "id": "HEAD_GATHERER_ORE",
+    "slot": "head",
+    "name": "Gorro de minero",
+    "en": "Miner Cap",
+    "icon": "T8_HEAD_GATHERER_ORE"
+  },
+  {
+    "id": "HEAD_GATHERER_HIDE",
+    "slot": "head",
+    "name": "Gorro de peletero",
+    "en": "Skinner Cap",
+    "icon": "T8_HEAD_GATHERER_HIDE"
+  },
+  {
+    "id": "HEAD_GATHERER_FISH",
+    "slot": "head",
+    "name": "Gorro de pescador",
+    "en": "Fisherman Cap",
+    "icon": "T8_HEAD_GATHERER_FISH"
+  },
+  {
+    "id": "HEAD_CLOTH_SET2",
+    "slot": "head",
+    "name": "Hábito de clérigo",
+    "en": "Cleric Cowl",
+    "icon": "T8_HEAD_CLOTH_SET2"
+  },
+  {
+    "id": "HEAD_CLOTH_HELL",
+    "slot": "head",
+    "name": "Hábito de diablo",
+    "en": "Fiend Cowl",
+    "icon": "T8_HEAD_CLOTH_HELL"
+  },
+  {
+    "id": "HEAD_CLOTH_KEEPER",
+    "slot": "head",
+    "name": "Hábito de druida",
+    "en": "Druid Cowl",
+    "icon": "T8_HEAD_CLOTH_KEEPER"
+  },
+  {
+    "id": "HEAD_CLOTH_SET1",
+    "slot": "head",
+    "name": "Hábito de erudito",
+    "en": "Scholar Cowl",
+    "icon": "T8_HEAD_CLOTH_SET1"
+  },
+  {
+    "id": "HEAD_CLOTH_SET3",
+    "slot": "head",
+    "name": "Hábito de mago",
+    "en": "Mage Cowl",
+    "icon": "T8_HEAD_CLOTH_SET3"
+  },
+  {
+    "id": "HEAD_CLOTH_AVALON",
+    "slot": "head",
+    "name": "Hábito de pureza",
+    "en": "Cowl of Purity",
+    "icon": "T8_HEAD_CLOTH_AVALON"
+  },
+  {
+    "id": "HEAD_CLOTH_MORGANA",
+    "slot": "head",
+    "name": "Hábito de sectario",
+    "en": "Cultist Cowl",
+    "icon": "T8_HEAD_CLOTH_MORGANA"
+  },
+  {
+    "id": "HEAD_CLOTH_ROYAL",
+    "slot": "head",
+    "name": "Hábito real",
+    "en": "Royal Cowl",
+    "icon": "T8_HEAD_CLOTH_ROYAL"
+  },
+  {
+    "id": "HEAD_CLOTH_FEY",
+    "slot": "head",
+    "name": "Sombrero de escamas feéricas",
+    "en": "Feyscale Hat",
+    "icon": "T8_HEAD_CLOTH_FEY"
+  },
+  {
+    "id": "T6_MOUNT_GIANTSTAG_MOOSE",
+    "slot": "mount",
+    "name": "Alce",
+    "en": "Moose",
+    "icon": "T6_MOUNT_GIANTSTAG_MOOSE",
+    "tier": 6
+  },
+  {
+    "id": "T8_MOUNT_MOABIRD_FW_BRIDGEWATCH_ELITE",
+    "slot": "mount",
+    "name": "Ave de terror de élite",
+    "en": "Elite Terrorbird",
+    "icon": "T8_MOUNT_MOABIRD_FW_BRIDGEWATCH_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T7_MOUNT_TERRORBIRD_ADC",
+    "slot": "mount",
+    "name": "Ave de terror ensillada",
+    "en": "Saddled Terrorbird",
+    "icon": "T7_MOUNT_TERRORBIRD_ADC",
+    "tier": 7
+  },
+  {
+    "id": "T5_MOUNT_MOABIRD_FW_BRIDGEWATCH",
+    "slot": "mount",
+    "name": "Ave moa ensillada",
+    "en": "Saddled Moabird",
+    "icon": "T5_MOUNT_MOABIRD_FW_BRIDGEWATCH",
+    "tier": 5
+  },
+  {
+    "id": "T6_MOUNT_SIEGE_BALLISTA",
+    "slot": "mount",
+    "name": "Balista de asedio",
+    "en": "Siege Ballista",
+    "icon": "T6_MOUNT_SIEGE_BALLISTA",
+    "tier": 6
+  },
+  {
+    "id": "T7_MOUNT_SWAMPDRAGON_AVALON_BASILISK",
+    "slot": "mount",
+    "name": "Basilisco avaloniano",
+    "en": "Avalonian Basilisk",
+    "icon": "T7_MOUNT_SWAMPDRAGON_AVALON_BASILISK",
+    "tier": 7
+  },
+  {
+    "id": "T7_MOUNT_SWAMPDRAGON_BATTLE",
+    "slot": "mount",
+    "name": "Basilisco de fuego",
+    "en": "Flame Basilisk",
+    "icon": "T7_MOUNT_SWAMPDRAGON_BATTLE",
+    "tier": 7
+  },
+  {
+    "id": "T7_MOUNT_ARMORED_SWAMPDRAGON_BATTLE",
+    "slot": "mount",
+    "name": "Basilisco venenoso",
+    "en": "Venom Basilisk",
+    "icon": "T7_MOUNT_ARMORED_SWAMPDRAGON_BATTLE",
+    "tier": 7
+  },
+  {
+    "id": "T8_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte",
+    "en": "Transport Ox",
+    "icon": "T8_MOUNT_OX",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte del experto",
+    "en": "Expert's Transport Ox",
+    "icon": "T5_MOUNT_OX",
+    "tier": 5
+  },
+  {
+    "id": "T7_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte del gran maestro",
+    "en": "Grandmaster's Transport Ox",
+    "icon": "T7_MOUNT_OX",
+    "tier": 7
+  },
+  {
+    "id": "T4_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte del iniciado",
+    "en": "Adept's Transport Ox",
+    "icon": "T4_MOUNT_OX",
+    "tier": 4
+  },
+  {
+    "id": "T6_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte del maestro",
+    "en": "Master's Transport Ox",
+    "icon": "T6_MOUNT_OX",
+    "tier": 6
+  },
+  {
+    "id": "T3_MOUNT_OX",
+    "slot": "mount",
+    "name": "Buey de transporte del obrero",
+    "en": "Journeyman's Transport Ox",
+    "icon": "T3_MOUNT_OX",
+    "tier": 3
+  },
+  {
+    "id": "T8_MOUNT_OWL_FW_BRECILIEN_ELITE",
+    "slot": "mount",
+    "name": "Búho místico de élite",
+    "en": "Elite Mystic Owl",
+    "icon": "T8_MOUNT_OWL_FW_BRECILIEN_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_OWL_FW_BRECILIEN",
+    "slot": "mount",
+    "name": "Búho místico ensillado",
+    "en": "Saddled Mystic Owl",
+    "icon": "T5_MOUNT_OWL_FW_BRECILIEN",
+    "tier": 5
+  },
+  {
+    "id": "T8_MOUNT_ARMORED_HORSE",
+    "slot": "mount",
+    "name": "Caballo blindado",
+    "en": "Armored Horse",
+    "icon": "T8_MOUNT_ARMORED_HORSE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_ARMORED_HORSE",
+    "slot": "mount",
+    "name": "Caballo blindado del experto",
+    "en": "Expert's Armored Horse",
+    "icon": "T5_MOUNT_ARMORED_HORSE",
+    "tier": 5
+  },
+  {
+    "id": "T7_MOUNT_ARMORED_HORSE",
+    "slot": "mount",
+    "name": "Caballo blindado del gran maestro",
+    "en": "Grandmaster's Armored Horse",
+    "icon": "T7_MOUNT_ARMORED_HORSE",
+    "tier": 7
+  },
+  {
+    "id": "T6_MOUNT_ARMORED_HORSE",
+    "slot": "mount",
+    "name": "Caballo blindado del maestro",
+    "en": "Master's Armored Horse",
+    "icon": "T6_MOUNT_ARMORED_HORSE",
+    "tier": 6
+  },
+  {
+    "id": "T8_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar",
+    "en": "Riding Horse",
+    "icon": "T8_MOUNT_HORSE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar del experto",
+    "en": "Expert's Riding Horse",
+    "icon": "T5_MOUNT_HORSE",
+    "tier": 5
+  },
+  {
+    "id": "T7_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar del gran maestro",
+    "en": "Grandmaster's Riding Horse",
+    "icon": "T7_MOUNT_HORSE",
+    "tier": 7
+  },
+  {
+    "id": "T4_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar del iniciado",
+    "en": "Adept's Riding Horse",
+    "icon": "T4_MOUNT_HORSE",
+    "tier": 4
+  },
+  {
+    "id": "T6_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar del maestro",
+    "en": "Master's Riding Horse",
+    "icon": "T6_MOUNT_HORSE",
+    "tier": 6
+  },
+  {
+    "id": "T3_MOUNT_HORSE",
+    "slot": "mount",
+    "name": "Caballo de montar del obrero",
+    "en": "Journeyman's Riding Horse",
+    "icon": "T3_MOUNT_HORSE",
+    "tier": 3
+  },
+  {
+    "id": "T8_MOUNT_HORSE_UNDEAD@1",
+    "slot": "mount",
+    "name": "Caballo huesudo espectral",
+    "en": "Spectral Bonehorse",
+    "icon": "T8_MOUNT_HORSE_UNDEAD@1",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_RAM_FW_MARTLOCK_ELITE",
+    "slot": "mount",
+    "name": "Carnero cimarrón de élite",
+    "en": "Elite Bighorn Ram",
+    "icon": "T8_MOUNT_RAM_FW_MARTLOCK_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_RAM_FW_MARTLOCK",
+    "slot": "mount",
+    "name": "Carnero cimarrón ensillado",
+    "en": "Saddled Bighorn Ram",
+    "icon": "T5_MOUNT_RAM_FW_MARTLOCK",
+    "tier": 5
+  },
+  {
+    "id": "T6_MOUNT_FROSTRAM_ADC",
+    "slot": "mount",
+    "name": "Carnero de hielo",
+    "en": "Frost Ram",
+    "icon": "T6_MOUNT_FROSTRAM_ADC",
+    "tier": 6
+  },
+  {
+    "id": "T4_MOUNT_GIANTSTAG",
+    "slot": "mount",
+    "name": "Ciervo gigante del iniciado",
+    "en": "Adept's Giant Stag",
+    "icon": "T4_MOUNT_GIANTSTAG",
+    "tier": 4
+  },
+  {
+    "id": "T8_MOUNT_RABBIT_EASTER_DARK@1",
+    "slot": "mount",
+    "name": "Conejo de Caerleon",
+    "en": "Caerleon Cottontail",
+    "icon": "T8_MOUNT_RABBIT_EASTER_DARK@1",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_RABBIT_EASTER",
+    "slot": "mount",
+    "name": "Conejo primaveral",
+    "en": "Spring Cottontail",
+    "icon": "T8_MOUNT_RABBIT_EASTER",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_DRAKE_FIRE",
+    "slot": "mount",
+    "name": "Draco Ala de Fuego",
+    "en": "Firewing Drake",
+    "icon": "T8_MOUNT_DRAKE_FIRE",
+    "tier": 8
+  },
+  {
+    "id": "T7_MOUNT_SWAMPDRAGON",
+    "slot": "mount",
+    "name": "Dragón de pantano ensillado",
+    "en": "Saddled Swamp Dragon",
+    "icon": "T7_MOUNT_SWAMPDRAGON",
+    "tier": 7
+  },
+  {
+    "id": "T8_MOUNT_COUGAR_KEEPER@1",
+    "slot": "mount",
+    "name": "Garrafuria",
+    "en": "Rageclaw",
+    "icon": "T8_MOUNT_COUGAR_KEEPER@1",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_COUGAR_KEEPER@1",
+    "slot": "mount",
+    "name": "Garrapresta",
+    "en": "Swiftclaw",
+    "icon": "T5_MOUNT_COUGAR_KEEPER@1",
+    "tier": 5
+  },
+  {
+    "id": "T6_MOUNT_DIREWOLF",
+    "slot": "mount",
+    "name": "Huargo",
+    "en": "Direwolf",
+    "icon": "T6_MOUNT_DIREWOLF",
+    "tier": 6
+  },
+  {
+    "id": "T7_MOUNT_HUSKY_ADC",
+    "slot": "mount",
+    "name": "Husky de nieve",
+    "en": "Snow Husky",
+    "icon": "T7_MOUNT_HUSKY_ADC",
+    "tier": 7
+  },
+  {
+    "id": "T7_MOUNT_DIREBOAR",
+    "slot": "mount",
+    "name": "Jabalí ensillado",
+    "en": "Saddled Direboar",
+    "icon": "T7_MOUNT_DIREBOAR",
+    "tier": 7
+  },
+  {
+    "id": "T8_MOUNT_DIREBOAR_FW_LYMHURST_ELITE",
+    "slot": "mount",
+    "name": "Jabalí salvaje de élite",
+    "en": "Elite Wild Boar",
+    "icon": "T8_MOUNT_DIREBOAR_FW_LYMHURST_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_DIREBOAR_FW_LYMHURST",
+    "slot": "mount",
+    "name": "Jabalí salvaje ensillado",
+    "en": "Saddled Wild Boar",
+    "icon": "T5_MOUNT_DIREBOAR_FW_LYMHURST",
+    "tier": 5
+  },
+  {
+    "id": "T7_MOUNT_MONITORLIZARD_ADC",
+    "slot": "mount",
+    "name": "Lagartija de plaga",
+    "en": "Pest Lizard",
+    "icon": "T7_MOUNT_MONITORLIZARD_ADC",
+    "tier": 7
+  },
+  {
+    "id": "T8_MOUNT_GREYWOLF_FW_CAERLEON_ELITE",
+    "slot": "mount",
+    "name": "Lobo gris de élite",
+    "en": "Elite Greywolf",
+    "icon": "T8_MOUNT_GREYWOLF_FW_CAERLEON_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_GREYWOLF_FW_CAERLEON",
+    "slot": "mount",
+    "name": "Lobo gris ensillado",
+    "en": "Saddled Greywolf",
+    "icon": "T5_MOUNT_GREYWOLF_FW_CAERLEON",
+    "tier": 5
+  },
+  {
+    "id": "T8_MOUNT_MAMMOTH_BATTLE@1",
+    "slot": "mount",
+    "name": "Mamut de comando",
+    "en": "Command Mammoth",
+    "icon": "T8_MOUNT_MAMMOTH_BATTLE@1",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_MAMMOTH_TRANSPORT",
+    "slot": "mount",
+    "name": "Mamut de transporte",
+    "en": "Transport Mammoth",
+    "icon": "T8_MOUNT_MAMMOTH_TRANSPORT",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_DIREBEAR_FW_FORTSTERLING_ELITE",
+    "slot": "mount",
+    "name": "Oso de invierno de élite",
+    "en": "Elite Winter Bear",
+    "icon": "T8_MOUNT_DIREBEAR_FW_FORTSTERLING_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_DIREBEAR_FW_FORTSTERLING",
+    "slot": "mount",
+    "name": "Oso de invierno ensillado",
+    "en": "Saddled Winter Bear",
+    "icon": "T5_MOUNT_DIREBEAR_FW_FORTSTERLING",
+    "tier": 5
+  },
+  {
+    "id": "T8_MOUNT_DIREBEAR",
+    "slot": "mount",
+    "name": "Oso gigante ensillado",
+    "en": "Saddled Direbear",
+    "icon": "T8_MOUNT_DIREBEAR",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_ARMORED_HORSE_MORGANA@1",
+    "slot": "mount",
+    "name": "Pesadilla de Morgana",
+    "en": "Morgana Nightmare",
+    "icon": "T8_MOUNT_ARMORED_HORSE_MORGANA@1",
+    "tier": 8
+  },
+  {
+    "id": "T8_MOUNT_SWAMPDRAGON_FW_THETFORD_ELITE",
+    "slot": "mount",
+    "name": "Salamandra de pantano de élite",
+    "en": "Elite Swamp Salamander",
+    "icon": "T8_MOUNT_SWAMPDRAGON_FW_THETFORD_ELITE",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_SWAMPDRAGON_FW_THETFORD",
+    "slot": "mount",
+    "name": "Salamandra de pantano ensillada",
+    "en": "Saddled Swamp Salamander",
+    "icon": "T5_MOUNT_SWAMPDRAGON_FW_THETFORD",
+    "tier": 5
+  },
+  {
+    "id": "T8_MOUNT_SPIDER_HELL",
+    "slot": "mount",
+    "name": "Tejedor de Almas",
+    "en": "Soulspinner",
+    "icon": "T8_MOUNT_SPIDER_HELL",
+    "tier": 8
+  },
+  {
+    "id": "T5_MOUNT_SPIDER_HELL",
+    "slot": "mount",
+    "name": "Tejedor de Infiernos",
+    "en": "Hellspinner",
+    "icon": "T5_MOUNT_SPIDER_HELL",
+    "tier": 5
+  },
+  {
+    "id": "OFF_SHIELD_AVALON",
+    "slot": "offhand",
+    "name": "Aegis Astral",
+    "en": "Astral Aegis",
+    "icon": "T8_OFF_SHIELD_AVALON"
+  },
+  {
+    "id": "OFF_TORCH",
+    "slot": "offhand",
+    "name": "Antorcha",
+    "en": "Torch",
+    "icon": "T8_OFF_TORCH"
+  },
+  {
+    "id": "OFF_TORCH_CRYSTAL",
+    "slot": "offhand",
+    "name": "Antorcha Llamazul",
+    "en": "Blueflame Torch",
+    "icon": "T8_OFF_TORCH_CRYSTAL"
+  },
+  {
+    "id": "OFF_SHIELD_CRYSTAL",
+    "slot": "offhand",
+    "name": "Barrera Inquebrantable",
+    "en": "Unbreakable Ward",
+    "icon": "T8_OFF_SHIELD_CRYSTAL"
+  },
+  {
+    "id": "OFF_JESTERCANE_HELL",
+    "slot": "offhand",
+    "name": "Bastón malicioso",
+    "en": "Leering Cane",
+    "icon": "T8_OFF_JESTERCANE_HELL"
+  },
+  {
+    "id": "OFF_TALISMAN_AVALON",
+    "slot": "offhand",
+    "name": "Cetro sagrado",
+    "en": "Sacred Scepter",
+    "icon": "T8_OFF_TALISMAN_AVALON"
+  },
+  {
+    "id": "OFF_BOOK",
+    "slot": "offhand",
+    "name": "Diario de Rosalia",
+    "en": "Rosalia's Diary",
+    "icon": "T8_OFF_BOOK"
+  },
+  {
+    "id": "OFF_SHIELD",
+    "slot": "offhand",
+    "name": "Escudo",
+    "en": "Shield",
+    "icon": "T8_OFF_SHIELD"
+  },
+  {
+    "id": "OFF_SHIELD_HELL",
+    "slot": "offhand",
+    "name": "Escudo de villano",
+    "en": "Caitiff Shield",
+    "icon": "T8_OFF_SHIELD_HELL"
+  },
+  {
+    "id": "OFF_TOME_CRYSTAL",
+    "slot": "offhand",
+    "name": "Grimorio Cronoestático",
+    "en": "Timelocked Grimoire",
+    "icon": "T8_OFF_TOME_CRYSTAL"
+  },
+  {
+    "id": "OFF_CENSER_AVALON",
+    "slot": "offhand",
+    "name": "Incensario celestial",
+    "en": "Celestial Censer",
+    "icon": "T8_OFF_CENSER_AVALON"
+  },
+  {
+    "id": "OFF_HORN_KEEPER",
+    "slot": "offhand",
+    "name": "Invocanieblas",
+    "en": "Mistcaller",
+    "icon": "T8_OFF_HORN_KEEPER"
+  },
+  {
+    "id": "OFF_DEMONSKULL_HELL",
+    "slot": "offhand",
+    "name": "Muisak",
+    "en": "Muisak",
+    "icon": "T8_OFF_DEMONSKULL_HELL"
+  },
+  {
+    "id": "OFF_ORB_MORGANA",
+    "slot": "offhand",
+    "name": "Ojo de los secretos",
+    "en": "Eye of Secrets",
+    "icon": "T8_OFF_ORB_MORGANA"
+  },
+  {
+    "id": "OFF_SPIKEDSHIELD_MORGANA",
+    "slot": "offhand",
+    "name": "Partecaras",
+    "en": "Facebreaker",
+    "icon": "T8_OFF_SPIKEDSHIELD_MORGANA"
+  },
+  {
+    "id": "OFF_TOTEM_KEEPER",
+    "slot": "offhand",
+    "name": "Raíz primaria",
+    "en": "Taproot",
+    "icon": "T8_OFF_TOTEM_KEEPER"
+  },
+  {
+    "id": "OFF_TOWERSHIELD_UNDEAD",
+    "slot": "offhand",
+    "name": "Sarcófago",
+    "en": "Sarcophagus",
+    "icon": "T8_OFF_TOWERSHIELD_UNDEAD"
+  },
+  {
+    "id": "OFF_LAMP_UNDEAD",
+    "slot": "offhand",
+    "name": "Vela de cripta",
+    "en": "Cryptcandle",
+    "icon": "T8_OFF_LAMP_UNDEAD"
+  },
+  {
+    "id": "T5_POTION_ACID",
+    "slot": "potion",
+    "name": "Poción de ácido",
+    "en": "Acid Potion",
+    "icon": "T5_POTION_ACID",
+    "tier": 5
+  },
+  {
+    "id": "T7_POTION_ACID",
+    "slot": "potion",
+    "name": "Poción de ácido mayor",
+    "en": "Major Acid Potion",
+    "icon": "T7_POTION_ACID",
+    "tier": 7
+  },
+  {
+    "id": "T3_POTION_ACID",
+    "slot": "potion",
+    "name": "Poción de ácido menor",
+    "en": "Minor Acid Potion",
+    "icon": "T3_POTION_ACID",
+    "tier": 3
+  },
+  {
+    "id": "T6_POTION_BERSERK",
+    "slot": "potion",
+    "name": "Poción de berserker",
+    "en": "Berserk Potion",
+    "icon": "T6_POTION_BERSERK",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_BERSERK",
+    "slot": "potion",
+    "name": "Poción de berserker mayor",
+    "en": "Major Berserk Potion",
+    "icon": "T8_POTION_BERSERK",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_BERSERK",
+    "slot": "potion",
+    "name": "Poción de berserker menor",
+    "en": "Minor Berserk Potion",
+    "icon": "T4_POTION_BERSERK",
+    "tier": 4
+  },
+  {
+    "id": "T5_POTION_MOB_RESET",
+    "slot": "potion",
+    "name": "Poción de calma",
+    "en": "Calming Potion",
+    "icon": "T5_POTION_MOB_RESET",
+    "tier": 5
+  },
+  {
+    "id": "T7_POTION_MOB_RESET",
+    "slot": "potion",
+    "name": "Poción de calma mayor",
+    "en": "Major Calming Potion",
+    "icon": "T7_POTION_MOB_RESET",
+    "tier": 7
+  },
+  {
+    "id": "T3_POTION_MOB_RESET",
+    "slot": "potion",
+    "name": "Poción de calma menor",
+    "en": "Minor Calming Potion",
+    "icon": "T3_POTION_MOB_RESET",
+    "tier": 3
+  },
+  {
+    "id": "T4_POTION_HEAL",
+    "slot": "potion",
+    "name": "Poción de curación",
+    "en": "Healing Potion",
+    "icon": "T4_POTION_HEAL",
+    "tier": 4
+  },
+  {
+    "id": "T6_POTION_HEAL",
+    "slot": "potion",
+    "name": "Poción de curación mayor",
+    "en": "Major Healing Potion",
+    "icon": "T6_POTION_HEAL",
+    "tier": 6
+  },
+  {
+    "id": "T2_POTION_HEAL",
+    "slot": "potion",
+    "name": "Poción de curación menor",
+    "en": "Minor Healing Potion",
+    "icon": "T2_POTION_HEAL",
+    "tier": 2
+  },
+  {
+    "id": "T4_POTION_ENERGY",
+    "slot": "potion",
+    "name": "Poción de energía",
+    "en": "Energy Potion",
+    "icon": "T4_POTION_ENERGY",
+    "tier": 4
+  },
+  {
+    "id": "T6_POTION_ENERGY",
+    "slot": "potion",
+    "name": "Poción de energía mayor",
+    "en": "Major Energy Potion",
+    "icon": "T6_POTION_ENERGY",
+    "tier": 6
+  },
+  {
+    "id": "T2_POTION_ENERGY",
+    "slot": "potion",
+    "name": "Poción de energía menor",
+    "en": "Minor Energy Potion",
+    "icon": "T2_POTION_ENERGY",
+    "tier": 2
+  },
+  {
+    "id": "T6_POTION_LAVA",
+    "slot": "potion",
+    "name": "Poción de fuego infernal",
+    "en": "Hellfire Potion",
+    "icon": "T6_POTION_LAVA",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_LAVA",
+    "slot": "potion",
+    "name": "Poción de fuego infernal mayor",
+    "en": "Major Hellfire Potion",
+    "icon": "T8_POTION_LAVA",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_LAVA",
+    "slot": "potion",
+    "name": "Poción de fuego infernal menor",
+    "en": "Minor Hellfire Potion",
+    "icon": "T4_POTION_LAVA",
+    "tier": 4
+  },
+  {
+    "id": "T5_POTION_REVIVE",
+    "slot": "potion",
+    "name": "Poción de gigantismo",
+    "en": "Gigantify Potion",
+    "icon": "T5_POTION_REVIVE",
+    "tier": 5
+  },
+  {
+    "id": "T7_POTION_REVIVE",
+    "slot": "potion",
+    "name": "Poción de gigantismo mayor",
+    "en": "Major Gigantify Potion",
+    "icon": "T7_POTION_REVIVE",
+    "tier": 7
+  },
+  {
+    "id": "T3_POTION_REVIVE",
+    "slot": "potion",
+    "name": "Poción de gigantismo menor",
+    "en": "Minor Gigantify Potion",
+    "icon": "T3_POTION_REVIVE",
+    "tier": 3
+  },
+  {
+    "id": "T8_POTION_CLEANSE",
+    "slot": "potion",
+    "name": "Poción de invisibilidad",
+    "en": "Invisibility Potion",
+    "icon": "T8_POTION_CLEANSE",
+    "tier": 8
+  },
+  {
+    "id": "T5_POTION_CLEANSE2",
+    "slot": "potion",
+    "name": "Poción de limpieza",
+    "en": "Cleansing Potion",
+    "icon": "T5_POTION_CLEANSE2",
+    "tier": 5
+  },
+  {
+    "id": "T7_POTION_CLEANSE2",
+    "slot": "potion",
+    "name": "Poción de limpieza mayor",
+    "en": "Major Cleansing Potion",
+    "icon": "T7_POTION_CLEANSE2",
+    "tier": 7
+  },
+  {
+    "id": "T3_POTION_CLEANSE2",
+    "slot": "potion",
+    "name": "Poción de limpieza menor",
+    "en": "Minor Cleansing Potion",
+    "icon": "T3_POTION_CLEANSE2",
+    "tier": 3
+  },
+  {
+    "id": "T6_POTION_GATHER",
+    "slot": "potion",
+    "name": "Poción de recolección",
+    "en": "Gathering Potion",
+    "icon": "T6_POTION_GATHER",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_GATHER",
+    "slot": "potion",
+    "name": "Poción de recolección mayor",
+    "en": "Major Gathering Potion",
+    "icon": "T8_POTION_GATHER",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_GATHER",
+    "slot": "potion",
+    "name": "Poción de recolección menor",
+    "en": "Minor Gathering Potion",
+    "icon": "T4_POTION_GATHER",
+    "tier": 4
+  },
+  {
+    "id": "T6_POTION_COOLDOWN",
+    "slot": "potion",
+    "name": "Poción de veneno",
+    "en": "Poison Potion",
+    "icon": "T6_POTION_COOLDOWN",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_COOLDOWN",
+    "slot": "potion",
+    "name": "Poción de veneno mayor",
+    "en": "Major Poison Potion",
+    "icon": "T8_POTION_COOLDOWN",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_COOLDOWN",
+    "slot": "potion",
+    "name": "Poción de veneno menor",
+    "en": "Minor Poison Potion",
+    "icon": "T4_POTION_COOLDOWN",
+    "tier": 4
+  },
+  {
+    "id": "T6_POTION_LIFEWARD",
+    "slot": "potion",
+    "name": "Poción Guardavida",
+    "en": "Lifeward Potion",
+    "icon": "T6_POTION_LIFEWARD",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_LIFEWARD",
+    "slot": "potion",
+    "name": "Poción Guardavida Mayor",
+    "en": "Major Lifeward Potion",
+    "icon": "T8_POTION_LIFEWARD",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_LIFEWARD",
+    "slot": "potion",
+    "name": "Poción Guardavida Menor",
+    "en": "Minor Lifeward Potion",
+    "icon": "T4_POTION_LIFEWARD",
+    "tier": 4
+  },
+  {
+    "id": "T5_POTION_SLOWFIELD",
+    "slot": "potion",
+    "name": "Poción pegajosa",
+    "en": "Sticky Potion",
+    "icon": "T5_POTION_SLOWFIELD",
+    "tier": 5
+  },
+  {
+    "id": "T7_POTION_SLOWFIELD",
+    "slot": "potion",
+    "name": "Poción pegajosa mayor",
+    "en": "Major Sticky Potion",
+    "icon": "T7_POTION_SLOWFIELD",
+    "tier": 7
+  },
+  {
+    "id": "T3_POTION_SLOWFIELD",
+    "slot": "potion",
+    "name": "Poción pegajosa menor",
+    "en": "Minor Sticky Potion",
+    "icon": "T3_POTION_SLOWFIELD",
+    "tier": 3
+  },
+  {
+    "id": "T6_POTION_TORNADO",
+    "slot": "potion",
+    "name": "Tornado en botella",
+    "en": "Tornado in a Bottle",
+    "icon": "T6_POTION_TORNADO",
+    "tier": 6
+  },
+  {
+    "id": "T8_POTION_TORNADO",
+    "slot": "potion",
+    "name": "Tornado en botella mayor",
+    "en": "Major Tornado in a Bottle",
+    "icon": "T8_POTION_TORNADO",
+    "tier": 8
+  },
+  {
+    "id": "T4_POTION_TORNADO",
+    "slot": "potion",
+    "name": "Tornado en botella menor",
+    "en": "Minor Tornado in a Bottle",
+    "icon": "T4_POTION_TORNADO",
+    "tier": 4
+  },
+  {
+    "id": "SHOES_PLATE_FEY",
+    "slot": "shoes",
+    "name": "Botas crepusculares",
+    "en": "Duskweaver Boots",
+    "icon": "T8_SHOES_PLATE_FEY"
+  },
+  {
+    "id": "SHOES_PLATE_SET2",
+    "slot": "shoes",
+    "name": "Botas de caballero",
+    "en": "Knight Boots",
+    "icon": "T8_SHOES_PLATE_SET2"
+  },
+  {
+    "id": "SHOES_PLATE_HELL",
+    "slot": "shoes",
+    "name": "Botas de demonio",
+    "en": "Demon Boots",
+    "icon": "T8_SHOES_PLATE_HELL"
+  },
+  {
+    "id": "SHOES_PLATE_UNDEAD",
+    "slot": "shoes",
+    "name": "Botas de guardatumbas",
+    "en": "Graveguard Boots",
+    "icon": "T8_SHOES_PLATE_UNDEAD"
+  },
+  {
+    "id": "SHOES_PLATE_SET3",
+    "slot": "shoes",
+    "name": "Botas de guardián",
+    "en": "Guardian Boots",
+    "icon": "T8_SHOES_PLATE_SET3"
+  },
+  {
+    "id": "SHOES_PLATE_KEEPER",
+    "slot": "shoes",
+    "name": "Botas de juez",
+    "en": "Judicator Boots",
+    "icon": "T8_SHOES_PLATE_KEEPER"
+  },
+  {
+    "id": "SHOES_PLATE_SET1",
+    "slot": "shoes",
+    "name": "Botas de soldado",
+    "en": "Soldier Boots",
+    "icon": "T8_SHOES_PLATE_SET1"
+  },
+  {
+    "id": "SHOES_GATHERER_ROCK",
+    "slot": "shoes",
+    "name": "Botas de trabajo de cantero",
+    "en": "Quarrier Workboots",
+    "icon": "T8_SHOES_GATHERER_ROCK"
+  },
+  {
+    "id": "SHOES_GATHERER_FIBER",
+    "slot": "shoes",
+    "name": "Botas de trabajo de cosechador",
+    "en": "Harvester Workboots",
+    "icon": "T8_SHOES_GATHERER_FIBER"
+  },
+  {
+    "id": "SHOES_GATHERER_WOOD",
+    "slot": "shoes",
+    "name": "Botas de trabajo de leñador",
+    "en": "Lumberjack Workboots",
+    "icon": "T8_SHOES_GATHERER_WOOD"
+  },
+  {
+    "id": "SHOES_GATHERER_ORE",
+    "slot": "shoes",
+    "name": "Botas de trabajo de minero",
+    "en": "Miner Workboots",
+    "icon": "T8_SHOES_GATHERER_ORE"
+  },
+  {
+    "id": "SHOES_GATHERER_HIDE",
+    "slot": "shoes",
+    "name": "Botas de trabajo de peletero",
+    "en": "Skinner Workboots",
+    "icon": "T8_SHOES_GATHERER_HIDE"
+  },
+  {
+    "id": "SHOES_GATHERER_FISH",
+    "slot": "shoes",
+    "name": "Botas de trabajo de pescador",
+    "en": "Fisherman Workboots",
+    "icon": "T8_SHOES_GATHERER_FISH"
+  },
+  {
+    "id": "SHOES_PLATE_AVALON",
+    "slot": "shoes",
+    "name": "Botas de valor",
+    "en": "Boots of Valor",
+    "icon": "T8_SHOES_PLATE_AVALON"
+  },
+  {
+    "id": "SHOES_PLATE_ROYAL",
+    "slot": "shoes",
+    "name": "Botas reales",
+    "en": "Royal Boots",
+    "icon": "T8_SHOES_PLATE_ROYAL"
+  },
+  {
+    "id": "SHOES_CLOTH_SET2",
+    "slot": "shoes",
+    "name": "Sandalias de clérigo",
+    "en": "Cleric Sandals",
+    "icon": "T8_SHOES_CLOTH_SET2"
+  },
+  {
+    "id": "SHOES_CLOTH_HELL",
+    "slot": "shoes",
+    "name": "Sandalias de diablo",
+    "en": "Fiend Sandals",
+    "icon": "T8_SHOES_CLOTH_HELL"
+  },
+  {
+    "id": "SHOES_CLOTH_KEEPER",
+    "slot": "shoes",
+    "name": "Sandalias de druida",
+    "en": "Druid Sandals",
+    "icon": "T8_SHOES_CLOTH_KEEPER"
+  },
+  {
+    "id": "SHOES_CLOTH_SET1",
+    "slot": "shoes",
+    "name": "Sandalias de erudito",
+    "en": "Scholar Sandals",
+    "icon": "T8_SHOES_CLOTH_SET1"
+  },
+  {
+    "id": "SHOES_CLOTH_FEY",
+    "slot": "shoes",
+    "name": "Sandalias de escamas feéricas",
+    "en": "Feyscale Sandals",
+    "icon": "T8_SHOES_CLOTH_FEY"
+  },
+  {
+    "id": "SHOES_CLOTH_SET3",
+    "slot": "shoes",
+    "name": "Sandalias de mago",
+    "en": "Mage Sandals",
+    "icon": "T8_SHOES_CLOTH_SET3"
+  },
+  {
+    "id": "SHOES_CLOTH_AVALON",
+    "slot": "shoes",
+    "name": "Sandalias de pureza",
+    "en": "Sandals of Purity",
+    "icon": "T8_SHOES_CLOTH_AVALON"
+  },
+  {
+    "id": "SHOES_CLOTH_MORGANA",
+    "slot": "shoes",
+    "name": "Sandalias de sectario",
+    "en": "Cultist Sandals",
+    "icon": "T8_SHOES_CLOTH_MORGANA"
+  },
+  {
+    "id": "SHOES_CLOTH_ROYAL",
+    "slot": "shoes",
+    "name": "Sandalias reales",
+    "en": "Royal Sandals",
+    "icon": "T8_SHOES_CLOTH_ROYAL"
+  },
+  {
+    "id": "SHOES_LEATHER_MORGANA",
+    "slot": "shoes",
+    "name": "Zapatos de acechador",
+    "en": "Stalker Shoes",
+    "icon": "T8_SHOES_LEATHER_MORGANA"
+  },
+  {
+    "id": "SHOES_LEATHER_SET3",
+    "slot": "shoes",
+    "name": "Zapatos de asesino",
+    "en": "Assassin Shoes",
+    "icon": "T8_SHOES_LEATHER_SET3"
+  },
+  {
+    "id": "SHOES_LEATHER_FEY",
+    "slot": "shoes",
+    "name": "Zapatos de caminanieblas",
+    "en": "Mistwalker Shoes",
+    "icon": "T8_SHOES_LEATHER_FEY"
+  },
+  {
+    "id": "SHOES_LEATHER_SET2",
+    "slot": "shoes",
+    "name": "Zapatos de cazador",
+    "en": "Hunter Shoes",
+    "icon": "T8_SHOES_LEATHER_SET2"
+  },
+  {
+    "id": "SHOES_LEATHER_UNDEAD",
+    "slot": "shoes",
+    "name": "Zapatos de espectro",
+    "en": "Specter Shoes",
+    "icon": "T8_SHOES_LEATHER_UNDEAD"
+  },
+  {
+    "id": "SHOES_LEATHER_DRAGON",
+    "slot": "shoes",
+    "name": "Zapatos de Matadragones",
+    "en": "Dragonslayer Shoes",
+    "icon": "T8_SHOES_LEATHER_DRAGON"
+  },
+  {
+    "id": "SHOES_LEATHER_SET1",
+    "slot": "shoes",
+    "name": "Zapatos de mercenario",
+    "en": "Mercenary Shoes",
+    "icon": "T8_SHOES_LEATHER_SET1"
+  },
+  {
+    "id": "SHOES_LEATHER_AVALON",
+    "slot": "shoes",
+    "name": "Zapatos de tenacidad",
+    "en": "Shoes of Tenacity",
+    "icon": "T8_SHOES_LEATHER_AVALON"
+  },
+  {
+    "id": "SHOES_LEATHER_HELL",
+    "slot": "shoes",
+    "name": "Zapatos de vándalo",
+    "en": "Hellion Shoes",
+    "icon": "T8_SHOES_LEATHER_HELL"
+  },
+  {
+    "id": "SHOES_LEATHER_ROYAL",
+    "slot": "shoes",
+    "name": "Zapatos reales",
+    "en": "Royal Shoes",
+    "icon": "T8_SHOES_LEATHER_ROYAL"
+  },
+  {
+    "id": "2H_HALBERD",
+    "slot": "weapon",
+    "name": "Alabarda",
+    "en": "Halberd",
+    "icon": "T8_2H_HALBERD"
+  },
+  {
+    "id": "2H_BOW",
+    "slot": "weapon",
+    "name": "Arco",
+    "en": "Bow",
+    "icon": "T8_2H_BOW"
+  },
+  {
+    "id": "2H_BOW_CRYSTAL",
+    "slot": "weapon",
+    "name": "Arco Cruzacielos",
+    "en": "Skystrider Bow",
+    "icon": "T8_2H_BOW_CRYSTAL"
+  },
+  {
+    "id": "2H_CROSSBOWLARGE_MORGANA",
+    "slot": "weapon",
+    "name": "Arco de asedio",
+    "en": "Siegebow",
+    "icon": "T8_2H_CROSSBOWLARGE_MORGANA"
+  },
+  {
+    "id": "2H_BOW_KEEPER",
+    "slot": "weapon",
+    "name": "Arco de Badon",
+    "en": "Bow of Badon",
+    "icon": "T8_2H_BOW_KEEPER"
+  },
+  {
+    "id": "2H_WARBOW",
+    "slot": "weapon",
+    "name": "Arco de guerra",
+    "en": "Warbow",
+    "icon": "T8_2H_WARBOW"
+  },
+  {
+    "id": "2H_BOW_HELL",
+    "slot": "weapon",
+    "name": "Arco de lamentaciones",
+    "en": "Wailing Bow",
+    "icon": "T8_2H_BOW_HELL"
+  },
+  {
+    "id": "2H_LONGBOW",
+    "slot": "weapon",
+    "name": "Arco largo",
+    "en": "Longbow",
+    "icon": "T8_2H_LONGBOW"
+  },
+  {
+    "id": "2H_LONGBOW_UNDEAD",
+    "slot": "weapon",
+    "name": "Arco susurrante",
+    "en": "Whispering Bow",
+    "icon": "T8_2H_LONGBOW_UNDEAD"
+  },
+  {
+    "id": "2H_CROSSBOW",
+    "slot": "weapon",
+    "name": "Ballesta",
+    "en": "Crossbow",
+    "icon": "T8_2H_CROSSBOW"
+  },
+  {
+    "id": "MAIN_1HCROSSBOW",
+    "slot": "weapon",
+    "name": "Ballesta ligera",
+    "en": "Light Crossbow",
+    "icon": "T8_MAIN_1HCROSSBOW"
+  },
+  {
+    "id": "2H_CROSSBOWLARGE",
+    "slot": "weapon",
+    "name": "Ballesta pesada",
+    "en": "Heavy Crossbow",
+    "icon": "T8_2H_CROSSBOWLARGE"
+  },
+  {
+    "id": "MAIN_ARCANESTAFF",
+    "slot": "weapon",
+    "name": "Bastón arcano",
+    "en": "Arcane Staff",
+    "icon": "T8_MAIN_ARCANESTAFF"
+  },
+  {
+    "id": "2H_FROSTSTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón ártico",
+    "en": "Arctic Staff",
+    "icon": "T8_2H_FROSTSTAFF_CRYSTAL"
+  },
+  {
+    "id": "2H_ARCANESTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón astral",
+    "en": "Astral Staff",
+    "icon": "T8_2H_ARCANESTAFF_CRYSTAL"
+  },
+  {
+    "id": "2H_HOLYSTAFF_HELL",
+    "slot": "weapon",
+    "name": "Bastón caído",
+    "en": "Fallen Staff",
+    "icon": "T8_2H_HOLYSTAFF_HELL"
+  },
+  {
+    "id": "2H_FIRESTAFF_HELL",
+    "slot": "weapon",
+    "name": "Bastón de azufre",
+    "en": "Brimstone Staff",
+    "icon": "T8_2H_FIRESTAFF_HELL"
+  },
+  {
+    "id": "MAIN_ARCANESTAFF_UNDEAD",
+    "slot": "weapon",
+    "name": "Bastón de brujería",
+    "en": "Witchwork Staff",
+    "icon": "T8_MAIN_ARCANESTAFF_UNDEAD"
+  },
+  {
+    "id": "MAIN_FIRESTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón de Caminallamas",
+    "en": "Flamewalker Staff",
+    "icon": "T8_MAIN_FIRESTAFF_CRYSTAL"
+  },
+  {
+    "id": "2H_ICEGAUNTLETS_HELL",
+    "slot": "weapon",
+    "name": "Bastón de carámbanos",
+    "en": "Icicle Staff",
+    "icon": "T8_2H_ICEGAUNTLETS_HELL"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_HELL",
+    "slot": "weapon",
+    "name": "Bastón de criatura infernal",
+    "en": "Hellspawn Staff",
+    "icon": "T8_2H_SHAPESHIFTER_HELL"
+  },
+  {
+    "id": "2H_DOUBLEBLADEDSTAFF",
+    "slot": "weapon",
+    "name": "Bastón de doble filo",
+    "en": "Double Bladed Staff",
+    "icon": "T8_2H_DOUBLEBLADEDSTAFF"
+  },
+  {
+    "id": "2H_ROCKSTAFF_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón de equilibrio",
+    "en": "Staff of Balance",
+    "icon": "T8_2H_ROCKSTAFF_KEEPER"
+  },
+  {
+    "id": "MAIN_FROSTSTAFF_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón de escarcha",
+    "en": "Hoarfrost Staff",
+    "icon": "T8_MAIN_FROSTSTAFF_KEEPER"
+  },
+  {
+    "id": "MAIN_NATURESTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón de Forjacorteza",
+    "en": "Forgebark Staff",
+    "icon": "T8_MAIN_NATURESTAFF_CRYSTAL"
+  },
+  {
+    "id": "MAIN_FIRESTAFF_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón de fuego incontrolable",
+    "en": "Wildfire Staff",
+    "icon": "T8_MAIN_FIRESTAFF_KEEPER"
+  },
+  {
+    "id": "MAIN_FROSTSTAFF",
+    "slot": "weapon",
+    "name": "Bastón de hielo",
+    "en": "Frost Staff",
+    "icon": "T8_MAIN_FROSTSTAFF"
+  },
+  {
+    "id": "2H_NATURESTAFF_HELL",
+    "slot": "weapon",
+    "name": "Bastón de infortunio",
+    "en": "Blight Staff",
+    "icon": "T8_2H_NATURESTAFF_HELL"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_MORGANA",
+    "slot": "weapon",
+    "name": "Bastón de luna sangrienta",
+    "en": "Bloodmoon Staff",
+    "icon": "T8_2H_SHAPESHIFTER_MORGANA"
+  },
+  {
+    "id": "MAIN_CURSEDSTAFF_UNDEAD",
+    "slot": "weapon",
+    "name": "Bastón de maldición de vida",
+    "en": "Lifecurse Staff",
+    "icon": "T8_MAIN_CURSEDSTAFF_UNDEAD"
+  },
+  {
+    "id": "2H_CURSEDSTAFF_MORGANA",
+    "slot": "weapon",
+    "name": "Bastón de maldiciones",
+    "en": "Damnation Staff",
+    "icon": "T8_2H_CURSEDSTAFF_MORGANA"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_SET1",
+    "slot": "weapon",
+    "name": "Bastón de merodeador",
+    "en": "Prowling Staff",
+    "icon": "T8_2H_SHAPESHIFTER_SET1"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón de Mirada Firme",
+    "en": "Stillgaze Staff",
+    "icon": "T8_2H_SHAPESHIFTER_CRYSTAL"
+  },
+  {
+    "id": "2H_COMBATSTAFF_MORGANA",
+    "slot": "weapon",
+    "name": "Bastón de monje negro",
+    "en": "Black Monk Staff",
+    "icon": "T8_2H_COMBATSTAFF_MORGANA"
+  },
+  {
+    "id": "MAIN_NATURESTAFF_AVALON",
+    "slot": "weapon",
+    "name": "Bastón de raíz férrea",
+    "en": "Ironroot Staff",
+    "icon": "T8_MAIN_NATURESTAFF_AVALON"
+  },
+  {
+    "id": "2H_HOLYSTAFF_UNDEAD",
+    "slot": "weapon",
+    "name": "Bastón de redención",
+    "en": "Redemption Staff",
+    "icon": "T8_2H_HOLYSTAFF_UNDEAD"
+  },
+  {
+    "id": "MAIN_HOLYSTAFF_MORGANA",
+    "slot": "weapon",
+    "name": "Bastón de toque de vida",
+    "en": "Lifetouch Staff",
+    "icon": "T8_MAIN_HOLYSTAFF_MORGANA"
+  },
+  {
+    "id": "2H_DEMONICSTAFF",
+    "slot": "weapon",
+    "name": "Bastón demoníaco",
+    "en": "Demonic Staff",
+    "icon": "T8_2H_DEMONICSTAFF"
+  },
+  {
+    "id": "2H_NATURESTAFF_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón desenfrenado",
+    "en": "Rampant Staff",
+    "icon": "T8_2H_NATURESTAFF_KEEPER"
+  },
+  {
+    "id": "2H_DIVINESTAFF",
+    "slot": "weapon",
+    "name": "Bastón divino",
+    "en": "Divine Staff",
+    "icon": "T8_2H_DIVINESTAFF"
+  },
+  {
+    "id": "MAIN_NATURESTAFF_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón druida",
+    "en": "Druidic Staff",
+    "icon": "T8_MAIN_NATURESTAFF_KEEPER"
+  },
+  {
+    "id": "2H_ENIGMATICSTAFF",
+    "slot": "weapon",
+    "name": "Bastón enigmático",
+    "en": "Enigmatic Staff",
+    "icon": "T8_2H_ENIGMATICSTAFF"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_SET2",
+    "slot": "weapon",
+    "name": "Bastón enraizado",
+    "en": "Rootbound Staff",
+    "icon": "T8_2H_SHAPESHIFTER_SET2"
+  },
+  {
+    "id": "2H_HOLYSTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón exaltado",
+    "en": "Exalted Staff",
+    "icon": "T8_2H_HOLYSTAFF_CRYSTAL"
+  },
+  {
+    "id": "2H_INFERNOSTAFF_MORGANA",
+    "slot": "weapon",
+    "name": "Bastón flamígero",
+    "en": "Blazing Staff",
+    "icon": "T8_2H_INFERNOSTAFF_MORGANA"
+  },
+  {
+    "id": "2H_GLACIALSTAFF",
+    "slot": "weapon",
+    "name": "Bastón glacial",
+    "en": "Glacial Staff",
+    "icon": "T8_2H_GLACIALSTAFF"
+  },
+  {
+    "id": "MAIN_FIRESTAFF",
+    "slot": "weapon",
+    "name": "Bastón ígneo",
+    "en": "Fire Staff",
+    "icon": "T8_MAIN_FIRESTAFF"
+  },
+  {
+    "id": "2H_INFERNOSTAFF",
+    "slot": "weapon",
+    "name": "Bastón infernal",
+    "en": "Infernal Staff",
+    "icon": "T8_2H_INFERNOSTAFF"
+  },
+  {
+    "id": "MAIN_CURSEDSTAFF",
+    "slot": "weapon",
+    "name": "Bastón maldito",
+    "en": "Cursed Staff",
+    "icon": "T8_MAIN_CURSEDSTAFF"
+  },
+  {
+    "id": "2H_IRONCLADEDSTAFF",
+    "slot": "weapon",
+    "name": "Bastón metálico",
+    "en": "Iron-clad Staff",
+    "icon": "T8_2H_IRONCLADEDSTAFF"
+  },
+  {
+    "id": "MAIN_NATURESTAFF",
+    "slot": "weapon",
+    "name": "Bastón natural",
+    "en": "Nature Staff",
+    "icon": "T8_MAIN_NATURESTAFF"
+  },
+  {
+    "id": "2H_ARCANESTAFF_HELL",
+    "slot": "weapon",
+    "name": "Bastón oculto",
+    "en": "Occult Staff",
+    "icon": "T8_2H_ARCANESTAFF_HELL"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_SET3",
+    "slot": "weapon",
+    "name": "Bastón primitivo",
+    "en": "Primal Staff",
+    "icon": "T8_2H_SHAPESHIFTER_SET3"
+  },
+  {
+    "id": "MAIN_CURSEDSTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Bastón Putrefacto",
+    "en": "Rotcaller Staff",
+    "icon": "T8_MAIN_CURSEDSTAFF_CRYSTAL"
+  },
+  {
+    "id": "MAIN_HOLYSTAFF",
+    "slot": "weapon",
+    "name": "Bastón sagrado",
+    "en": "Holy Staff",
+    "icon": "T8_MAIN_HOLYSTAFF"
+  },
+  {
+    "id": "2H_WILDSTAFF",
+    "slot": "weapon",
+    "name": "Bastón salvaje",
+    "en": "Wild Staff",
+    "icon": "T8_2H_WILDSTAFF"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_KEEPER",
+    "slot": "weapon",
+    "name": "Bastón terrúnico",
+    "en": "Earthrune Staff",
+    "icon": "T8_2H_SHAPESHIFTER_KEEPER"
+  },
+  {
+    "id": "2H_KNUCKLES_SET2",
+    "slot": "weapon",
+    "name": "Brazales de batalla",
+    "en": "Battle Bracers",
+    "icon": "T8_2H_KNUCKLES_SET2"
+  },
+  {
+    "id": "2H_KNUCKLES_CRYSTAL",
+    "slot": "weapon",
+    "name": "Brazales de Fuerza Pulsante",
+    "en": "Forcepulse Bracers",
+    "icon": "T8_2H_KNUCKLES_CRYSTAL"
+  },
+  {
+    "id": "2H_QUARTERSTAFF_AVALON",
+    "slot": "weapon",
+    "name": "Buscador de grial",
+    "en": "Grailseeker",
+    "icon": "T8_2H_QUARTERSTAFF_AVALON"
+  },
+  {
+    "id": "2H_SKULLORB_HELL",
+    "slot": "weapon",
+    "name": "Calavera maldita",
+    "en": "Cursed Skull",
+    "icon": "T8_2H_SKULLORB_HELL"
+  },
+  {
+    "id": "2H_FIRE_RINGPAIR_AVALON",
+    "slot": "weapon",
+    "name": "Canción del despertar",
+    "en": "Dawnsong",
+    "icon": "T8_2H_FIRE_RINGPAIR_AVALON"
+  },
+  {
+    "id": "2H_TOOL_FISHINGROD",
+    "slot": "weapon",
+    "name": "Caña de pescar",
+    "en": "Fishing Rod",
+    "icon": "T8_2H_TOOL_FISHINGROD"
+  },
+  {
+    "id": "2H_TOOL_FISHINGROD_AVALON",
+    "slot": "weapon",
+    "name": "Caña de pescar avaloniana",
+    "en": "Avalonian Fishing Rod",
+    "icon": "T8_2H_TOOL_FISHINGROD_AVALON"
+  },
+  {
+    "id": "2H_HARPOON_HELL",
+    "slot": "weapon",
+    "name": "Cazaespíritus",
+    "en": "Spirithunter",
+    "icon": "T8_2H_HARPOON_HELL"
+  },
+  {
+    "id": "2H_KNUCKLES_MORGANA",
+    "slot": "weapon",
+    "name": "Cestus córvidos",
+    "en": "Ravenstrike Cestus",
+    "icon": "T8_2H_KNUCKLES_MORGANA"
+  },
+  {
+    "id": "2H_CLAYMORE",
+    "slot": "weapon",
+    "name": "Claymore",
+    "en": "Claymore",
+    "icon": "T8_2H_CLAYMORE"
+  },
+  {
+    "id": "MAIN_DAGGER_HELL",
+    "slot": "weapon",
+    "name": "Colmillo demoníaco",
+    "en": "Demonfang",
+    "icon": "T8_MAIN_DAGGER_HELL"
+  },
+  {
+    "id": "2H_DUALSICKLE_UNDEAD",
+    "slot": "weapon",
+    "name": "Concedemuertes",
+    "en": "Deathgivers",
+    "icon": "T8_2H_DUALSICKLE_UNDEAD"
+  },
+  {
+    "id": "2H_CLAYMORE_AVALON",
+    "slot": "weapon",
+    "name": "Crea-reyes",
+    "en": "Kingmaker",
+    "icon": "T8_2H_CLAYMORE_AVALON"
+  },
+  {
+    "id": "2H_TOOL_KNIFE",
+    "slot": "weapon",
+    "name": "Cuchillo de despellejar",
+    "en": "Skinning Knife",
+    "icon": "T8_2H_TOOL_KNIFE"
+  },
+  {
+    "id": "2H_TOOL_KNIFE_AVALON",
+    "slot": "weapon",
+    "name": "Cuchillo de despellejar avaloniano",
+    "en": "Avalonian Skinning Knife",
+    "icon": "T8_2H_TOOL_KNIFE_AVALON"
+  },
+  {
+    "id": "MAIN_DAGGER",
+    "slot": "weapon",
+    "name": "Daga",
+    "en": "Dagger",
+    "icon": "T8_MAIN_DAGGER"
+  },
+  {
+    "id": "2H_DAGGERPAIR",
+    "slot": "weapon",
+    "name": "Daga doble",
+    "en": "Dagger Pair",
+    "icon": "T8_2H_DAGGERPAIR"
+  },
+  {
+    "id": "2H_DUALCROSSBOW_CRYSTAL",
+    "slot": "weapon",
+    "name": "Desintegradoras de Luz",
+    "en": "Arclight Blasters",
+    "icon": "T8_2H_DUALCROSSBOW_CRYSTAL"
+  },
+  {
+    "id": "2H_DUALSWORD",
+    "slot": "weapon",
+    "name": "Dos espadas",
+    "en": "Dual Swords",
+    "icon": "T8_2H_DUALSWORD"
+  },
+  {
+    "id": "2H_DUALSCIMITAR_UNDEAD",
+    "slot": "weapon",
+    "name": "Dos galatinas",
+    "en": "Galatine Pair",
+    "icon": "T8_2H_DUALSCIMITAR_UNDEAD"
+  },
+  {
+    "id": "MAIN_SWORD",
+    "slot": "weapon",
+    "name": "Espada ancha",
+    "en": "Broadsword",
+    "icon": "T8_MAIN_SWORD"
+  },
+  {
+    "id": "2H_CLEAVER_HELL",
+    "slot": "weapon",
+    "name": "Espada tallada",
+    "en": "Carving Sword",
+    "icon": "T8_2H_CLEAVER_HELL"
+  },
+  {
+    "id": "2H_SCYTHE_CRYSTAL",
+    "slot": "weapon",
+    "name": "Falce de cristal",
+    "en": "Crystal Reaper",
+    "icon": "T8_2H_SCYTHE_CRYSTAL"
+  },
+  {
+    "id": "2H_DAGGER_KATAR_AVALON",
+    "slot": "weapon",
+    "name": "Furia contenida",
+    "en": "Bridled Fury",
+    "icon": "T8_2H_DAGGER_KATAR_AVALON"
+  },
+  {
+    "id": "2H_CLAWPAIR",
+    "slot": "weapon",
+    "name": "Garras",
+    "en": "Claws",
+    "icon": "T8_2H_CLAWPAIR"
+  },
+  {
+    "id": "2H_DAGGERPAIR_CRYSTAL",
+    "slot": "weapon",
+    "name": "Gemelas asesinas",
+    "en": "Twin Slayers",
+    "icon": "T8_2H_DAGGERPAIR_CRYSTAL"
+  },
+  {
+    "id": "2H_ARCANESTAFF",
+    "slot": "weapon",
+    "name": "Gran bastón arcano",
+    "en": "Great Arcane Staff",
+    "icon": "T8_2H_ARCANESTAFF"
+  },
+  {
+    "id": "2H_FROSTSTAFF",
+    "slot": "weapon",
+    "name": "Gran bastón de hielo",
+    "en": "Great Frost Staff",
+    "icon": "T8_2H_FROSTSTAFF"
+  },
+  {
+    "id": "2H_CURSEDSTAFF",
+    "slot": "weapon",
+    "name": "Gran bastón maldito",
+    "en": "Great Cursed Staff",
+    "icon": "T8_2H_CURSEDSTAFF"
+  },
+  {
+    "id": "2H_NATURESTAFF",
+    "slot": "weapon",
+    "name": "Gran bastón natural",
+    "en": "Great Nature Staff",
+    "icon": "T8_2H_NATURESTAFF"
+  },
+  {
+    "id": "2H_HOLYSTAFF",
+    "slot": "weapon",
+    "name": "Gran bastón sagrado",
+    "en": "Great Holy Staff",
+    "icon": "T8_2H_HOLYSTAFF"
+  },
+  {
+    "id": "2H_HAMMER",
+    "slot": "weapon",
+    "name": "Gran martillo",
+    "en": "Great Hammer",
+    "icon": "T8_2H_HAMMER"
+  },
+  {
+    "id": "MAIN_FROSTSTAFF_AVALON",
+    "slot": "weapon",
+    "name": "Grito gélido",
+    "en": "Chillhowl",
+    "icon": "T8_MAIN_FROSTSTAFF_AVALON"
+  },
+  {
+    "id": "2H_TWINSCYTHE_HELL",
+    "slot": "weapon",
+    "name": "Guadaña de almas",
+    "en": "Soulscythe",
+    "icon": "T8_2H_TWINSCYTHE_HELL"
+  },
+  {
+    "id": "2H_SCYTHE_HELL",
+    "slot": "weapon",
+    "name": "Guadaña infernal",
+    "en": "Infernal Scythe",
+    "icon": "T8_2H_SCYTHE_HELL"
+  },
+  {
+    "id": "2H_KNUCKLES_SET3",
+    "slot": "weapon",
+    "name": "Guanteletes de púas",
+    "en": "Spiked Gauntlets",
+    "icon": "T8_2H_KNUCKLES_SET3"
+  },
+  {
+    "id": "2H_KNUCKLES_SET1",
+    "slot": "weapon",
+    "name": "Guantes de peleador",
+    "en": "Brawler Gloves",
+    "icon": "T8_2H_KNUCKLES_SET1"
+  },
+  {
+    "id": "2H_RAM_KEEPER",
+    "slot": "weapon",
+    "name": "Guardabosques",
+    "en": "Grovekeeper",
+    "icon": "T8_2H_RAM_KEEPER"
+  },
+  {
+    "id": "2H_GLAIVE",
+    "slot": "weapon",
+    "name": "Guja",
+    "en": "Glaive",
+    "icon": "T8_2H_GLAIVE"
+  },
+  {
+    "id": "2H_GLAIVE_CRYSTAL",
+    "slot": "weapon",
+    "name": "Guja fisurante",
+    "en": "Rift Glaive",
+    "icon": "T8_2H_GLAIVE_CRYSTAL"
+  },
+  {
+    "id": "2H_TOOL_AXE",
+    "slot": "weapon",
+    "name": "Hacha",
+    "en": "Axe",
+    "icon": "T8_2H_TOOL_AXE"
+  },
+  {
+    "id": "2H_TOOL_AXE_AVALON",
+    "slot": "weapon",
+    "name": "Hacha avaloniana",
+    "en": "Avalonian Axe",
+    "icon": "T8_2H_TOOL_AXE_AVALON"
+  },
+  {
+    "id": "MAIN_AXE",
+    "slot": "weapon",
+    "name": "Hacha de guerra",
+    "en": "Battleaxe",
+    "icon": "T8_MAIN_AXE"
+  },
+  {
+    "id": "MAIN_SCIMITAR_MORGANA",
+    "slot": "weapon",
+    "name": "Hoja Clarent",
+    "en": "Clarent Blade",
+    "icon": "T8_MAIN_SCIMITAR_MORGANA"
+  },
+  {
+    "id": "2H_DOUBLEBLADEDSTAFF_CRYSTAL",
+    "slot": "weapon",
+    "name": "Hoja doble fantasma",
+    "en": "Phantom Twinblade",
+    "icon": "T8_2H_DOUBLEBLADEDSTAFF_CRYSTAL"
+  },
+  {
+    "id": "MAIN_SWORD_CRYSTAL",
+    "slot": "weapon",
+    "name": "Hoja infinita",
+    "en": "Infinity Blade",
+    "icon": "T8_MAIN_SWORD_CRYSTAL"
+  },
+  {
+    "id": "2H_TOOL_SICKLE",
+    "slot": "weapon",
+    "name": "Hoz",
+    "en": "Sickle",
+    "icon": "T8_2H_TOOL_SICKLE"
+  },
+  {
+    "id": "2H_TOOL_SICKLE_AVALON",
+    "slot": "weapon",
+    "name": "Hoz avaloniana",
+    "en": "Avalonian Sickle",
+    "icon": "T8_2H_TOOL_SICKLE_AVALON"
+  },
+  {
+    "id": "2H_SHAPESHIFTER_AVALON",
+    "slot": "weapon",
+    "name": "Invocador de luz",
+    "en": "Lightcaller",
+    "icon": "T8_2H_SHAPESHIFTER_AVALON"
+  },
+  {
+    "id": "MAIN_CURSEDSTAFF_AVALON",
+    "slot": "weapon",
+    "name": "Invocador oscuro",
+    "en": "Shadowcaller",
+    "icon": "T8_MAIN_CURSEDSTAFF_AVALON"
+  },
+  {
+    "id": "2H_FIRESTAFF",
+    "slot": "weapon",
+    "name": "Ira de Vendetta",
+    "en": "Vendetta's Wrath",
+    "icon": "T8_2H_FIRESTAFF"
+  },
+  {
+    "id": "2H_DUALMACE_AVALON",
+    "slot": "weapon",
+    "name": "Juradores",
+    "en": "Oathkeepers",
+    "icon": "T8_2H_DUALMACE_AVALON"
+  },
+  {
+    "id": "2H_TOOL_TRACKING",
+    "slot": "weapon",
+    "name": "Kit de rastreo",
+    "en": "Tracking Toolkit",
+    "icon": "T8_2H_TOOL_TRACKING"
+  },
+  {
+    "id": "2H_AXE",
+    "slot": "weapon",
+    "name": "La mano de Khor",
+    "en": "The Hand of Khor",
+    "icon": "T8_2H_AXE"
+  },
+  {
+    "id": "MAIN_SPEAR",
+    "slot": "weapon",
+    "name": "Lanza",
+    "en": "Spear",
+    "icon": "T8_MAIN_SPEAR"
+  },
+  {
+    "id": "MAIN_SPEAR_KEEPER",
+    "slot": "weapon",
+    "name": "Lanza de garza",
+    "en": "Heron Spear",
+    "icon": "T8_MAIN_SPEAR_KEEPER"
+  },
+  {
+    "id": "2H_TRIDENT_UNDEAD",
+    "slot": "weapon",
+    "name": "Lanza de trinidad",
+    "en": "Trinity Spear",
+    "icon": "T8_2H_TRIDENT_UNDEAD"
+  },
+  {
+    "id": "2H_DUALCROSSBOW_HELL",
+    "slot": "weapon",
+    "name": "Lanzasaetas",
+    "en": "Boltcasters",
+    "icon": "T8_2H_DUALCROSSBOW_HELL"
+  },
+  {
+    "id": "2H_HALBERD_MORGANA",
+    "slot": "weapon",
+    "name": "Llamacarroña",
+    "en": "Carrioncaller",
+    "icon": "T8_2H_HALBERD_MORGANA"
+  },
+  {
+    "id": "2H_ENIGMATICORB_MORGANA",
+    "slot": "weapon",
+    "name": "Locus malévolo",
+    "en": "Malevolent Locus",
+    "icon": "T8_2H_ENIGMATICORB_MORGANA"
+  },
+  {
+    "id": "2H_FLAIL",
+    "slot": "weapon",
+    "name": "Mangual",
+    "en": "Morning Star",
+    "icon": "T8_2H_FLAIL"
+  },
+  {
+    "id": "2H_HAMMER_AVALON",
+    "slot": "weapon",
+    "name": "Mano de justicia",
+    "en": "Hand of Justice",
+    "icon": "T8_2H_HAMMER_AVALON"
+  },
+  {
+    "id": "2H_KNUCKLES_HELL",
+    "slot": "weapon",
+    "name": "Manos infernales",
+    "en": "Hellfire Hands",
+    "icon": "T8_2H_KNUCKLES_HELL"
+  },
+  {
+    "id": "2H_IRONGAUNTLETS_HELL",
+    "slot": "weapon",
+    "name": "Manos negras",
+    "en": "Black Hands",
+    "icon": "T8_2H_IRONGAUNTLETS_HELL"
+  },
+  {
+    "id": "MAIN_HAMMER",
+    "slot": "weapon",
+    "name": "Martillo",
+    "en": "Hammer",
+    "icon": "T8_MAIN_HAMMER"
+  },
+  {
+    "id": "2H_TOOL_SIEGEHAMMER",
+    "slot": "weapon",
+    "name": "Martillo de asedio",
+    "en": "Siege Hammer",
+    "icon": "T8_2H_TOOL_SIEGEHAMMER"
+  },
+  {
+    "id": "2H_TOOL_SIEGEHAMMER_AVALON",
+    "slot": "weapon",
+    "name": "Martillo de asedio avaloniano",
+    "en": "Avalonian Siege Hammer",
+    "icon": "T8_2H_TOOL_SIEGEHAMMER_AVALON"
+  },
+  {
+    "id": "2H_HAMMER_UNDEAD",
+    "slot": "weapon",
+    "name": "Martillo de la tumba",
+    "en": "Tombhammer",
+    "icon": "T8_2H_HAMMER_UNDEAD"
+  },
+  {
+    "id": "2H_TOOL_HAMMER",
+    "slot": "weapon",
+    "name": "Martillo de piedra",
+    "en": "Stone Hammer",
+    "icon": "T8_2H_TOOL_HAMMER"
+  },
+  {
+    "id": "2H_TOOL_HAMMER_AVALON",
+    "slot": "weapon",
+    "name": "Martillo de piedra avaloniano",
+    "en": "Avalonian Stone Hammer",
+    "icon": "T8_2H_TOOL_HAMMER_AVALON"
+  },
+  {
+    "id": "2H_POLEHAMMER",
+    "slot": "weapon",
+    "name": "Martillo largo",
+    "en": "Polehammer",
+    "icon": "T8_2H_POLEHAMMER"
+  },
+  {
+    "id": "2H_HAMMER_CRYSTAL",
+    "slot": "weapon",
+    "name": "Martillo Relámpago",
+    "en": "Truebolt Hammer",
+    "icon": "T8_2H_HAMMER_CRYSTAL"
+  },
+  {
+    "id": "2H_DUALHAMMER_HELL",
+    "slot": "weapon",
+    "name": "Martillos de forja",
+    "en": "Forge Hammers",
+    "icon": "T8_2H_DUALHAMMER_HELL"
+  },
+  {
+    "id": "MAIN_MACE",
+    "slot": "weapon",
+    "name": "Maza",
+    "en": "Mace",
+    "icon": "T8_MAIN_MACE"
+  },
+  {
+    "id": "2H_MACE_MORGANA",
+    "slot": "weapon",
+    "name": "Maza de Camlann",
+    "en": "Camlann Mace",
+    "icon": "T8_2H_MACE_MORGANA"
+  },
+  {
+    "id": "MAIN_ROCKMACE_KEEPER",
+    "slot": "weapon",
+    "name": "Maza de lecho de roca",
+    "en": "Bedrock Mace",
+    "icon": "T8_MAIN_ROCKMACE_KEEPER"
+  },
+  {
+    "id": "MAIN_MACE_HELL",
+    "slot": "weapon",
+    "name": "Maza íncubo",
+    "en": "Incubus Mace",
+    "icon": "T8_MAIN_MACE_HELL"
+  },
+  {
+    "id": "2H_MACE",
+    "slot": "weapon",
+    "name": "Maza pesada",
+    "en": "Heavy Mace",
+    "icon": "T8_2H_MACE"
+  },
+  {
+    "id": "2H_CROSSBOW_CANNON_AVALON",
+    "slot": "weapon",
+    "name": "Modelador de energía",
+    "en": "Energy Shaper",
+    "icon": "T8_2H_CROSSBOW_CANNON_AVALON"
+  },
+  {
+    "id": "MAIN_MACE_CRYSTAL",
+    "slot": "weapon",
+    "name": "Monarca de la tormenta",
+    "en": "Dreadstorm Monarch",
+    "icon": "T8_MAIN_MACE_CRYSTAL"
+  },
+  {
+    "id": "2H_DUALAXE_KEEPER",
+    "slot": "weapon",
+    "name": "Patas de oso",
+    "en": "Bear Paws",
+    "icon": "T8_2H_DUALAXE_KEEPER"
+  },
+  {
+    "id": "2H_BOW_AVALON",
+    "slot": "weapon",
+    "name": "Perforador de niebla",
+    "en": "Mistpiercer",
+    "icon": "T8_2H_BOW_AVALON"
+  },
+  {
+    "id": "2H_SPEAR",
+    "slot": "weapon",
+    "name": "Pica",
+    "en": "Pike",
+    "icon": "T8_2H_SPEAR"
+  },
+  {
+    "id": "2H_TOOL_PICK",
+    "slot": "weapon",
+    "name": "Pico",
+    "en": "Pickaxe",
+    "icon": "T8_2H_TOOL_PICK"
+  },
+  {
+    "id": "2H_TOOL_PICK_AVALON",
+    "slot": "weapon",
+    "name": "Pico avaloniano",
+    "en": "Avalonian Pickaxe",
+    "icon": "T8_2H_TOOL_PICK_AVALON"
+  },
+  {
+    "id": "MAIN_SPEAR_LANCE_AVALON",
+    "slot": "weapon",
+    "name": "Portador del alba",
+    "en": "Daybreaker",
+    "icon": "T8_MAIN_SPEAR_LANCE_AVALON"
+  },
+  {
+    "id": "2H_ICECRYSTAL_UNDEAD",
+    "slot": "weapon",
+    "name": "Prisma de hielos perpetuos",
+    "en": "Permafrost Prism",
+    "icon": "T8_2H_ICECRYSTAL_UNDEAD"
+  },
+  {
+    "id": "2H_KNUCKLES_AVALON",
+    "slot": "weapon",
+    "name": "Puños de Avalon",
+    "en": "Fists of Avalon",
+    "icon": "T8_2H_KNUCKLES_AVALON"
+  },
+  {
+    "id": "2H_REPEATINGCROSSBOW_UNDEAD",
+    "slot": "weapon",
+    "name": "Repetidora de desconsuelo",
+    "en": "Weeping Repeater",
+    "icon": "T8_2H_REPEATINGCROSSBOW_UNDEAD"
+  },
+  {
+    "id": "2H_AXE_AVALON",
+    "slot": "weapon",
+    "name": "Romperreinos",
+    "en": "Realmbreaker",
+    "icon": "T8_2H_AXE_AVALON"
+  },
+  {
+    "id": "MAIN_RAPIER_MORGANA",
+    "slot": "weapon",
+    "name": "Sangradora",
+    "en": "Bloodletter",
+    "icon": "T8_MAIN_RAPIER_MORGANA"
+  },
+  {
+    "id": "MAIN_HOLYSTAFF_AVALON",
+    "slot": "weapon",
+    "name": "Santificador",
+    "en": "Hallowfall",
+    "icon": "T8_MAIN_HOLYSTAFF_AVALON"
+  },
+  {
+    "id": "2H_ARCANE_RINGPAIR_AVALON",
+    "slot": "weapon",
+    "name": "Sonido equilibrado",
+    "en": "Evensong",
+    "icon": "T8_2H_ARCANE_RINGPAIR_AVALON"
+  },
+  {
+    "id": "2H_QUARTERSTAFF",
+    "slot": "weapon",
+    "name": "Vara",
+    "en": "Quarterstaff",
+    "icon": "T8_2H_QUARTERSTAFF"
+  },
+  {
+    "id": "2H_KNUCKLES_KEEPER",
+    "slot": "weapon",
+    "name": "Zarpas osunas",
+    "en": "Ursine Maulers",
+    "icon": "T8_2H_KNUCKLES_KEEPER"
+  }
+]
