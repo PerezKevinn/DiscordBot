@@ -747,6 +747,10 @@ export async function startPanel(client: Client) {
 
   // Avisos de Mercado Pago (servidor a servidor). Formato webhook (?data.id=&type=payment, cuerpo JSON)
   // o IPN antiguo (?topic=payment&id=). Error 500 = Mercado Pago lo reintenta.
+  //
+  // La firma (x-signature) se comprueba pero NO bloquea: el aviso solo trae un id y el Premium
+  // sale siempre de consultar el pago a la API con nuestro token, así que un aviso falso no
+  // puede dar nada. Si falla, se registra el detalle para averiguar qué clave/formato usa MP.
   app.post('/webhooks/mercadopago', { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } }, async (req, reply) => {
     const pay = mercadoPagoEnv();
     if (!pay) return reply.status(404).send('pagos desactivados');
@@ -759,9 +763,23 @@ export async function startPanel(client: Client) {
     const signature = req.headers['x-signature'];
     if (pay.webhookSecret && typeof signature === 'string') {
       const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
-      if (!isValidSignature(pay.webhookSecret, signature, requestId, String(q['data.id'] ?? dataId))) {
-        console.warn(`[Mercado Pago] Aviso con firma inválida (pago ${dataId || '?'}).`);
-        return reply.status(401).send('firma inválida');
+      const secret = pay.webhookSecret;
+      if (!isValidSignature(secret, signature, requestId, String(q['data.id'] ?? dataId))) {
+        // Diagnóstico sin datos secretos: qué variante del manifiesto sí cuadraría
+        const variants: Record<string, boolean> = {
+          'body.data.id': isValidSignature(secret, signature, requestId, String(body.data?.id ?? '')),
+          'query.id': isValidSignature(secret, signature, requestId, String(q.id ?? '')),
+          'sin request-id': isValidSignature(secret, signature, undefined, dataId),
+          'sin data.id': isValidSignature(secret, signature, requestId, ''),
+        };
+        const match = Object.entries(variants).find(([, ok]) => ok)?.[0] ?? 'ninguna (¿clave de otra app o de Modo productivo?)';
+        const b = body as Record<string, unknown>;
+        console.warn(
+          `[Mercado Pago] Aviso con firma inválida (pago ${dataId || '?'}); se consulta igual a la API. ` +
+            `query=${JSON.stringify(q)} request-id=${requestId ? 'sí' : 'no'} ` +
+            `ts=${/ts=([^,]+)/.exec(signature)?.[1] ?? '?'} action=${String(b.action ?? '?')} ` +
+            `live_mode=${String(b.live_mode ?? '?')} user_id=${String(b.user_id ?? '?')} variante que cuadra: ${match}.`
+        );
       }
     }
     try {

@@ -100,6 +100,16 @@ function fallbackContentConfig(ping: ActivePing): ContentTypeConfig {
  */
 async function refreshActivePingMessage(interaction: Interaction, config: GuildConfig, ping: ActivePing) {
   if (ping.messageDeleted) return;
+
+  // Si la interacción viene del propio mensaje del ping, avisamos a Discord YA: generar el banner
+  // puede pasar de los 3 s que da Discord y la interacción caducaría ("Unknown interaction").
+  const fromPingMessage = interaction.isMessageComponent() && interaction.message.id === ping.messageId;
+  let deferredHere = false;
+  if (fromPingMessage && !interaction.deferred && !interaction.replied) {
+    await interaction.deferUpdate();
+    deferredHere = true;
+  }
+
   const contentConfig = ConfigManager.getContentType(config.guildId, ping.contentTypeId) || fallbackContentConfig(ping);
   // Si alguien borró a mano la voz temporal, no la seguimos enlazando
   if (ping.voiceChannelId && interaction.guild && !interaction.guild.channels.cache.has(ping.voiceChannelId)) {
@@ -109,9 +119,11 @@ async function refreshActivePingMessage(interaction: Interaction, config: GuildC
 
   const payload = await buildPingMessagePayload(ping, contentConfig, config);
 
-  // Si la interacción viene del propio mensaje del ping, lo actualizamos directamente
-  if (interaction.isMessageComponent() && interaction.message.id === ping.messageId) {
-    await interaction.update(payload);
+  if (fromPingMessage && interaction.isMessageComponent()) {
+    // Tras deferUpdate, editReply edita el mensaje del ping (el token dura 15 min).
+    // Si ya se había respondido de otra forma, se edita el mensaje directamente.
+    if (deferredHere) await interaction.editReply(payload);
+    else await interaction.message.edit(payload);
     return;
   }
   if (interaction.guild) {
