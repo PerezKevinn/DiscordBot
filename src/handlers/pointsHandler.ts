@@ -262,7 +262,7 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
       content:
         `✅ ${previous ? 'Puntos corregidos' : 'Puntos repartidos'}: **${total}** entre **${award.entries.length}** jugadores. Míralos con \`/ranking\`.` +
         (scheduleDelete
-          ? `\n-# El mensaje del ping se borra en ${deleteMinutes} min; si te equivocaste, corrige antes con **Mando Caller** (o después desde el panel).`
+          ? `\n-# El mensaje del ping se borra en ${deleteMinutes} min; si te equivocaste, corrige antes con \`/mando\` (o después desde el panel).`
           : ''),
       embeds: [],
       components: [],

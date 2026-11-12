@@ -5,6 +5,7 @@ import {
   ButtonInteraction,
   ButtonStyle,
   ChannelType,
+  ChatInputCommandInteraction,
   Interaction,
   MessageMentionOptions,
   ModalBuilder,
@@ -14,6 +15,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
   MessageFlags,
+  StringSelectMenuBuilder,
 } from 'discord.js';
 import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, MentionType, RoleTemplate } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
@@ -195,6 +197,7 @@ export async function handleInteraction(interaction: Interaction) {
       if (commandName === 'canjear') return handleRedeemCommand(interaction, config);
       if (commandName === 'ranking') return handleRankingCommand(interaction, config);
       if (commandName === 'puntos') return handlePointsCommand(interaction, config);
+      if (commandName === 'mando') return handleMandoCommand(interaction, config);
 
       if (commandName === 'panel-ping') {
         if (!isGuildManager(interaction) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
@@ -296,6 +299,21 @@ export async function handleInteraction(interaction: Interaction) {
 
       if (customId.startsWith('compo_')) {
         await handleCompoInteraction(interaction, config);
+        return;
+      }
+
+      // --- /mando con varios pings: el Caller elige cuál ---
+      if (customId === 'mando_select') {
+        const ping = ConfigManager.getPing(config.guildId, values[0]);
+        if (!ping) {
+          await interaction.update({ content: '⚠️ Esa salida ya no está guardada.', components: [] });
+          return;
+        }
+        if (!canCommandPing(interaction, ping)) {
+          await interaction.update({ content: '⛔ No eres el Caller de esta salida.', components: [] });
+          return;
+        }
+        await interaction.update({ ...callerPanel(config, ping), allowedMentions: { parse: [] } });
         return;
       }
 
@@ -466,7 +484,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   const limits = getLimits(config);
   if (ConfigManager.countOpenPings(config.guildId) >= limits.maxActivePings) {
     await interaction.reply({
-      content: `⚠️ Ya hay **${limits.maxActivePings} pings abiertos** en este servidor (límite de tu plan). Cierra alguno con **Mando Caller → GG** antes de tirar otro.\n${PREMIUM_UPSELL}`,
+      content: `⚠️ Ya hay **${limits.maxActivePings} pings abiertos** en este servidor (límite de tu plan). Cierra alguno con \`/mando\` → **GG** antes de tirar otro.\n${PREMIUM_UPSELL}`,
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -636,6 +654,8 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   ConfigManager.savePing(config.guildId, newPing);
   ConfigManager.clearDraft(config.guildId, interaction.user.id);
 
+  // El Mando del Caller llega aquí, en privado (en el ping público lo verían todos)
+  const panel = callerPanel(config, newPing);
   await interaction.editReply({
     content: '',
     embeds: [
@@ -643,13 +663,109 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
         .setColor(UI_COLORS.success)
         .setTitle('✅ Ping publicado')
         .setDescription(`${contentConfig.emoji} **${newPing.title}** en <#${newPing.channelId}>\n[Ir al ping](${sentMsg.url})`),
+      ...panel.embeds,
     ],
-    components: [],
+    components: panel.components,
+  });
+}
+
+// ---------- Mando del Caller (privado: al publicar y con /mando) ----------
+
+/** El Caller del ping o un oficial (Gestionar canales). */
+function canCommandPing(
+  interaction: { user: { id: string }; memberPermissions: Readonly<{ has(p: bigint): boolean }> | null },
+  ping: ActivePing
+): boolean {
+  return interaction.user.id === ping.callerId || Boolean(interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels));
+}
+
+/** Controles del Caller para un ping (mensaje efímero). `notice` = resultado de la última acción. */
+function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
+  const joined = Object.values(ping.roster).reduce((acc, l) => acc + l.length, 0);
+  const max = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
+
+  // Salida terminada: lo único que queda por hacer es repartir los puntos
+  if (isPingFinished(ping)) {
+    const btn = pointsButton(config, ping);
+    const head = notice ? `${notice}\n` : '';
+    return {
+      content: btn
+        ? `${head}🔒 **${ping.title}** ya terminó (${joined} anotados · ${ping.bench.length} en banca). Reparte o corrige los puntos:`
+        : `${head}🔒 **${ping.title}** ya terminó.`,
+      embeds: [],
+      components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
+    };
+  }
+
+  const embed = baseEmbed(config, 'Mando del Caller')
+    .setTitle(`👑 ${ping.title}`.slice(0, 256))
+    .setDescription(
+      [
+        `📍 <#${ping.channelId}> · ${ping.status === 'IN_PROGRESS' ? '⚔️ **En ruta**' : '🟢 Abierto'}`,
+        `👥 **${joined}${max ? `/${max}` : ''}** anotados · ${ping.bench.length} en banca`,
+        `⏰ Salida <t:${ping.startTimeUnix}:R>`,
+        '',
+        '**En ruta:** marca que ya salieron',
+        '**¡A voz!:** menciona a todos los anotados en el hilo del ping',
+        '**GG / Cancelar:** cierra el ping y borra voz e hilo',
+        '',
+        '-# Solo tú ves esto. Si lo cierras, vuelve a abrirlo con `/mando`.',
+      ].join('\n')
+    );
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`caller_action:in_progress:${ping.id}`)
+      .setLabel('En ruta')
+      .setEmoji('⚔️')
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(ping.status === 'IN_PROGRESS'),
+    new ButtonBuilder().setCustomId(`caller_action:notify_voice:${ping.id}`).setLabel('¡A voz!').setEmoji('📢').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(`caller_action:close:${ping.id}`).setLabel('GG').setEmoji('🔒').setStyle(ButtonStyle.Success),
+    new ButtonBuilder().setCustomId(`caller_action:cancel:${ping.id}`).setLabel('Cancelar').setEmoji('🗑️').setStyle(ButtonStyle.Danger)
+  );
+  return { content: notice ?? '', embeds: [fitEmbed(embed)], components: [row] };
+}
+
+/** Pings que puede mandar este usuario: abiertos, o terminados con puntos por repartir. */
+function commandablePings(interaction: ChatInputCommandInteraction, config: GuildConfig): ActivePing[] {
+  return Object.values(ConfigManager.getActivePings(config.guildId))
+    .filter((p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS' || (p.status === 'CLOSED' && pointsButton(config, p)))
+    .filter((p) => canCommandPing(interaction, p))
+    .sort((a, b) => Number(isPingFinished(a)) - Number(isPingFinished(b)) || b.createdAt - a.createdAt)
+    .slice(0, 25);
+}
+
+/** /mando: abre el Mando del Caller (o un selector si tiene varios pings). */
+async function handleMandoCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
+  const pings = commandablePings(interaction, config);
+  if (pings.length === 0) {
+    await interaction.reply({ content: 'No tienes pings abiertos ni puntos por repartir.', flags: MessageFlags.Ephemeral });
+    return;
+  }
+  if (pings.length === 1) {
+    await interaction.reply({ ...callerPanel(config, pings[0]), flags: MessageFlags.Ephemeral, allowedMentions: { parse: [] } });
+    return;
+  }
+  const status = (p: ActivePing) => (p.status === 'CLOSED' ? 'Terminado · puntos' : p.status === 'IN_PROGRESS' ? 'En ruta' : 'Abierto');
+  const select = new StringSelectMenuBuilder()
+    .setCustomId('mando_select')
+    .setPlaceholder('Elige la salida')
+    .addOptions(
+      pings.map((p) => ({
+        label: p.title.slice(0, 100),
+        value: p.id,
+        description: `${status(p)} · Caller ${p.callerName}`.slice(0, 100),
+      }))
+    );
+  await interaction.reply({
+    content: '👑 ¿Qué salida quieres mandar?',
+    components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
+    flags: MessageFlags.Ephemeral,
   });
 }
 
 /**
- * Botones bajo un Ping activo: Arma/IP, Bajarme, Mando Caller
+ * Botones bajo un Ping activo: Arma/IP, Bajarme, Builds (y Mando Caller en pings antiguos)
  */
 async function handlePingActionButtons(interaction: ButtonInteraction, config: GuildConfig, displayName: string) {
   const [action, pingId] = interaction.customId.split(':');
@@ -675,10 +791,9 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
     return;
   }
 
+  // Botón de pings publicados antes de que el Mando pasara a ser privado
   if (action === 'ping_btn_caller') {
-    const isCaller = interaction.user.id === ping.callerId;
-    const isOfficer = interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels);
-    if (!isCaller && !isOfficer) {
+    if (!canCommandPing(interaction, ping)) {
       await interaction.reply({
         content: `⛔ Solo el Caller (<@${ping.callerId}>) o un Oficial puede tocar esto.`,
         flags: MessageFlags.Ephemeral,
@@ -686,42 +801,7 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
       });
       return;
     }
-
-    const joined = Object.values(ping.roster).reduce((acc, l) => acc + l.length, 0);
-    const max = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
-
-    // Salida terminada: lo único que queda por hacer es repartir los puntos
-    if (isPingFinished(ping)) {
-      const btn = pointsButton(config, ping);
-      await interaction.reply({
-        content: btn
-          ? `🔒 **${ping.title}** ya terminó (${joined} anotados · ${ping.bench.length} en banca). Reparte o corrige los puntos:`
-          : '🔒 Esta salida ya terminó.',
-        components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
-        flags: MessageFlags.Ephemeral,
-        allowedMentions: { parse: [] },
-      });
-      return;
-    }
-    const embed = baseEmbed(config, 'Mando del Caller')
-      .setTitle(`👑 ${ping.title}`.slice(0, 256))
-      .setDescription(
-        [
-          `👥 **${joined}${max ? `/${max}` : ''}** anotados · ${ping.bench.length} en banca`,
-          `⏰ Salida <t:${ping.startTimeUnix}:R>`,
-          '',
-          '**En ruta:** marca que ya salieron',
-          '**¡A voz!:** menciona a todos los anotados',
-          '**GG / Cancelar:** cierra el ping y borra voz e hilo',
-        ].join('\n')
-      );
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId(`caller_action:in_progress:${ping.id}`).setLabel('En ruta').setEmoji('⚔️').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId(`caller_action:notify_voice:${ping.id}`).setLabel('¡A voz!').setEmoji('📢').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId(`caller_action:close:${ping.id}`).setLabel('GG').setEmoji('🔒').setStyle(ButtonStyle.Success),
-      new ButtonBuilder().setCustomId(`caller_action:cancel:${ping.id}`).setLabel('Cancelar').setEmoji('🗑️').setStyle(ButtonStyle.Danger)
-    );
-    await interaction.reply({ embeds: [fitEmbed(embed)], components: [row], flags: MessageFlags.Ephemeral });
+    await interaction.reply({ ...callerPanel(config, ping), flags: MessageFlags.Ephemeral, allowedMentions: { parse: [] } });
     return;
   }
 
@@ -800,9 +880,13 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
   }
 
   if (subAction === 'notify_voice') {
+    if (isPingFinished(ping)) {
+      await interaction.update({ ...callerPanel(config, ping), allowedMentions: { parse: [] } });
+      return;
+    }
     const wait = takeCooldown(`notify:${ping.id}`, COOLDOWNS.notifyVoice);
     if (wait > 0) {
-      await interaction.update({ content: `⏳ Ya llamaste a voz hace poco. Espera ${wait} s.`, embeds: [], components: [] });
+      await interaction.update({ ...callerPanel(config, ping, `⏳ Ya llamaste a voz hace poco. Espera ${wait} s.`), allowedMentions: { parse: [] } });
       return;
     }
     const allUserIds = new Set<string>();
@@ -810,31 +894,57 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
     for (const u of ping.bench) allUserIds.add(u.userId);
 
     if (allUserIds.size === 0) {
-      await interaction.update({ content: '⚠️ Todavía no se anotó nadie para taggear.', components: [] });
+      await interaction.update({ ...callerPanel(config, ping, '⚠️ Todavía no se anotó nadie para taggear.'), allowedMentions: { parse: [] } });
       return;
     }
 
+    // En el hilo del ping para no saturar el canal (si no hay hilo o falla, en el canal del ping).
+    // Nunca en interaction.channel: el Mando es privado y puede estar abierto en otro canal (/mando).
     const ids = Array.from(allUserIds);
     const voiceText = ping.voiceChannelId ? ` al canal de voz <#${ping.voiceChannelId}>` : ' a voz';
-    if (interaction.channel && 'send' in interaction.channel) {
-      await interaction.channel.send({
-        content: `🎺 **¡A VOZ TODO EL MUNDO — ${ping.title.toUpperCase()}!**\nEl Caller <@${ping.callerId}> los quiere YA en${voiceText} y montados en \`${ping.departureLocation}\`:\n${ids.map((id) => `<@${id}>`).join(' ')}`,
-        allowedMentions: { users: ids.slice(0, 100) },
-      });
-    }
-    await interaction.update({ content: '✅ Taggeé a toda la party para que entren a voz.', components: [] });
+    const message = {
+      content: `🎺 **¡A VOZ TODO EL MUNDO — ${ping.title.toUpperCase()}!**\nEl Caller <@${ping.callerId}> los quiere YA en${voiceText} y montados en \`${ping.departureLocation}\`:\n${ids.map((id) => `<@${id}>`).join(' ')}`,
+      allowedMentions: { users: ids.slice(0, 100) },
+    };
+    const sendTo = async (channelId: string | undefined) => {
+      if (!channelId) return false;
+      const ch = await interaction.guild?.channels.fetch(channelId).catch(() => null);
+      if (!ch || !ch.isTextBased() || !('send' in ch)) return false;
+      // Un hilo archivado se reabre al escribir, salvo que esté bloqueado
+      if (ch.isThread() && ch.archived) await ch.setArchived(false).catch(() => null);
+      return ch
+        .send(message)
+        .then(() => true)
+        .catch(() => false);
+    };
+    const where = (await sendTo(ping.threadId)) ? ping.threadId : (await sendTo(ping.channelId)) ? ping.channelId : null;
+    await interaction.update({
+      ...callerPanel(
+        config,
+        ping,
+        where ? `✅ Taggeé a toda la party en <#${where}> para que entren a voz.` : `❌ No pude escribir en <#${ping.channelId}>.`
+      ),
+      allowedMentions: { parse: [] },
+    });
     return;
   }
 
   if (subAction === 'in_progress') {
-    ping.status = 'IN_PROGRESS';
-    ConfigManager.savePing(config.guildId, ping);
-    await interaction.update({ content: '⚔️ Party marcada como **EN RUTA**.', components: [] });
+    if (!isPingFinished(ping)) {
+      ping.status = 'IN_PROGRESS';
+      ConfigManager.savePing(config.guildId, ping);
+    }
+    await interaction.update({ ...callerPanel(config, ping, isPingFinished(ping) ? undefined : '⚔️ Party marcada como **EN RUTA**.'), allowedMentions: { parse: [] } });
     await refreshActivePingMessage(interaction, config, ping);
     return;
   }
 
   if (subAction === 'close' || subAction === 'cancel') {
+    // Panel privado viejo pulsado otra vez: la salida ya se cerró
+    if (isPingFinished(ping)) {
+      await interaction.update({ ...callerPanel(config, ping), allowedMentions: { parse: [] } });
+      return;
+    }
     ping.status = subAction === 'close' ? 'CLOSED' : 'CANCELLED';
     ping.closedAt = Date.now();
 

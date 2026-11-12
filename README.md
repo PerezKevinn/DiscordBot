@@ -10,7 +10,7 @@ Más módulos de gestión de gremio irán sumándose.
 
 - `/ping` (o el botón del panel) abre un asistente privado: contenido, hora de salida, lugar de masa, IP/tier, montura, compo de roles, canal y a quién avisar.
 - El ping sale con banner, roster por rol (los jugadores se anotan desde el menú), banca si el rol está lleno, voz temporal e hilo de builds.
-- El Caller tiene **Mando Caller**: *En ruta*, *¡Todos a voz!*, *GG* y *Cancelar*. GG y Cancelar borran la voz y el hilo.
+- El Caller tiene el **Mando Caller** en privado (al publicar y con `/mando`): *En ruta*, *¡Todos a voz!*, *GG* y *Cancelar*. GG y Cancelar borran la voz y el hilo.
 - Limpieza automática: si la party usó la voz y la deja vacía 10 min, el ping se cierra y se borran voz e hilo.
   Si nadie entró nunca a la voz, se borra 30 min después de la salida. Cualquier ping abierto se cierra a las 6 h.
 

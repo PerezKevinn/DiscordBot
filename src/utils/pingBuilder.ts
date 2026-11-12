@@ -176,21 +176,15 @@ export async function buildPingMessagePayload(
     .setStyle(ButtonStyle.Danger)
     .setDisabled(isClosed);
 
-  const btnCallerManage = new ButtonBuilder()
-    .setCustomId(`ping_btn_caller:${ping.id}`)
-    .setLabel('Mando Caller')
-    .setEmoji('👑')
-    .setStyle(ButtonStyle.Success);
-
   const btnBuilds = new ButtonBuilder()
     .setCustomId(`ping_btn_builds:${ping.id}`)
     .setLabel('Builds')
     .setEmoji('📋')
     .setStyle(ButtonStyle.Secondary);
 
-  const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(btnNote,
-    btnLeave,
-    btnCallerManage);
+  // Los controles del Caller no van aquí (todos verían el botón): le llegan en privado al
+  // publicar y con /mando
+  const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(btnNote, btnLeave);
   if (hasAnyBuild(ping.roles)) rowButtons.addComponents(btnBuilds);
 
   return {

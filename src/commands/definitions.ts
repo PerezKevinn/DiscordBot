@@ -8,6 +8,11 @@ export const publicCommands = [
     .setDMPermission(false),
 
   new SlashCommandBuilder()
+    .setName('mando')
+    .setDescription('Abre el Mando del Caller de tus pings (En ruta, ¡A voz!, GG, Cancelar, puntos)')
+    .setDMPermission(false),
+
+  new SlashCommandBuilder()
     .setName('panel-ping')
     .setDescription('Pone el panel fijo de Callers en este canal')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
