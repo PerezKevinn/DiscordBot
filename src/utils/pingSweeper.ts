@@ -1,7 +1,12 @@
 import { ChannelType, Client, Guild, TextChannel, VoiceState } from 'discord.js';
 import { ActivePing, ContentTypeConfig } from '../types/ping';
-import { ConfigManager } from './configManager';
+import { CLOSED_PING_TTL_MS, ConfigManager } from './configManager';
 import { buildPingMessagePayload } from './pingBuilder';
+
+/** Tras repartir los puntos, el mensaje del ping se borra pasado este tiempo (margen para corregir). */
+export const DELETE_AFTER_POINTS_MS = 10 * 60 * 1000;
+/** Pings terminados sin reparto: el mensaje se borra un poco antes de que se borren sus datos (3 días). */
+const DELETE_UNAWARDED_AFTER_CLOSE_MS = CLOSED_PING_TTL_MS - 30 * 60 * 1000;
 
 /** Ping abierto se cierra solo pasado este tiempo desde la hora de salida (red de seguridad). */
 const STALE_AFTER_START_MS = 6 * 60 * 60 * 1000;
@@ -60,7 +65,40 @@ export async function cleanupPingChannels(guild: Guild, ping: ActivePing, reason
   }
 }
 
+/**
+ * Borra de Discord el mensaje de un ping terminado y lo marca como borrado.
+ * Si el mensaje ya no existe, también lo da por borrado.
+ */
+export async function deletePingMessage(guild: Guild, ping: ActivePing) {
+  if (ping.messageDeleted || !ping.messageId) return;
+  const channel = await guild.channels.fetch(ping.channelId).catch(() => null);
+  if (channel?.isTextBased()) {
+    const msg = await (channel as TextChannel).messages.fetch(ping.messageId).catch(() => null);
+    if (msg) {
+      const ok = await msg
+        .delete()
+        .then(() => true)
+        .catch((err) => {
+          console.warn(`[${guild.id}] No se pudo borrar el mensaje del ping ${ping.id}:`, (err as Error).message);
+          return false;
+        });
+      if (!ok) return; // se reintenta en la próxima limpieza
+    }
+  }
+  ping.messageDeleted = true;
+  ping.messageDeleteAt = undefined;
+  ConfigManager.savePing(guild.id, ping);
+}
+
+/** Programa el borrado del mensaje del ping (lo ejecuta la limpieza automática). */
+export function schedulePingMessageDelete(guildId: string, ping: ActivePing, delayMs: number) {
+  if (ping.messageDeleted) return;
+  ping.messageDeleteAt = Date.now() + delayMs;
+  ConfigManager.savePing(guildId, ping);
+}
+
 async function editPingMessage(guild: Guild, ping: ActivePing) {
+  if (ping.messageDeleted) return;
   try {
     const config = ConfigManager.getConfig(guild.id, guild.name);
     const content = config.contentTypes.find((c) => c.id === ping.contentTypeId) || fallbackContent(ping);
@@ -81,6 +119,8 @@ export async function closePingExternally(guild: Guild, ping: ActivePing, status
   await cleanupPingChannels(guild, ping, status === 'CLOSED' ? 'Cerrado desde el panel' : 'Cancelado desde el panel');
   ConfigManager.savePing(guild.id, ping);
   await editPingMessage(guild, ping);
+  // Una salida cancelada no tiene nada que guardar: fuera el mensaje
+  if (status === 'CANCELLED') await deletePingMessage(guild, ping);
 }
 
 /** Cierra un ping desde fuera de una interacción (auto-cierre). */
@@ -98,11 +138,22 @@ export async function sweepGuild(guild: Guild) {
   let pings: Record<string, ActivePing>;
   try {
     pings = ConfigManager.getActivePings(guild.id);
-    // Privacidad: los pings cerrados (con los nombres de los jugadores) no duran más de 3 días
-    ConfigManager.pruneClosedPings(guild.id, now);
   } catch {
     return;
   }
+
+  // Mensajes de pings terminados: tras repartir puntos, al cancelar, o antes de borrar sus datos
+  for (const ping of Object.values(pings)) {
+    if (isOpen(ping) || ping.messageDeleted) continue;
+    const deleteAt =
+      ping.status === 'CANCELLED'
+        ? now
+        : (ping.messageDeleteAt ?? (ping.closedAt || ping.createdAt) + DELETE_UNAWARDED_AFTER_CLOSE_MS);
+    if (now >= deleteAt) await deletePingMessage(guild, ping);
+  }
+
+  // Privacidad: los pings cerrados (con los nombres de los jugadores) no duran más de 3 días
+  ConfigManager.pruneClosedPings(guild.id, now);
 
   for (const ping of Object.values(pings)) {
     if (!isOpen(ping)) continue;

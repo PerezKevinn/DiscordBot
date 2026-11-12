@@ -14,7 +14,7 @@ const LEGACY_CONFIG_PATH = path.join(DATA_DIR, 'config.json');
 const LEGACY_PINGS_PATH = path.join(DATA_DIR, 'active_pings.json');
 
 // Pings cerrados/cancelados se borran del disco pasado este tiempo
-const CLOSED_PING_TTL_MS = 3 * 24 * 60 * 60 * 1000;
+export const CLOSED_PING_TTL_MS =3 * 24 * 60 * 60 * 1000;
 
 export const DEFAULT_COLORS: GuildConfig['colors'] = {
   primaryBlack: '#0A0A0D',

@@ -16,6 +16,7 @@ import {
 } from 'discord.js';
 import { ActivePing, GuildConfig } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
+import { DELETE_AFTER_POINTS_MS, schedulePingMessageDelete } from '../utils/pingSweeper';
 import { getLimits, PREMIUM_UPSELL } from '../utils/plans';
 import {
   assertCanAward,
@@ -244,12 +245,25 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
     drafts.delete(key);
     const { award, previous } = result;
     if (!award) {
+      // Sin reparto el mensaje vuelve a quedarse hasta la limpieza de los 3 días
+      if (ping.messageDeleteAt && !ping.messageDeleted) {
+        ping.messageDeleteAt = undefined;
+        ConfigManager.savePing(config.guildId, ping);
+      }
       await interaction.update({ content: previous ? '🗑️ Quité los puntos de esta salida.' : 'Nadie tenía puntos: no se guardó nada.', embeds: [], components: [] });
       return;
     }
     const total = award.entries.reduce((s, e) => s + e.points, 0);
+    // El anuncio de puntos queda como registro; el mensaje del ping se borra en unos minutos
+    const deleteMinutes = Math.round(DELETE_AFTER_POINTS_MS / 60000);
+    const scheduleDelete = !ping.messageDeleted;
+    if (scheduleDelete) schedulePingMessageDelete(config.guildId, ping, DELETE_AFTER_POINTS_MS);
     await interaction.update({
-      content: `✅ ${previous ? 'Puntos corregidos' : 'Puntos repartidos'}: **${total}** entre **${award.entries.length}** jugadores. Míralos con \`/ranking\`.`,
+      content:
+        `✅ ${previous ? 'Puntos corregidos' : 'Puntos repartidos'}: **${total}** entre **${award.entries.length}** jugadores. Míralos con \`/ranking\`.` +
+        (scheduleDelete
+          ? `\n-# El mensaje del ping se borra en ${deleteMinutes} min; si te equivocaste, corrige antes con **Mando Caller** (o después desde el panel).`
+          : ''),
       embeds: [],
       components: [],
     });
@@ -257,7 +271,10 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
   }
 }
 
-/** Publica el resumen del reparto bajo el ping (sin mencionar a nadie). */
+/**
+ * Publica el resumen del reparto en el canal del ping (sin mencionar a nadie).
+ * No responde al mensaje del ping porque ese mensaje se borra después del reparto.
+ */
 async function announceAward(interaction: ButtonInteraction, ping: ActivePing, entries: PointsEntry[], corrected: boolean) {
   const channel = await interaction.client.channels.fetch(ping.channelId).catch(() => null);
   if (!channel || !channel.isTextBased() || !('send' in channel)) return;
@@ -272,7 +289,7 @@ async function announceAward(interaction: ButtonInteraction, ping: ActivePing, e
     body += (body ? ' · ' : '') + part;
   }
   await channel
-    .send({ content: head + body, allowedMentions: { parse: [] }, reply: { messageReference: ping.messageId, failIfNotExists: false } })
+    .send({ content: head + body, allowedMentions: { parse: [] } })
     .catch(() => null);
 }
 

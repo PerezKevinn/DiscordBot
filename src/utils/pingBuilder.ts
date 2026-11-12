@@ -194,6 +194,16 @@ export async function buildPingMessagePayload(
   if (hasAnyBuild(ping.roles)) rowButtons.addComponents(btnBuilds);
 
   return {
+    // Al terminar, quitamos la mención (@rol/@here/@everyone) del texto: ya no sirve y ensucia el canal
+    ...(isClosed
+      ? {
+          content:
+            ping.status === 'CLOSED'
+              ? `🔒 **GG · ${ping.title.toUpperCase()}** — salida terminada`
+              : `🔴 **${ping.title.toUpperCase()}** — salida cancelada`,
+          allowedMentions: { parse: [] as const },
+        }
+      : {}),
     embeds: [fitEmbed(embed)],
     files: [attachment],
     components: [rowSelect, rowButtons],

@@ -127,6 +127,8 @@ export interface ActivePing {
   status: 'OPEN' | 'IN_PROGRESS' | 'CLOSED' | 'CANCELLED';
   createdAt: number;
   closedAt?: number;
+  messageDeleteAt?: number; // cuándo borrar el mensaje del ping (p. ej. unos minutos después de repartir puntos)
+  messageDeleted?: boolean; // el mensaje del ping ya se borró de Discord
 }
 
 export type MentionType = 'NONE' | 'HERE' | 'EVERYONE' | 'ROLE';

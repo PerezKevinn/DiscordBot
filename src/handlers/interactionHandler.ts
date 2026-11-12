@@ -24,7 +24,7 @@ import {
 } from '../utils/panelBuilder';
 import { buildPingMessagePayload } from '../utils/pingBuilder';
 import { generateBuildCard } from '../utils/buildCard';
-import { cleanupPingChannels } from '../utils/pingSweeper';
+import { cleanupPingChannels, deletePingMessage } from '../utils/pingSweeper';
 import { getLimits, PREMIUM_UPSELL } from '../utils/plans';
 import { baseEmbed, fitEmbed, hexToInt, UI_COLORS } from '../utils/ui';
 import { cleanPlayerText, cleanUserText, clearCooldown, COOLDOWNS, takeCooldown } from '../utils/security';
@@ -96,6 +96,7 @@ function fallbackContentConfig(ping: ActivePing): ContentTypeConfig {
  * Actualiza el mensaje original de un Ping activo en Discord tras un cambio de Roster o Estado
  */
 async function refreshActivePingMessage(interaction: Interaction, config: GuildConfig, ping: ActivePing) {
+  if (ping.messageDeleted) return;
   const contentConfig = ConfigManager.getContentType(config.guildId, ping.contentTypeId) || fallbackContentConfig(ping);
   // Si alguien borró a mano la voz temporal, no la seguimos enlazando
   if (ping.voiceChannelId && interaction.guild && !interaction.guild.channels.cache.has(ping.voiceChannelId)) {
@@ -831,11 +832,13 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
       content:
         subAction === 'close'
           ? `🔒 **¡GG!** Salida terminada; borré la voz y el hilo.${btn ? '\nAhora reparte los puntos a los que fueron:' : ''}`
-          : '🔴 Salida cancelada (F); borré la voz y el hilo.',
+          : '🔴 Salida cancelada (F); borré el ping, la voz y el hilo.',
       embeds: [],
       components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
     });
-    await refreshActivePingMessage(interaction, config, ping);
+    // Cancelada: no hay puntos ni nada que guardar, el mensaje se borra ya
+    if (subAction === 'cancel' && interaction.guild) await deletePingMessage(interaction.guild, ping);
+    else await refreshActivePingMessage(interaction, config, ping);
   }
 }
 
