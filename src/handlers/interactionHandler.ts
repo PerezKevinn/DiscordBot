@@ -726,11 +726,14 @@ function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
   return { content: notice ?? '', embeds: [fitEmbed(embed)], components: [row] };
 }
 
-/** Pings que puede mandar este usuario: abiertos, o terminados con puntos por repartir. */
+/**
+ * Pings que creó este usuario: abiertos, o terminados con puntos por repartir.
+ * Solo los suyos, aunque sea oficial (los oficiales gestionan los de otros desde el panel web).
+ */
 function commandablePings(interaction: ChatInputCommandInteraction, config: GuildConfig): ActivePing[] {
   return Object.values(ConfigManager.getActivePings(config.guildId))
     .filter((p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS' || (p.status === 'CLOSED' && pointsButton(config, p)))
-    .filter((p) => canCommandPing(interaction, p))
+    .filter((p) => p.callerId === interaction.user.id)
     .sort((a, b) => Number(isPingFinished(a)) - Number(isPingFinished(b)) || b.createdAt - a.createdAt)
     .slice(0, 25);
 }
@@ -754,7 +757,7 @@ async function handleMandoCommand(interaction: ChatInputCommandInteraction, conf
       pings.map((p) => ({
         label: p.title.slice(0, 100),
         value: p.id,
-        description: `${status(p)} · Caller ${p.callerName}`.slice(0, 100),
+        description: `${status(p)} · ${p.contentName}${p.timeLabel ? ` · ${p.timeLabel}` : ''}`.slice(0, 100),
       }))
     );
   await interaction.reply({
