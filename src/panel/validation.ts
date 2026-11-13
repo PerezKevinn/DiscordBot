@@ -3,7 +3,7 @@ import { getItem, ItemSlot } from '../data/items';
 import { sanitizeEmoji } from '../handlers/compoEditor';
 import { cleanUserText } from '../utils/security';
 import { composeRoleLabel } from '../utils/ui';
-import { ContentTypeConfig, RoleBuild, RoleTemplate } from '../types/ping';
+import { ContentTypeConfig, MAX_SWAPS_PER_ROLE, RoleBuild, RoleTemplate } from '../types/ping';
 
 /**
  * Esquemas de lo que acepta el panel. Nada de lo que llega del navegador se guarda
@@ -47,6 +47,11 @@ const roleSchema = z.object({
   maxSlots: z.number().int().min(0).max(100),
   description: text(100).optional().default(''),
   build: buildSchema.optional(),
+  swaps: z
+    .array(z.object({ label: text(20), build: buildSchema }))
+    .max(MAX_SWAPS_PER_ROLE)
+    .optional()
+    .default([]),
 });
 
 export const contentSchema = z.object({
@@ -78,6 +83,10 @@ export function toContentType(id: string, input: ContentInput): ContentTypeConfi
   const roles: RoleTemplate[] = input.roles.map((r) => {
     const roleId = r.id && !used.has(r.id) ? (used.add(r.id), r.id) : newRoleId(r.name, used);
     const build = r.build && Object.keys(r.build).length > 0 ? r.build : undefined;
+    // Un swap sin ningún ítem no sirve; sin nombre se llama "Swap N"
+    const swaps = (r.swaps ?? [])
+      .filter((s) => Object.keys(s.build).length > 0)
+      .map((s, i) => ({ label: s.label.trim() || `Swap ${i + 1}`, build: s.build }));
     return {
       id: roleId,
       label: composeRoleLabel(r.name, r.weapons),
@@ -85,6 +94,7 @@ export function toContentType(id: string, input: ContentInput): ContentTypeConfi
       maxSlots: r.maxSlots,
       description: r.description,
       ...(build ? { build } : {}),
+      ...(swaps.length ? { swaps } : {}),
     };
   });
   return {

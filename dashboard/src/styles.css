@@ -108,6 +108,12 @@ input[type='color'] { padding: 2px; height: 38px; }
 .slot .slot-label { font-size: 0.65rem; color: var(--muted); text-align: center; padding: 2px; line-height: 1.2; font-weight: 500; }
 .slot.disabled { opacity: 0.35; cursor: not-allowed; }
 .slot-caption { font-size: 0.7rem; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 3px; }
+/* Swaps: lo heredado de la build principal en tenue, lo que cambia resaltado */
+.slot.inherited img { opacity: 0.28; filter: grayscale(0.6); }
+.slot.swapped { border-style: solid; border-color: var(--gold); }
+.swaps { display: grid; gap: 10px; }
+.swap { border-left: 3px solid var(--gold); padding: 8px 0 4px 12px; display: grid; gap: 8px; }
+.swap-name { max-width: 160px; }
 
 /* ---------- Selector de ítems ---------- */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); display: grid; place-items: center; z-index: 50; padding: 16px; }

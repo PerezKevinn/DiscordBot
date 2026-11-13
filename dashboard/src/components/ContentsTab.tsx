@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api';
-import type { Content, GuildData, Role } from '../types';
+import { MAX_SWAPS_PER_ROLE, type BuildSwap, type Content, type GuildData, type Role } from '../types';
 import type { Save } from './GuildPanel';
 import { BuildEditor } from './BuildEditor';
+import { ago, clearDraft, readDraft, setReopen, takeReopen, writeDraft, type ContentDraft } from '../drafts';
 
 const COMMON_EMOJIS = ['🛡️', '⚔️', '⛓️', '💚', '✨', '🌿', '🍃', '🔮', '⚡', '🗡️', '🔥', '💥', '🏹', '❄️', '👁️', '🔍', '⛏️', '🐎', '💰', '🚩'];
 
-const blankRole = (): Role => ({ name: '', weapons: '', emoji: '⚔️', maxSlots: 1, description: '', build: {} });
+const blankRole = (): Role => ({ name: '', weapons: '', emoji: '⚔️', maxSlots: 1, description: '', build: {}, swaps: [] });
 const blankContent = (): Content => ({
   id: '',
   name: '',
@@ -37,8 +38,59 @@ const duplicateContent = (c: Content): Content => {
   };
 };
 
+const SWAP_SUGGESTIONS = ['Boss', 'Clear', 'Falce'];
+
+/** Swaps de un rol: cada uno con nombre y solo los huecos que cambian respecto a la build. */
+function SwapsEditor({ role, onChange }: { role: Role; onChange: (swaps: BuildSwap[]) => void }) {
+  const swaps = role.swaps ?? [];
+  const setSwap = (i: number, patch: Partial<BuildSwap>) => onChange(swaps.map((s, j) => (j === i ? { ...s, ...patch } : s)));
+  const add = () => {
+    const used = new Set(swaps.map((s) => s.label.toLowerCase()));
+    const label = SWAP_SUGGESTIONS.find((l) => !used.has(l.toLowerCase())) ?? `Swap ${swaps.length + 1}`;
+    onChange([...swaps, { label, build: {} }]);
+  };
+
+  return (
+    <div className="swaps">
+      {swaps.map((s, i) => (
+        <div key={i} className="swap">
+          <div className="row" style={{ gap: 8 }}>
+            <span className="badge">🔄 Swap</span>
+            <input
+              className="swap-name"
+              value={s.label}
+              maxLength={20}
+              onChange={(e) => setSwap(i, { label: e.target.value })}
+              placeholder="Boss, Falce 3…"
+              aria-label="Nombre del swap"
+            />
+            <span className="muted small">Elige solo lo que cambia; lo demás se queda como en la build.</span>
+            <span className="spacer" />
+            <button className="btn-icon btn-danger" title="Quitar swap" onClick={() => onChange(swaps.filter((_, j) => j !== i))}>✕</button>
+          </div>
+          <BuildEditor build={s.build} base={role.build} onChange={(build) => setSwap(i, { build })} />
+        </div>
+      ))}
+      {swaps.length < MAX_SWAPS_PER_ROLE && (
+        <div>
+          <button className="btn-sm btn-ghost" onClick={add}>
+            + Añadir swap {swaps.length === 0 ? '(p. ej. para el boss)' : ''}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
-  const [editing, setEditing] = useState<Content | null>(null);
+  // Si se estaba editando algo antes de iniciar sesión o recargar, se vuelve a abrir
+  const [editing, setEditing] = useState<Content | null>(() => {
+    const reopen = takeReopen(data.guild.id);
+    if (reopen === null) return null;
+    if (reopen === '') return blankContent();
+    const found = data.contents.find((c) => c.id === reopen);
+    return found ? structuredClone(found) : null;
+  });
   const atLimit = data.contents.length >= data.plan.limits.maxContentTypes;
 
   if (editing) {
@@ -55,6 +107,7 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
   }
 
   const builds = (c: Content) => c.roles.filter((r) => Object.keys(r.build).length > 0).length;
+  const newDraft = readDraft(data.guild.id, '');
 
   return (
     <div className="stack">
@@ -65,6 +118,13 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
         <span className="spacer" />
         <button className="btn-primary" disabled={atLimit} onClick={() => setEditing(blankContent())}>+ Nuevo contenido</button>
       </div>
+      {newDraft && !atLimit && (
+        <p className="notice row" style={{ margin: 0 }}>
+          ✏️ Tienes un contenido nuevo sin guardar{newDraft.content.name ? ` («${newDraft.content.name}»)` : ''}, {ago(newDraft.savedAt)}.
+          <span className="spacer" />
+          <button className="btn-sm" onClick={() => setEditing(blankContent())}>Retomar</button>
+        </p>
+      )}
       <div className="list">
         {data.contents.map((c) => {
           const slots = c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
@@ -79,6 +139,7 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
                 </div>
               </div>
               <span className="muted small">{c.roles.length} roles{slots ? ` · ${slots} cupos` : ''}</span>
+              {readDraft(data.guild.id, c.id) && <span className="badge" title="Hay cambios sin guardar en este navegador">✏️ Sin guardar</span>}
               <span className={`badge${builds(c) > 0 ? ' ok' : ''}`}>🧩 {builds(c)}/{c.roles.length} builds</span>
               <button
                 className="btn-sm btn-ghost"
@@ -127,6 +188,52 @@ function ContentEditor({
 }) {
   const [c, setC] = useState<Content>(initial);
   const isNew = !initial.id;
+  const guildId = data.guild.id;
+  const same = (a: Content, b: Content) => JSON.stringify(a) === JSON.stringify(b);
+
+  // Borrador de una visita anterior (sesión caducada, recarga, pestaña cerrada…)
+  const [offer, setOffer] = useState<ContentDraft | null>(() => {
+    const d = readDraft(guildId, initial.id);
+    return d && !same(d.content, initial) ? d : null;
+  });
+  const dirty = !same(c, initial);
+
+  // Recordar qué se está editando, para reabrirlo tras iniciar sesión o recargar
+  useEffect(() => {
+    setReopen(guildId, initial.id);
+  }, [guildId, initial.id]);
+
+  // Guardar el borrador en el navegador mientras se edita (no pisa uno pendiente de recuperar)
+  useEffect(() => {
+    if (offer || !dirty) return;
+    const t = setTimeout(() => writeDraft(guildId, initial.id, c), 400);
+    return () => clearTimeout(t);
+  }, [c, dirty, offer, guildId, initial.id]);
+
+  // Avisar antes de cerrar o recargar la pestaña con cambios sin guardar
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [dirty]);
+
+  const recover = () => {
+    if (!offer) return;
+    // Los ids de roles del borrador valen si el contenido sigue existiendo; en uno nuevo no hay ids
+    setC({ ...offer.content, id: initial.id });
+    setOffer(null);
+  };
+  const discardOffer = () => {
+    clearDraft(guildId, initial.id);
+    setOffer(null);
+  };
+  const leave = () => {
+    if (dirty && !window.confirm('Tienes cambios sin guardar. ¿Descartarlos?')) return;
+    clearDraft(guildId, initial.id);
+    setReopen(guildId, null);
+    onDone();
+  };
   const set = <K extends keyof Content>(k: K, v: Content[K]) => setC((p) => ({ ...p, [k]: v }));
   const setRole = (i: number, patch: Partial<Role>) =>
     setC((p) => ({ ...p, roles: p.roles.map((r, j) => (j === i ? { ...r, ...patch } : r)) }));
@@ -154,12 +261,21 @@ function ContentEditor({
       () => (isNew ? api.createContent(data.guild.id, body) : api.saveContent(data.guild.id, id, body)),
       isNew ? 'Contenido creado' : 'Contenido guardado'
     );
-    if (ok) onDone();
+    if (ok) {
+      clearDraft(guildId, initial.id);
+      setReopen(guildId, null);
+      onDone();
+    }
   };
 
   const remove = () => {
     if (!window.confirm(`¿Borrar "${initial.name}"? No se puede deshacer.`)) return;
-    void save(() => api.deleteContent(data.guild.id, initial.id), 'Contenido borrado').then((ok) => ok && onDone());
+    void save(() => api.deleteContent(data.guild.id, initial.id), 'Contenido borrado').then((ok) => {
+      if (!ok) return;
+      clearDraft(guildId, initial.id);
+      setReopen(guildId, null);
+      onDone();
+    });
   };
 
   const total = c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
@@ -167,9 +283,20 @@ function ContentEditor({
   return (
     <div className="stack">
       <div className="row">
-        <button className="btn-ghost" onClick={onDone}>← Volver</button>
+        <button className="btn-ghost" onClick={leave}>← Volver</button>
         <h2 style={{ margin: 0 }}>{isNew ? 'Nuevo contenido' : `${initial.emoji} ${initial.name}`}</h2>
+        {dirty && !offer && <span className="badge" title="Se guarda en este navegador hasta que pulses Guardar">✏️ Cambios sin guardar</span>}
       </div>
+
+      {offer && (
+        <p className="notice row" style={{ margin: 0 }}>
+          ✏️ Tienes cambios sin guardar {offer.content.name && isNew ? `de «${offer.content.name}» ` : ''}{ago(offer.savedAt)}.
+          ¿Quieres recuperarlos?
+          <span className="spacer" />
+          <button className="btn-sm btn-primary" onClick={recover}>Recuperar</button>
+          <button className="btn-sm btn-ghost" onClick={discardOffer}>Descartar</button>
+        </p>
+      )}
 
       <div className="card stack">
         <h3>Datos del contenido</h3>
@@ -270,13 +397,14 @@ function ContentEditor({
               <input value={r.description} maxLength={100} onChange={(e) => setRole(i, { description: e.target.value })} />
             </label>
             <BuildEditor build={r.build} onChange={(build) => setRole(i, { build })} />
+            <SwapsEditor role={r} onChange={(swaps) => setRole(i, { swaps })} />
           </div>
         ))}
       </div>
 
       <div className="row">
         <button className="btn-primary" onClick={() => void submit()}>{isNew ? 'Crear contenido' : 'Guardar cambios'}</button>
-        <button className="btn-ghost" onClick={onDone}>Cancelar</button>
+        <button className="btn-ghost" onClick={leave}>Cancelar</button>
         <span className="spacer" />
         {!isNew && (
           <button

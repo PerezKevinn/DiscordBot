@@ -8,6 +8,15 @@ export interface RoleTemplate {
   maxSlots: number; // 0 = ilimitado
   description?: string;
   build?: RoleBuild;
+  /** Cambios de equipo para un momento concreto (p. ej. "Boss"): solo los huecos que cambian. */
+  swaps?: BuildSwap[];
+}
+
+export const MAX_SWAPS_PER_ROLE = 3;
+
+export interface BuildSwap {
+  label: string; // "Boss", "Falce 3"…
+  build: RoleBuild; // huecos que cambian respecto a la build principal
 }
 
 export interface ContentTypeConfig {

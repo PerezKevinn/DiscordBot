@@ -11,6 +11,14 @@ export interface CatalogItem {
 
 export type RoleBuild = Partial<Record<ItemSlot, string>>;
 
+/** Cambio de equipo para un momento concreto ("Boss"…): solo los huecos que cambian. */
+export interface BuildSwap {
+  label: string;
+  build: RoleBuild;
+}
+
+export const MAX_SWAPS_PER_ROLE = 3;
+
 export interface Role {
   id?: string;
   name: string;
@@ -19,6 +27,7 @@ export interface Role {
   maxSlots: number;
   description: string;
   build: RoleBuild;
+  swaps: BuildSwap[];
 }
 
 export interface Content {

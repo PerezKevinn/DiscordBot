@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../api';
+import { api, ApiError } from '../api';
 import type { GuildData } from '../types';
 import { GuildIcon } from './GuildPicker';
 import { useToast } from './Toast';
@@ -24,6 +24,7 @@ export type Save = (fn: () => Promise<GuildData>, okText?: string) => Promise<bo
 export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
   const [data, setData] = useState<GuildData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [expired, setExpired] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -38,6 +39,12 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
         toast(okText);
         return true;
       } catch (e) {
+        if (e instanceof ApiError && e.status === 401) {
+          // Sesión caducada: los cambios del editor siguen guardados como borrador en el navegador
+          setExpired(true);
+          toast('Tu sesión caducó. Inicia sesión para guardar; tus cambios no se pierden.', true);
+          return false;
+        }
         toast((e as Error).message, true);
         return false;
       }
@@ -70,6 +77,27 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
         <span className="spacer" />
         <a className="btn btn-sm" href="#/">Cambiar de servidor</a>
       </div>
+
+      {expired && (
+        <p className="notice row">
+          🔒 Tu sesión caducó. Tus cambios sin guardar están a salvo en este navegador: inicia sesión y podrás recuperarlos.
+          <span className="spacer" />
+          <a
+            className="btn btn-sm btn-primary"
+            href="/auth/login"
+            onClick={() => {
+              // Volver a esta misma pestaña del panel después de iniciar sesión
+              try {
+                sessionStorage.setItem('massup_after_login', window.location.hash);
+              } catch {
+                /* nada */
+              }
+            }}
+          >
+            Iniciar sesión
+          </a>
+        </p>
+      )}
 
       <nav className="tabs">
         {TABS.map((t) => (

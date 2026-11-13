@@ -370,7 +370,7 @@ export async function startPanel(client: Client) {
         ...c,
         roles: c.roles.map((r) => {
           const { name, weapons } = splitRoleLabel(r.label);
-          return { id: r.id, name, weapons: weapons ?? '', emoji: r.emoji, maxSlots: r.maxSlots, description: r.description ?? '', build: r.build ?? {} };
+          return { id: r.id, name, weapons: weapons ?? '', emoji: r.emoji, maxSlots: r.maxSlots, description: r.description ?? '', build: r.build ?? {}, swaps: r.swaps ?? [] };
         }),
       })),
       discord: { roles, channels, categories },

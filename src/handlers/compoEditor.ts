@@ -165,6 +165,7 @@ export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): 
           maxSlots: slots,
           description: cleanUserText(description ?? prev?.description ?? '', 100),
           ...(prev?.build ? { build: prev.build } : {}),
+          ...(prev?.swaps ? { swaps: prev.swaps } : {}),
         },
       ];
     });
