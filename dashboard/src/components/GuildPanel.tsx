@@ -99,7 +99,14 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
         </p>
       )}
 
-      <nav className="tabs">
+      <nav
+        className="tabs"
+        ref={(nav) => {
+          // En móvil las pestañas se desplazan: deja visible la activa
+          const active = nav?.querySelector<HTMLElement>('.tab.active');
+          if (nav && active) nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+        }}
+      >
         {TABS.map((t) => (
           <a key={t.id} className={`tab btn${t.id === current ? ' active' : ''}`} href={`#/g/${guildId}/${t.id}`}>
             {t.label}

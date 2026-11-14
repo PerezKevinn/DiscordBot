@@ -43,6 +43,7 @@ import {
 } from '../utils/memberships';
 import { splitRoleLabel } from '../utils/ui';
 import { reportError } from '../utils/alerts';
+import { partyJoined, partyMax } from '../utils/party';
 import {
   addAdjustment,
   deleteAward,
@@ -338,8 +339,8 @@ export async function startPanel(client: Client) {
         startTimeUnix: p.startTimeUnix,
         channelId: p.channelId,
         url: `https://discord.com/channels/${guild.id}/${p.channelId}/${p.messageId}`,
-        joined: Object.values(p.roster).reduce((acc, l) => acc + l.length, 0),
-        max: p.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0),
+        joined: partyJoined(p),
+        max: partyMax(p.roles, p.partySize) ?? 0,
       }));
 
     return {

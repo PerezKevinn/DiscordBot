@@ -5,6 +5,7 @@ import { GuildPicker } from './components/GuildPicker';
 import { GuildPanel } from './components/GuildPanel';
 import { ToastProvider } from './components/Toast';
 import { AdminPanel } from './components/AdminPanel';
+import { ThemeToggle } from './components/ThemeToggle';
 
 /** Ruta mínima con el hash: #/ (servidores) o #/g/<id>/<pestaña> */
 function useHashRoute() {
@@ -48,6 +49,7 @@ export function App() {
   if (state === 'login') {
     return (
       <div className="login">
+        <ThemeToggle className="login-theme" />
         <div>
           <img src="/avatar.png" alt="" />
           <h1>Panel de MassUp</h1>
@@ -100,6 +102,7 @@ export function App() {
           {me.user.avatar && <img src={me.user.avatar} alt="" />}
           {me.user.name}
         </span>
+        <ThemeToggle />
         <button className="btn-ghost btn-sm" onClick={() => void logout()}>Salir</button>
       </header>
       <main className="page">
