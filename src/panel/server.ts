@@ -848,13 +848,6 @@ export async function startPanel(client: Client) {
       const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
       const secret = pay.webhookSecret;
       if (!isValidSignature(secret, signature, requestId, String(q['data.id'] ?? dataId))) {
-        if (strict) {
-          void reportError(
-            'Mercado Pago · webhook',
-            new Error(`Aviso con firma inválida rechazado (pago ${dataId || '?'}). Si es un pago real, revisa MP_WEBHOOK_SECRET; mientras tanto puedes poner MP_WEBHOOK_STRICT=false.`)
-          );
-          return reply.status(401).send('firma inválida');
-        }
         // Diagnóstico sin datos secretos: qué variante del manifiesto sí cuadraría
         const variants: Record<string, boolean> = {
           'body.data.id': isValidSignature(secret, signature, requestId, String(body.data?.id ?? '')),
@@ -864,12 +857,21 @@ export async function startPanel(client: Client) {
         };
         const match = Object.entries(variants).find(([, ok]) => ok)?.[0] ?? 'ninguna (¿clave de otra app o de Modo productivo?)';
         const b = body as Record<string, unknown>;
-        console.warn(
-          `[Mercado Pago] Aviso con firma inválida (pago ${dataId || '?'}); se consulta igual a la API. ` +
-            `query=${JSON.stringify(q)} request-id=${requestId ? 'sí' : 'no'} ` +
-            `ts=${/ts=([^,]+)/.exec(signature)?.[1] ?? '?'} action=${String(b.action ?? '?')} ` +
-            `live_mode=${String(b.live_mode ?? '?')} user_id=${String(b.user_id ?? '?')} variante que cuadra: ${match}.`
-        );
+        const detail =
+          `query=${JSON.stringify(q)} request-id=${requestId ? 'sí' : 'no'} ` +
+          `ts=${/ts=([^,]+)/.exec(signature)?.[1] ?? '?'} action=${String(b.action ?? '?')} ` +
+          `live_mode=${String(b.live_mode ?? '?')} user_id=${String(b.user_id ?? '?')} variante que cuadra: ${match}`;
+        if (strict) {
+          void reportError(
+            'Mercado Pago · webhook',
+            new Error(
+              `Aviso con firma inválida rechazado (pago ${dataId || '?'}). Revisa que MP_WEBHOOK_SECRET sea la clave de la pestaña ` +
+                `«Modo productivo»; mientras tanto puedes poner MP_WEBHOOK_STRICT=false. ${detail}.`
+            )
+          );
+          return reply.status(401).send('firma inválida');
+        }
+        console.warn(`[Mercado Pago] Aviso con firma inválida (pago ${dataId || '?'}); se consulta igual a la API. ${detail}.`);
       }
     }
     try {
