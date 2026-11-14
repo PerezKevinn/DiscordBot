@@ -22,7 +22,7 @@ import {
   premiumSkuId,
   premiumStoreUrl,
 } from '../utils/plans';
-import { createPreference, credentialsMismatch, getPayment, isValidSignature, mapStatus, mercadoPagoEnv, MpPayment, searchPayments } from '../payments/mercadopago';
+import { checkAccount, createPreference, credentialsMismatch, getPayment, isValidSignature, mapStatus, mercadoPagoEnv, MpPayment, searchPayments } from '../payments/mercadopago';
 import {
   codeStatus,
   createCodes,
@@ -800,6 +800,11 @@ export async function startPanel(client: Client) {
     }
     const mismatch = pay && credentialsMismatch(pay);
     if (mismatch) void reportError('Mercado Pago', new Error(mismatch));
+    else if (pay) {
+      checkAccount(pay)
+        .then((warning) => warning && void reportError('Mercado Pago · configuración', new Error(warning)))
+        .catch((err) => console.warn('[Mercado Pago] No se pudo comprobar la cuenta al arrancar:', (err as Error).message));
+    }
   }
 
   // Red de seguridad: si un aviso de Mercado Pago se pierde (o se rechaza), las órdenes quedarían

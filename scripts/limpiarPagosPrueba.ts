@@ -4,6 +4,8 @@
  *   npx tsx scripts/limpiarPagosPrueba.ts <guildId>            → solo muestra qué haría
  *   npx tsx scripts/limpiarPagosPrueba.ts <guildId> --aplicar  → lo hace (con copia de seguridad)
  *   Opcional: --desde=2026-11-12T00:00:00Z  (por defecto: la primera orden de prueba del servidor)
+ *   Opcional: --incluir-no-marcadas  (con --desde) borra también las órdenes desde esa fecha que no están
+ *             marcadas como prueba: pagos de prueba hechos por error con MP_TEST=false.
  *
  * Qué hace, solo para ese servidor:
  *  1. Borra las órdenes marcadas como prueba (test: true).
@@ -29,6 +31,11 @@ const args = process.argv.slice(2);
 const guildId = args.find((a) => /^\d{15,25}$/.test(a));
 const apply = args.includes('--aplicar');
 const sinceArg = args.find((a) => a.startsWith('--desde='))?.slice('--desde='.length);
+const includeUnmarked = args.includes('--incluir-no-marcadas');
+if (includeUnmarked && !sinceArg) {
+  console.error('--incluir-no-marcadas necesita --desde=FECHA (para no borrar pagos reales antiguos).');
+  process.exit(1);
+}
 if (!guildId) {
   console.error('Uso: npx tsx scripts/limpiarPagosPrueba.ts <guildId> [--desde=FECHA] [--aplicar]');
   process.exit(1);
@@ -44,7 +51,10 @@ const store = JSON.parse(fs.readFileSync(STORE, 'utf-8')) as Store;
 const config = JSON.parse(fs.readFileSync(CONFIG, 'utf-8')) as Config;
 const fmt = (ms?: number | null) => (ms ? new Date(ms).toLocaleString('es-CO', { timeZone: 'America/Bogota' }) : ms === null ? 'de por vida' : '—');
 
-const testOrders = Object.values(store.orders ?? {}).filter((o) => o.guildId === guildId && o.test);
+const sinceFromArg = sinceArg ? Date.parse(sinceArg) : NaN;
+const testOrders = Object.values(store.orders ?? {}).filter(
+  (o) => o.guildId === guildId && (o.test || (includeUnmarked && o.createdAt >= sinceFromArg))
+);
 const since = sinceArg ? Date.parse(sinceArg) : Math.min(...testOrders.map((o) => o.createdAt));
 if (!Number.isFinite(since)) {
   console.error(sinceArg ? `Fecha no válida: ${sinceArg}` : 'Este servidor no tiene órdenes de prueba. Usa --desde=FECHA si aun así quieres limpiar.');
@@ -69,7 +79,7 @@ if (!last || last.type === 'revoke' || last.type === 'expired' || (last.type ===
 console.log(`Servidor: ${config.guildName ?? guildId} (${guildId})`);
 console.log(`Se limpia desde: ${fmt(since)} (hora de Colombia)\n`);
 console.log(`Órdenes de prueba a borrar (${testOrders.length}):`);
-for (const o of testOrders) console.log(`  - ${o.invoice} · ${o.status} · $${o.amount} · pago ${o.paymentRef ?? '?'} · ${fmt(o.createdAt)}`);
+for (const o of testOrders) console.log(`  - ${o.invoice} · ${o.status} · $${o.amount} · pago ${o.paymentRef ?? '?'} · ${fmt(o.createdAt)}${o.test ? '' : ' · NO marcada como prueba'}`);
 console.log(`\nEventos del historial a borrar (${removeEvents.length}):`);
 for (const e of removeEvents) console.log(`  - ${fmt(e.at)} · ${e.type}${e.days ? ` · ${e.days} días` : ''}${e.note ? ` · ${e.note}` : ''}`);
 console.log(`\nEventos que se conservan (${keptEvents.length}):`);

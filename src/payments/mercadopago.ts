@@ -103,6 +103,28 @@ export async function searchPayments(env: MercadoPagoEnv, externalReference: str
   return data.results ?? [];
 }
 
+/**
+ * Comprueba con la API de qué cuenta es el token y si cuadra con MP_TEST. Los vendedores de prueba
+ * tienen tokens APP_USR- como los reales y sus pagos llegan con live_mode=true, así que solo la
+ * marca "test_user" de la cuenta los distingue. Devuelve el aviso o null si todo cuadra.
+ */
+export async function checkAccount(env: MercadoPagoEnv): Promise<string | null> {
+  const res = await mpFetch(env, '/users/me');
+  if (!res.ok) return `Mercado Pago rechazó MP_ACCESS_TOKEN al consultar la cuenta (${res.status}): revisa el token.`;
+  const me = (await res.json()) as { id?: number; nickname?: string; site_id?: string; tags?: string[] };
+  const isTestUser = (me.tags ?? []).includes('test_user');
+  const who = `${me.nickname ?? '?'} (id ${me.id ?? '?'})`;
+  if (!env.test && isTestUser) {
+    return `MP_TEST=false pero MP_ACCESS_TOKEN es de un usuario de prueba, ${who}: los pagos no son reales y quedarían registrados como reales. Usa las credenciales de producción de tu cuenta.`;
+  }
+  if (env.test && !isTestUser) {
+    return `MP_TEST=true pero MP_ACCESS_TOKEN es de una cuenta real, ${who}: los cobros serían de verdad y quedarían marcados como prueba. Pon MP_TEST=false.`;
+  }
+  if (me.site_id && me.site_id !== 'MCO') return `La cuenta de Mercado Pago ${who} es de ${me.site_id}, no de Colombia (MCO): los pagos en COP fallarían.`;
+  console.log(`💳 Mercado Pago: cuenta ${who}${isTestUser ? ' [usuario de prueba]' : ''}, modo ${env.test ? 'prueba' : 'producción'}.`);
+  return null;
+}
+
 /** Un token de prueba (TEST-...) con MP_TEST=false daría Premium por pagos que no son reales. */
 export function credentialsMismatch(env: MercadoPagoEnv): string | null {
   if (!env.test && env.accessToken.startsWith('TEST-')) {

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'crypto';
-import { credentialsMismatch, isValidSignature, mapStatus, searchPayments } from './mercadopago';
+import { checkAccount, credentialsMismatch, isValidSignature, mapStatus, searchPayments } from './mercadopago';
 
 const SECRET = 'clave-de-prueba';
 
@@ -68,5 +68,30 @@ test('searchPayments busca por la referencia de la orden y devuelve los resultad
     assert.match(called, /\/v1\/payments\/search\?external_reference=MU-ABC/);
   } finally {
     globalThis.fetch = realFetch;
+  }
+});
+
+test('checkAccount avisa si MP_TEST no cuadra con el tipo de cuenta del token', async () => {
+  const realFetch = globalThis.fetch;
+  const realLog = console.log;
+  console.log = () => {};
+  const account = (tags: string[], site = 'MCO') => {
+    globalThis.fetch = (async () => new Response(JSON.stringify({ id: 7, nickname: 'X', site_id: site, tags }), { status: 200 })) as typeof fetch;
+  };
+  const env = (test: boolean) => ({ accessToken: 'APP_USR-1', webhookSecret: null, test });
+  try {
+    account(['test_user', 'normal']);
+    assert.match((await checkAccount(env(false))) ?? '', /usuario de prueba/, 'vendedor de prueba con MP_TEST=false');
+    assert.equal(await checkAccount(env(true)), null, 'vendedor de prueba con MP_TEST=true');
+    account(['normal']);
+    assert.equal(await checkAccount(env(false)), null, 'cuenta real con MP_TEST=false');
+    assert.match((await checkAccount(env(true))) ?? '', /cuenta real/, 'cuenta real con MP_TEST=true');
+    account(['normal'], 'MLA');
+    assert.match((await checkAccount(env(false))) ?? '', /no de Colombia/);
+    globalThis.fetch = (async () => new Response('{}', { status: 401 })) as typeof fetch;
+    assert.match((await checkAccount(env(false))) ?? '', /rechazó/);
+  } finally {
+    globalThis.fetch = realFetch;
+    console.log = realLog;
   }
 });
