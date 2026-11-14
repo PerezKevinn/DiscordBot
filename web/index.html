@@ -12,7 +12,9 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://massup.shop/" />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#08080b" />
+  <meta name="theme-color" content="#f5f7fa" />
+  <meta name="color-scheme" content="light dark" />
+  <script src="theme.js"></script>
   <link rel="icon" type="image/png" href="img/favicon.png" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,17 +26,17 @@
   <!--
     ENLACES A CAMBIAR antes de publicar:
     - INVITE: enlace para añadir el bot (ya configurado con tu CLIENT_ID y permisos mínimos)
-    - SOPORTE: busca "discord.gg/CAMBIAR" y pon la invitación permanente de tu servidor de soporte
   -->
   <header class="nav">
     <div class="container">
       <a class="brand" href="index.html"><img src="img/avatar.png" alt="" />MassUp</a>
       <nav class="nav-links">
-        <a href="#funciones">Funciones</a>
-        <a href="#como-empezar">Cómo empezar</a>
-        <a href="#planes">Planes</a>
-        <a href="#faq">Preguntas</a>
-        <a href="https://panel.massup.shop">Panel</a>
+        <a class="nav-sec" href="#funciones">Funciones</a>
+        <a class="nav-sec" href="#como-empezar">Cómo empezar</a>
+        <a class="nav-sec" href="#planes">Planes</a>
+        <a class="nav-sec" href="#faq">Preguntas</a>
+        <a class="nav-sec" href="https://panel.massup.shop">Panel</a>
+        <button class="theme-toggle" type="button" aria-label="Cambiar tema"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
         <a class="btn btn-primary btn-sm" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
       </nav>
     </div>
@@ -53,7 +55,11 @@
             </a>
             <a class="btn btn-ghost" href="https://panel.massup.shop">Abrir el panel</a>
           </div>
-          <p class="muted" style="margin-top:14px;font-size:.9rem">Gratis · En español · Sin pedir permisos de administrador</p>
+          <ul class="trust">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>Sin permisos de administrador</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Gratis</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>En español</li>
+          </ul>
         </div>
 
         <!-- Maqueta de un ping publicado -->
@@ -86,8 +92,9 @@
     <section class="alt">
       <div class="container">
         <div class="section-head">
+          <span class="kicker">Contenidos</span>
           <h2>Para el contenido que de verdad sale</h2>
-          <p>Plantillas listas para utilizar de manera facil y rapida. Cada servidor puede editar o crear las suyas.</p>
+          <p>Plantillas listas para usar de forma fácil y rápida. Cada servidor puede editar o crear las suyas.</p>
         </div>
         <div class="chips">
           <span class="chip">🐺 Gankeo en Tierras Lejanas</span>
@@ -108,6 +115,7 @@
     <section id="funciones">
       <div class="container">
         <div class="section-head">
+          <span class="kicker">Funciones</span>
           <h2>Todo lo que necesita un Caller</h2>
           <p>Menos tiempo organizando, más tiempo jugando.</p>
         </div>
@@ -125,7 +133,9 @@
     <section id="como-empezar" class="alt">
       <div class="container">
         <div class="section-head">
+          <span class="kicker">Cómo empezar</span>
           <h2>Listo en 3 pasos</h2>
+          <p>De invitarlo a tu primer ping en menos de cinco minutos.</p>
         </div>
         <div class="steps">
           <div class="step"><h3>Añade MassUp</h3><p>Invítalo a tu servidor. Solo pide los permisos que necesita.</p></div>
@@ -138,13 +148,15 @@
     <section id="planes">
       <div class="container">
         <div class="section-head">
-          <h2>Planes</h2>
+          <span class="kicker">Planes</span>
+          <h2>Empieza gratis</h2>
           <p>Todo lo esencial es gratis. Premium es para gremios que quieren su propia marca.</p>
         </div>
         <div class="plans">
           <div class="plan">
             <h3>Gratis</h3>
-            <div class="price">Siempre gratis</div>
+            <div class="price">$0</div>
+            <p class="price-note">Para siempre, sin tarjeta.</p>
             <ul>
               <li>Hasta 3 pings abiertos a la vez</li>
               <li>Hasta 12 tipos de contenido</li>
@@ -157,6 +169,7 @@
             <span class="badge">Próximamente</span>
             <h3>💎 Premium</h3>
             <div class="price">—</div>
+            <p class="price-note">Estamos terminando de activar los pagos.</p>
             <ul>
               <li>Hasta 25 pings abiertos a la vez</li>
               <li>Hasta 25 tipos de contenido</li>
@@ -171,7 +184,7 @@
 
     <section id="faq" class="alt">
       <div class="container">
-        <div class="section-head"><h2>Preguntas frecuentes</h2></div>
+        <div class="section-head"><span class="kicker">Preguntas</span><h2>Preguntas frecuentes</h2></div>
         <div class="faq">
           <details>
             <summary>¿Qué permisos necesita el bot?</summary>
@@ -202,7 +215,7 @@
         <img class="banner" src="img/banner.png" alt="MassUp · El centro de mando de tu gremio" />
         <h2>Organiza. Convoca. Conquista.</h2>
         <p class="muted">Añade MassUp a tu servidor y tira tu primer ping hoy.</p>
-        <div class="actions" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+        <div class="actions">
           <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
           <a class="btn btn-ghost" href="https://discord.gg/PwePmR8gak">Servidor de soporte</a>
         </div>
