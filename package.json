@@ -20,7 +20,7 @@
     "@fastify/cookie": "^11.1.5",
     "@fastify/rate-limit": "^11.2.2",
     "@fastify/static": "^10.1.10",
-    "@napi-rs/canvas": "^0.1.52",
+    "@napi-rs/canvas": "^1.1.0",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "fastify": "^5.12.8",
