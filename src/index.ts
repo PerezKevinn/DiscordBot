@@ -10,6 +10,7 @@ import { startPingSweeper } from './utils/pingSweeper';
 import { startDataRetention } from './utils/dataRetention';
 import { startMemberships } from './utils/memberships';
 import { startPanel } from './panel/server';
+import { installErrorHandlers, reportError, reportInfo } from './utils/alerts';
 
 /** Permisos mínimos que necesita el bot (nada de Administrador en un bot público). */
 const BOT_PERMISSIONS = [
@@ -69,9 +70,12 @@ async function main() {
   console.log(`⚔️ Iniciando ${botBrandName()}...`);
 
   const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+  installErrorHandlers(client);
 
   client.once(Events.ClientReady, async (readyClient) => {
     console.log(`✅ Conectado como ${readyClient.user.tag} en ${readyClient.guilds.cache.size} servidores.`);
+    // Un arranque inesperado en el canal de alertas suele indicar que el bot se cayó y pm2 lo reinició
+    void reportInfo(`✅ **${botBrandName()}** en marcha como ${readyClient.user.tag} en ${readyClient.guilds.cache.size} servidores.`);
     const invite = readyClient.generateInvite({
       scopes: [OAuth2Scopes.Bot, OAuth2Scopes.ApplicationsCommands],
       permissions: BOT_PERMISSIONS,
@@ -80,11 +84,11 @@ async function main() {
     startPingSweeper(readyClient);
     startDataRetention(readyClient);
     startMemberships(readyClient);
-    startPanel(readyClient).catch((err) => console.error('❌ No se pudo arrancar el panel web:', err));
+    startPanel(readyClient).catch((err) => void reportError('No se pudo arrancar el panel web', err));
     try {
       await registerSlashCommands(token, clientId, ownerGuildId);
     } catch (err) {
-      console.error('❌ Error registrando comandos:', err);
+      void reportError('Registro de comandos', err);
     }
   });
 
@@ -114,4 +118,7 @@ async function main() {
   await client.login(token);
 }
 
-main();
+main().catch(async (err) => {
+  await reportError('Arranque del bot', err);
+  process.exit(1);
+});

@@ -14,7 +14,9 @@
     "panel:build": "npm --prefix dashboard run build",
     "panel:dev": "npm --prefix dashboard run dev",
     "items:update": "tsx scripts/buildItemCatalog.ts",
-    "samples": "tsx scripts/renderSamples.ts"
+    "samples": "tsx scripts/renderSamples.ts",
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",

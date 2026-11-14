@@ -31,6 +31,12 @@ jobs:
       - name: Bot · compilación
         run: npm run build
 
+      - name: Bot · tipos de los tests
+        run: npm run typecheck
+
+      - name: Bot · tests (pagos, Premium y planes)
+        run: npm test
+
       - name: Panel · dependencias
         run: npm run panel:install
 

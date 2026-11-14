@@ -42,6 +42,7 @@ import {
   setCodeDisabled,
 } from '../utils/memberships';
 import { splitRoleLabel } from '../utils/ui';
+import { reportError } from '../utils/alerts';
 import {
   addAdjustment,
   deleteAward,
@@ -167,10 +168,10 @@ export async function startPanel(client: Client) {
     }
   });
 
-  app.setErrorHandler((err, _req, reply) => {
+  app.setErrorHandler((err, req, reply) => {
     const e = err as Error & { status?: number; statusCode?: number };
     const status = e instanceof HttpError ? e.status : e.statusCode && e.statusCode < 500 ? e.statusCode : 500;
-    if (status >= 500) console.error('[Panel] Error:', err);
+    if (status >= 500) void reportError(`Panel ${req.method} ${req.routeOptions.url ?? req.url.split('?')[0]}`, err);
     reply.status(status).send({ error: status >= 500 ? 'Error interno' : e.message });
   });
 
@@ -204,6 +205,19 @@ export async function startPanel(client: Client) {
     if (!r.success) throw new HttpError(400, firstIssue(r.error));
     return r.data;
   };
+
+  // ---------- Estado (para monitores como UptimeRobot) ----------
+  // 200 si el bot está conectado a Discord; 503 si no. No expone datos de los servidores.
+  app.get('/health', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (_req, reply) => {
+    const ready = client.isReady();
+    reply.header('Cache-Control', 'no-store');
+    return reply.status(ready ? 200 : 503).send({
+      ok: ready,
+      discord: ready ? 'conectado' : 'desconectado',
+      ping: ready && client.ws.ping >= 0 ? client.ws.ping : null,
+      uptime: Math.round(process.uptime()),
+    });
+  });
 
   // ---------- Login con Discord ----------
   app.get('/auth/login', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (_req, reply) => {
@@ -694,7 +708,7 @@ export async function startPanel(client: Client) {
       });
       return { url, test: pay.test, invoice: order.invoice };
     } catch (err) {
-      console.error('[Mercado Pago] Error creando la preferencia:', (err as Error).message);
+      void reportError('Mercado Pago · crear el pago', err);
       throw new HttpError(502, 'No se pudo iniciar el pago. Inténtalo en unos minutos.');
     }
   });
@@ -753,9 +767,21 @@ export async function startPanel(client: Client) {
   // Avisos de Mercado Pago (servidor a servidor). Formato webhook (?data.id=&type=payment, cuerpo JSON)
   // o IPN antiguo (?topic=payment&id=). Error 500 = Mercado Pago lo reintenta.
   //
-  // La firma (x-signature) se comprueba pero NO bloquea: el aviso solo trae un id y el Premium
-  // sale siempre de consultar el pago a la API con nuestro token, así que un aviso falso no
-  // puede dar nada. Si falla, se registra el detalle para averiguar qué clave/formato usa MP.
+  // El aviso solo trae un id y el Premium sale siempre de consultar el pago a la API con nuestro
+  // token, así que un aviso falso no puede dar nada por sí solo. Aun así:
+  //  - En PRODUCCIÓN (MP_TEST=false) con MP_WEBHOOK_SECRET, la firma es obligatoria: los avisos sin
+  //    firma válida (y los IPN, que no se firman) se rechazan y se avisa por el canal de alertas.
+  //    Se puede volver al modo tolerante con MP_WEBHOOK_STRICT=false.
+  //  - En pruebas, la firma se comprueba pero no bloquea, y se registra el detalle para diagnosticar.
+  const strictSignature = (pay: NonNullable<ReturnType<typeof mercadoPagoEnv>>) =>
+    Boolean(pay.webhookSecret && !pay.test && process.env.MP_WEBHOOK_STRICT !== 'false');
+  {
+    const pay = mercadoPagoEnv();
+    if (pay && !pay.test && !pay.webhookSecret) {
+      void reportError('Mercado Pago', new Error('Pagos en producción sin MP_WEBHOOK_SECRET: no se puede verificar la firma de los avisos.'));
+    }
+  }
+
   app.post('/webhooks/mercadopago', { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } }, async (req, reply) => {
     const pay = mercadoPagoEnv();
     if (!pay) return reply.status(404).send('pagos desactivados');
@@ -765,13 +791,26 @@ export async function startPanel(client: Client) {
     if (type !== 'payment') return reply.send('ok'); // merchant_order y demás: no hacen falta
     const dataId = String(q['data.id'] ?? body.data?.id ?? q.id ?? '');
 
-    // Los avisos IPN (?topic=&id=) no usan la firma de Webhooks: no se valida, solo se consulta la API
+    // Los avisos IPN (?topic=&id=) no usan la firma de Webhooks
     const isIpn = q.topic !== undefined && q['data.id'] === undefined;
     const signature = req.headers['x-signature'];
+    const strict = strictSignature(pay);
+    if (strict && isIpn) return reply.send('ignorado'); // 200 para que no lo reintente; se usan los Webhooks firmados
+    if (strict && typeof signature !== 'string') {
+      void reportError('Mercado Pago · webhook', new Error(`Aviso sin firma rechazado (pago ${dataId || '?'}).`));
+      return reply.status(401).send('firma requerida');
+    }
     if (pay.webhookSecret && typeof signature === 'string' && !isIpn) {
       const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
       const secret = pay.webhookSecret;
       if (!isValidSignature(secret, signature, requestId, String(q['data.id'] ?? dataId))) {
+        if (strict) {
+          void reportError(
+            'Mercado Pago · webhook',
+            new Error(`Aviso con firma inválida rechazado (pago ${dataId || '?'}). Si es un pago real, revisa MP_WEBHOOK_SECRET; mientras tanto puedes poner MP_WEBHOOK_STRICT=false.`)
+          );
+          return reply.status(401).send('firma inválida');
+        }
         // Diagnóstico sin datos secretos: qué variante del manifiesto sí cuadraría
         const variants: Record<string, boolean> = {
           'body.data.id': isValidSignature(secret, signature, requestId, String(body.data?.id ?? '')),
@@ -792,7 +831,7 @@ export async function startPanel(client: Client) {
     try {
       await syncMercadoPagoPayment(dataId, 'webhook');
     } catch (err) {
-      console.error('[Mercado Pago] Error procesando el aviso:', (err as Error).message);
+      void reportError('Mercado Pago · procesar el aviso', err);
       return reply.status(500).send('reintentar');
     }
     return reply.send('ok');

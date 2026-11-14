@@ -1,0 +1,47 @@
+# Despliega en el VPS cuando la CI pasa en master (o a mano desde la pestaña Actions).
+#
+# Necesita estos secretos del repositorio (Settings -> Secrets and variables -> Actions):
+#   VPS_HOST         IP o dominio del VPS
+#   VPS_USER         usuario que ejecuta el bot (massup)
+#   VPS_SSH_KEY      llave privada SOLO para desplegar (ver deploy/README-despliegue.md)
+#   VPS_KNOWN_HOSTS  huella del servidor (salida de: ssh-keyscan -t ed25519 <VPS_HOST>)
+# Sin ellos, el despliegue se salta sin fallar.
+name: Despliegue
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Desplegar en el VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$VPS_USER" ] || [ -z "$VPS_SSH_KEY" ] || [ -z "$VPS_KNOWN_HOSTS" ]; then
+            echo "::notice::Faltan los secretos VPS_*: despliegue omitido."
+            exit 0
+          fi
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          # En el VPS esta llave solo puede ejecutar deploy/deploy.sh (command= en authorized_keys)
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o BatchMode=yes "$VPS_USER@$VPS_HOST"

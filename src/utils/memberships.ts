@@ -14,6 +14,7 @@ import {
 import { GuildConfig } from '../types/ping';
 import { ConfigManager } from './configManager';
 import { panelUrl } from './panelLink';
+import { reportError } from './alerts';
 import { botBrandName, getEffectiveTier, hasActiveSubscription, hasTimedPremium, premiumEndsAt, premiumSkuId, premiumStoreUrl } from './plans';
 
 /**
@@ -601,16 +602,16 @@ export function startMemberships(client: Client) {
       const r = await syncEntitlements(client);
       if (premiumSkuId()) console.log(`💎 Suscripciones: ${r.active} activas${r.ended ? `, ${r.ended} terminadas mientras el bot estaba apagado` : ''}.`);
     } catch (err) {
-      console.error('Error sincronizando suscripciones de Discord:', err);
+      void reportError('Sincronizar suscripciones de Discord', err);
     }
     try {
       await checkExpirations(client);
     } catch (err) {
-      console.error('Error revisando vencimientos de Premium:', err);
+      void reportError('Revisar vencimientos de Premium', err);
     }
   };
   void run();
-  setInterval(() => void checkExpirations(client).catch((err) => console.error('Error revisando vencimientos:', err)), CHECK_EVERY_MS).unref();
+  setInterval(() => void checkExpirations(client).catch((err) => void reportError('Revisar vencimientos de Premium', err)), CHECK_EVERY_MS).unref();
   // Resincroniza con Discord cada 12 h por si se perdió algún evento
   setInterval(() => void syncEntitlements(client).catch(() => null), 12 * CHECK_EVERY_MS).unref();
 }

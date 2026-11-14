@@ -37,6 +37,7 @@ import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
 import { defaultUtcSlot, draftSlot, formatUtc, nextUtcStartUnix } from '../utils/pingTime';
 import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
+import { reportError } from '../utils/alerts';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
 const NO_ADMIN_PERMS = '⛔ Necesitas el permiso **Gestionar servidor** para hacer esto.';
@@ -435,7 +436,12 @@ export async function handleInteraction(interaction: Interaction) {
       return;
     }
   } catch (err) {
-    console.error('[Error en Interacción]:', err);
+    const where = interaction.isCommand()
+      ? `/${interaction.commandName}`
+      : 'customId' in interaction
+        ? String(interaction.customId).split(':')[0]
+        : String(interaction.type);
+    void reportError(`Interacción ${where}`, err);
     if (interaction.isRepliable() && !interaction.replied && !interaction.deferred) {
       await interaction
         .reply({ content: '⚠️ Ocurrió un error procesando esta acción. Inténtalo de nuevo.', flags: MessageFlags.Ephemeral })
