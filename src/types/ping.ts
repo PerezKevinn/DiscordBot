@@ -29,6 +29,8 @@ export interface ContentTypeConfig {
   defaultMount: string;
   defaultZone: string;
   roles: RoleTemplate[];
+  /** Tamaño fijo de la party (p. ej. 7). Útil si hay roles sin límite. Sin valor = suma de cupos. */
+  partySize?: number;
   /** Crear canal de voz temporal al publicar (por defecto sí) */
   createVoice?: boolean;
   /** Crear hilo de builds al publicar (por defecto sí) */
@@ -130,6 +132,8 @@ export interface ActivePing {
   timeLabel: string;
   notes: string;
   roles: RoleTemplate[];
+  /** Tamaño fijo de la party copiado del contenido al publicar (sin valor = suma de cupos) */
+  partySize?: number;
   roster: Record<string, RosterSlotUser[]>; // roleId -> lista de jugadores anotados
   bench: RosterSlotUser[]; // Jugadores en banca / relleno (Fill)
   absent: RosterSlotUser[]; // Jugadores que marcaron no poder asistir

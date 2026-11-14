@@ -4,6 +4,7 @@ import { sanitizeEmoji } from '../handlers/compoEditor';
 import { cleanUserText } from '../utils/security';
 import { composeRoleLabel } from '../utils/ui';
 import { ContentTypeConfig, MAX_SWAPS_PER_ROLE, RoleBuild, RoleTemplate } from '../types/ping';
+import { MAX_PARTY_SIZE } from '../utils/party';
 
 /**
  * Esquemas de lo que acepta el panel. Nada de lo que llega del navegador se guarda
@@ -63,6 +64,8 @@ export const contentSchema = z.object({
   defaultMount: text(100),
   defaultZone: text(100),
   roles: z.array(roleSchema).min(1).max(20),
+  /** Tamaño fijo de la party; null o sin valor = suma de los cupos de los roles */
+  partySize: z.number().int().min(1).max(MAX_PARTY_SIZE).nullable().optional(),
   createVoice: z.boolean().optional().default(true),
   createThread: z.boolean().optional().default(true),
 });
@@ -107,6 +110,7 @@ export function toContentType(id: string, input: ContentInput): ContentTypeConfi
     defaultMount: input.defaultMount,
     defaultZone: input.defaultZone,
     roles,
+    ...(input.partySize ? { partySize: input.partySize } : {}),
     createVoice: input.createVoice,
     createThread: input.createThread,
   };

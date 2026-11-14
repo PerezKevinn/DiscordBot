@@ -7,6 +7,10 @@ import { ago, clearDraft, readDraft, setReopen, takeReopen, writeDraft, type Con
 
 const COMMON_EMOJIS = ['🛡️', '⚔️', '⛓️', '💚', '✨', '🌿', '🍃', '🔮', '⚡', '🗡️', '🔥', '💥', '🏹', '❄️', '👁️', '🔍', '⛏️', '🐎', '💰', '🚩'];
 
+/** Tamaño de la party: el fijo si lo hay; si no, la suma de cupos (null si algún rol no tiene límite). */
+const partyOf = (c: Content): number | null =>
+  c.partySize ? c.partySize : c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
+
 const blankRole = (): Role => ({ name: '', weapons: '', emoji: '⚔️', maxSlots: 1, description: '', build: {}, swaps: [] });
 const blankContent = (): Content => ({
   id: '',
@@ -127,7 +131,7 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
       )}
       <div className="list">
         {data.contents.map((c) => {
-          const slots = c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
+          const slots = partyOf(c);
           return (
             <div key={c.id} className="list-item clickable" onClick={() => setEditing(structuredClone(c))} role="button" tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && setEditing(structuredClone(c))}>
@@ -138,7 +142,7 @@ export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
                   {c.roles.map((r) => `${r.emoji} ${r.name}`).join(' · ')}
                 </div>
               </div>
-              <span className="muted small">{c.roles.length} roles{slots ? ` · ${slots} cupos` : ''}</span>
+              <span className="muted small">{c.roles.length} roles{slots ? ` · party de ${slots}` : ''}</span>
               {readDraft(data.guild.id, c.id) && <span className="badge" title="Hay cambios sin guardar en este navegador">✏️ Sin guardar</span>}
               <span className={`badge${builds(c) > 0 ? ' ok' : ''}`}>🧩 {builds(c)}/{c.roles.length} builds</span>
               <button
@@ -256,7 +260,7 @@ function ContentEditor({
 
   const submit = async () => {
     const { id, ...rest } = c;
-    const body = { ...rest, createVoice: c.createVoice !== false, createThread: c.createThread !== false };
+    const body = { ...rest, partySize: c.partySize ?? null, createVoice: c.createVoice !== false, createThread: c.createThread !== false };
     const ok = await save(
       () => (isNew ? api.createContent(data.guild.id, body) : api.saveContent(data.guild.id, id, body)),
       isNew ? 'Contenido creado' : 'Contenido guardado'
@@ -278,7 +282,11 @@ function ContentEditor({
     });
   };
 
-  const total = c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
+  const sumSlots = c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
+  const total = partyOf(c);
+  const capped = c.roles.filter((r) => r.maxSlots > 0).reduce((a, r) => a + r.maxSlots, 0);
+  const partyTooSmall = Boolean(c.partySize && capped > c.partySize);
+  const partyNeeded = !c.partySize && sumSlots === null;
 
   return (
     <div className="stack">
@@ -350,10 +358,35 @@ function ContentEditor({
       <div className="card stack">
         <div className="card-head" style={{ margin: 0 }}>
           <h3 style={{ margin: 0 }}>Compo y builds</h3>
-          <span className="muted small">{c.roles.length} roles · {total ? `${total} cupos` : 'algún rol sin límite'}</span>
+          <span className="muted small">{c.roles.length} roles · {total ? `party de ${total}` : 'party sin tamaño fijo'}</span>
           <span className="spacer" />
           <button className="btn-sm" disabled={c.roles.length >= 20} onClick={() => set('roles', [...c.roles, blankRole()])}>+ Añadir rol</button>
         </div>
+
+        <div className="row" style={{ gap: 16, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <label className="field" style={{ maxWidth: 260 }}>
+            Tamaño de la party
+            <select value={c.partySize ?? 0} onChange={(e) => set('partySize', Number(e.target.value) || null)}>
+              <option value={0}>{sumSlots ? `Automático (suma de cupos: ${sumSlots})` : 'Sin tamaño fijo'}</option>
+              {Array.from({ length: 50 }, (_, n) => n + 1).map((n) => (
+                <option key={n} value={n}>{n} jugadores</option>
+              ))}
+            </select>
+          </label>
+          <p className="muted small" style={{ margin: 0, flex: 1, minWidth: 220 }}>
+            Úsalo si hay roles «Sin límite» (p. ej. varias armas de daño a elegir). Al llenarse la party, quien se anote va a banca.
+          </p>
+        </div>
+        {partyNeeded && (
+          <p className="notice" style={{ margin: 0 }}>
+            ⚠️ Hay roles sin límite y la party no tiene tamaño fijo: el ping no mostrará un total ni mandará a nadie a banca.
+          </p>
+        )}
+        {partyTooSmall && (
+          <p className="notice" style={{ margin: 0 }}>
+            ⚠️ Los roles con cupo ya suman {capped}, más que la party de {c.partySize}: algunos cupos nunca se llenarán.
+          </p>
+        )}
 
         {c.roles.map((r, i) => (
           <div key={r.id ?? `nuevo-${i}`} className="role-card">

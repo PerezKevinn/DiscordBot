@@ -40,6 +40,8 @@ export interface Content {
   defaultMount: string;
   defaultZone: string;
   roles: Role[];
+  /** Tamaño fijo de la party; sin valor = suma de los cupos de los roles */
+  partySize?: number | null;
   createVoice?: boolean;
   createThread?: boolean;
 }

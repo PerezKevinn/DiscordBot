@@ -11,7 +11,8 @@ import { ContentTypeConfig, DraftPingSession, GuildConfig } from '../types/ping'
 import { panelUrl } from './panelLink';
 import { componentEmoji } from './emoji';
 import { draftSlot, formatUtc, MINUTE_STEP, nextUtcStartUnix } from './pingTime';
-import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt, totalSlots } from './ui';
+import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt } from './ui';
+import { partyMax } from './party';
 
 /** Rol que se mencionará para un contenido (el propio del contenido o el rol por defecto). */
 export function resolvePingRoleId(config: GuildConfig, contentTypeId: string): string | undefined {
@@ -74,7 +75,7 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
     config.contentTypes.find((c) => c.id === draft.contentTypeId) || config.contentTypes[0];
   const roles = content.roles;
   const pingRoleId = resolvePingRoleId(config, content.id);
-  const slots = totalSlots(roles);
+  const slots = partyMax(roles, content.partySize);
   const slot = draftSlot(draft);
   const startUnix = nextUtcStartUnix(slot);
   const editUrl = panelUrl(config.guildId, 'contenidos');
@@ -99,7 +100,7 @@ export function buildWizardStepMessage(draft: DraftPingSession, config: GuildCon
     );
 
   embed.addFields({
-    name: `👥 Compo${slots ? ` · ${slots} cupos` : ''}`,
+    name: `👥 Compo${slots ? ` · party de ${slots}` : ''}`,
     value: formatCompo(roles).slice(0, 1024),
     inline: false,
   });

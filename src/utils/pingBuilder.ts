@@ -11,6 +11,7 @@ import { ActivePing, ContentTypeConfig, GuildConfig, RoleTemplate, RosterSlotUse
 import { generatePingBanner } from './canvasGenerator';
 import { botBrandName, brandForRender, getLimits } from './plans';
 import { fitEmbed, splitRoleLabel } from './ui';
+import { isPartyFull, joinGoesToBench, partyJoined, partyMax } from './party';
 import { componentEmoji } from './emoji';
 import { getItem, isTwoHanded } from '../data/items';
 import { hasAnyBuild } from './buildCard';
@@ -26,7 +27,7 @@ function formatPlayer(u: RosterSlotUser, idx: number): string {
   return `\`${idx + 1}.\` <@${u.userId}>${u.customWeapon ? ` · *${u.customWeapon}*` : ''}`;
 }
 
-function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[]) {
+function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[], partyFull = false) {
   const { name, weapons: labelWeapons } = splitRoleLabel(role.label);
   // Si el rol tiene build, se muestra su arma (nombre oficial) cuando el nombre no trae armas
   const buildWeapon = getItem(role.build?.weapon)?.name;
@@ -39,7 +40,9 @@ function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[]) {
   const lines: string[] = [];
   if (weapons) lines.push(`-# ${weapons}`);
   lines.push(...signed.map(formatPlayer));
-  if (signed.length === 0) lines.push(role.maxSlots > 0 ? `*${role.maxSlots} libre${role.maxSlots > 1 ? 's' : ''}*` : '*Libre*');
+  if (partyFull) {
+    if (signed.length === 0) lines.push('*—*'); // la party ya está completa: nadie más entra aquí
+  } else if (signed.length === 0) lines.push(role.maxSlots > 0 ? `*${role.maxSlots} libre${role.maxSlots > 1 ? 's' : ''}*` : '*Libre*');
   else if (free > 0) lines.push(`*+${free} libre${free > 1 ? 's' : ''}*`);
 
   return {
@@ -66,8 +69,9 @@ export async function buildPingMessagePayload(
   const attachmentName = `ping-${ping.id}.png`;
   const attachment = new AttachmentBuilder(bannerBuffer, { name: attachmentName });
 
-  const totalJoined = Object.values(ping.roster).reduce((acc, list) => acc + list.length, 0);
-  const totalMax = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
+  const totalJoined = partyJoined(ping);
+  const totalMax = partyMax(ping.roles, ping.partySize) ?? 0;
+  const partyFull = isPartyFull(ping);
   const isClosed = ping.status === 'CLOSED' || ping.status === 'CANCELLED';
   const departed = Date.now() / 1000 >= ping.startTimeUnix;
 
@@ -102,7 +106,7 @@ export async function buildPingMessagePayload(
     extras.length ? extras.join('  ·  ') : '',
     ping.notes ? `\n📜 **Notas del Caller**\n${ping.notes.split('\n').map((l) => `> ${l}`).join('\n')}` : '',
     '',
-    `👥 **Party:** ${totalJoined}${totalMax > 0 ? `/${totalMax}` : ''}  ${buildProgressBar(totalJoined, totalMax)}`,
+    `👥 **Party:** ${totalJoined}${totalMax > 0 ? `/${totalMax}` : ''}  ${buildProgressBar(totalJoined, totalMax)}${partyFull ? '  · completa 🔒' : ''}`,
   ]
     .filter((l, i, arr) => l !== '' || (arr[i - 1] !== '' && i > 0))
     .join('\n');
@@ -121,7 +125,7 @@ export async function buildPingMessagePayload(
     .setTimestamp(new Date(ping.createdAt));
 
   for (const role of ping.roles.slice(0, 22)) {
-    embed.addFields(buildRoleField(role, ping.roster[role.id] || []));
+    embed.addFields(buildRoleField(role, ping.roster[role.id] || [], partyFull));
   }
 
   if (ping.bench.length > 0) {
@@ -152,11 +156,11 @@ export async function buildPingMessagePayload(
 
   for (const role of ping.roles.slice(0, 24)) {
     const signedCount = (ping.roster[role.id] || []).length;
-    const isFull = role.maxSlots > 0 && signedCount >= role.maxSlots;
+    const isFull = joinGoesToBench(ping, role);
     const slotText = role.maxSlots > 0 ? `[${signedCount}/${role.maxSlots}]` : `[${signedCount}]`;
 
     const option = new StringSelectMenuOptionBuilder()
-      .setLabel(`${splitRoleLabel(role.label).name} ${slotText}${isFull ? ' · lleno → Banca' : ''}`.slice(0, 100))
+      .setLabel(`${splitRoleLabel(role.label).name} ${slotText}${isFull ? (partyFull ? ' · party llena → Banca' : ' · lleno → Banca') : ''}`.slice(0, 100))
       .setValue(role.id)
       .setDescription(
         (splitRoleLabel(role.label).weapons || role.description || 'Meterme con este rol').slice(0, 100)

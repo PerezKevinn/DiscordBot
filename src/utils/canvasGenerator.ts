@@ -2,6 +2,7 @@ import { createCanvas, Image, SKRSContext2D } from '@napi-rs/canvas';
 import { FONT_STACK } from './fonts';
 import { getGuildLogo } from './logo';
 import { ActivePing, ContentTypeConfig, GuildConfig } from '../types/ping';
+import { partyJoined, partyMax } from './party';
 
 /**
  * Dibuja un rectángulo con esquinas redondeadas o biseladas estilo medieval/Albion
@@ -241,8 +242,8 @@ export async function generatePingBanner(
   ctx.fillText(truncateText(ctx, contentConfig.subtitle, 550), 186, 135);
 
   // 7. Badge de Estado y Contador de Jugadores (Arriba Derecha)
-  const totalJoined = Object.values(ping.roster).reduce((acc, arr) => acc + arr.length, 0);
-  const totalMax = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
+  const totalJoined = partyJoined(ping);
+  const totalMax = partyMax(ping.roles, ping.partySize) ?? 0;
 
   const statusColors: Record<ActivePing['status'], { bg: string; border: string; label: string }> = {
     OPEN: { bg: 'rgba(212, 175, 55, 0.16)', border: '#D4AF37', label: 'MASS UP ABIERTO' },

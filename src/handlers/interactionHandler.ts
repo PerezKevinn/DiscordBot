@@ -38,6 +38,7 @@ import { movedToPanelReply } from '../utils/panelLink';
 import { defaultUtcSlot, draftSlot, formatUtc, nextUtcStartUnix } from '../utils/pingTime';
 import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
 import { reportError } from '../utils/alerts';
+import { cleanPartySize, joinGoesToBench, partyJoined, partyMax } from '../utils/party';
 
 const NO_CALLER_PERMS = '⛔ Solo los Callers (o admins) pueden tirar pings en este servidor.';
 const NO_ADMIN_PERMS = '⛔ Necesitas el permiso **Gestionar servidor** para hacer esto.';
@@ -340,7 +341,7 @@ export async function handleInteraction(interaction: Interaction) {
         const prevWeapon = removeUserFromPing(ping, interaction.user.id);
         ping.roster[selectedRoleId] ||= [];
         const currentList = ping.roster[selectedRoleId];
-        const isFull = roleObj.maxSlots > 0 && currentList.length >= roleObj.maxSlots;
+        const isFull = joinGoesToBench(ping, roleObj);
         const entry = {
           userId: interaction.user.id,
           username: interaction.user.username,
@@ -545,6 +546,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     timeLabel: formatUtc(slot),
     notes: draft.notes || '',
     roles: rolesToUse,
+    ...(cleanPartySize(contentConfig.partySize) ? { partySize: contentConfig.partySize } : {}),
     roster: initialRoster,
     bench: [],
     absent: [],
@@ -687,8 +689,8 @@ function canCommandPing(
 
 /** Controles del Caller para un ping (mensaje efímero). `notice` = resultado de la última acción. */
 function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
-  const joined = Object.values(ping.roster).reduce((acc, l) => acc + l.length, 0);
-  const max = ping.roles.reduce((acc, r) => acc + (r.maxSlots || 0), 0);
+  const joined = partyJoined(ping);
+  const max = partyMax(ping.roles, ping.partySize);
 
   // Salida terminada: lo único que queda por hacer es repartir los puntos
   if (isPingFinished(ping)) {
