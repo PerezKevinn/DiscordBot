@@ -10,6 +10,13 @@ updates:
     groups:
       menores:
         update-types: [minor, patch]
+    ignore:
+      # Los tipos de Node deben coincidir con el Node del VPS (22): sin saltos de versión mayor
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # TypeScript 7 es una reescritura: migrar es un trabajo aparte, no una actualización automática
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: npm
     directory: /dashboard
@@ -20,6 +27,11 @@ updates:
     groups:
       menores:
         update-types: [minor, patch]
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /

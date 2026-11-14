@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
 
 import { Client, Events, GatewayIntentBits, OAuth2Scopes, PermissionFlagsBits, REST, Routes } from 'discord.js';
 import { ownerCommands, publicCommands } from './commands/definitions';
