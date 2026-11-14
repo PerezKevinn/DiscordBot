@@ -92,6 +92,26 @@ export async function getPayment(env: MercadoPagoEnv, paymentId: string): Promis
 }
 
 /**
+ * Pagos de una orden nuestra (external_reference), del más reciente al más antiguo.
+ * Sirve para recuperar pagos cuyo aviso nunca llegó.
+ */
+export async function searchPayments(env: MercadoPagoEnv, externalReference: string): Promise<MpPayment[]> {
+  const qs = new URLSearchParams({ external_reference: externalReference, sort: 'date_created', criteria: 'desc', limit: '10' });
+  const res = await mpFetch(env, `/v1/payments/search?${qs}`);
+  if (!res.ok) throw new Error(`Mercado Pago respondió ${res.status} al buscar los pagos de ${externalReference}`);
+  const data = (await res.json()) as { results?: MpPayment[] };
+  return data.results ?? [];
+}
+
+/** Un token de prueba (TEST-...) con MP_TEST=false daría Premium por pagos que no son reales. */
+export function credentialsMismatch(env: MercadoPagoEnv): string | null {
+  if (!env.test && env.accessToken.startsWith('TEST-')) {
+    return 'MP_TEST=false pero MP_ACCESS_TOKEN es de prueba (TEST-...): los pagos no serían reales. Usa las credenciales de producción.';
+  }
+  return null;
+}
+
+/**
  * Valida la cabecera x-signature ("ts=...,v1=...") de un webhook:
  * HMAC-SHA256(secret, "id:<data.id>;request-id:<x-request-id>;ts:<ts>;").
  * Las partes que no vienen se omiten del manifiesto.

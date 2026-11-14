@@ -22,7 +22,7 @@ import {
   premiumSkuId,
   premiumStoreUrl,
 } from '../utils/plans';
-import { createPreference, getPayment, isValidSignature, mapStatus, mercadoPagoEnv } from '../payments/mercadopago';
+import { createPreference, credentialsMismatch, getPayment, isValidSignature, mapStatus, mercadoPagoEnv, MpPayment, searchPayments } from '../payments/mercadopago';
 import {
   codeStatus,
   createCodes,
@@ -734,19 +734,36 @@ export async function startPanel(client: Client) {
       console.warn(`[Mercado Pago] ${source}: el pago ${paymentId} no existe o no es de esta cuenta.`);
       return;
     }
+    applyMercadoPagoPayment(p, source);
+  };
+
+  const reportedTestPayments = new Set<number>();
+
+  /** Aplica a su orden un pago ya consultado a la API (nunca datos que vengan del navegador). */
+  const applyMercadoPagoPayment = (p: MpPayment, source: string) => {
     const order = getOrder(p.external_reference ?? '');
     if (!order) {
-      console.warn(`[Mercado Pago] ${source}: pago ${paymentId} de una orden desconocida (${p.external_reference ?? 'sin referencia'}).`);
+      console.warn(`[Mercado Pago] ${source}: pago ${p.id} de una orden desconocida (${p.external_reference ?? 'sin referencia'}).`);
       return;
     }
     if (Number(p.transaction_amount) !== order.amount || p.currency_id !== order.currency) {
       console.warn(`[Mercado Pago] ${order.invoice}: importe ${p.transaction_amount} ${p.currency_id} no coincide con ${order.amount} ${order.currency}.`);
       return;
     }
+    // Una orden real (MP_TEST=false) solo se paga con dinero real: un pago de prueba no da Premium
+    if (!order.test && p.live_mode === false) {
+      if (reportedTestPayments.has(p.id)) return; // la revisión periódica lo vuelve a ver: avisar una vez
+      reportedTestPayments.add(p.id);
+      void reportError(
+        'Mercado Pago · pago de prueba en producción',
+        new Error(`La orden ${order.invoice} recibió el pago de prueba ${p.id}; no se activa Premium. Revisa que MP_ACCESS_TOKEN sea de producción.`)
+      );
+      return;
+    }
     const state = mapStatus(p.status);
     if (!state) return;
     const { changed } = membershipCall(() => settleOrder(order.invoice, state, { paymentRef: String(p.id) }));
-    if (changed) console.log(`💳 Mercado Pago ${order.invoice} (${order.guildName ?? order.guildId}): ${state} · pago ${p.id}${order.test ? ' [prueba]' : ''}.`);
+    if (changed) console.log(`💳 Mercado Pago ${order.invoice} (${order.guildName ?? order.guildId}): ${state} · pago ${p.id}${order.test ? ' [prueba]' : ''} · vía ${source}.`);
   };
 
   // Página a la que vuelve el usuario tras pagar. Si trae el id del pago lo consultamos ya
@@ -781,7 +798,33 @@ export async function startPanel(client: Client) {
     if (pay && !pay.test && !pay.webhookSecret) {
       void reportError('Mercado Pago', new Error('Pagos en producción sin MP_WEBHOOK_SECRET: no se puede verificar la firma de los avisos.'));
     }
+    const mismatch = pay && credentialsMismatch(pay);
+    if (mismatch) void reportError('Mercado Pago', new Error(mismatch));
   }
+
+  // Red de seguridad: si un aviso de Mercado Pago se pierde (o se rechaza), las órdenes quedarían
+  // pendientes para siempre (PSE y Efecty se aprueban horas después). Cada 20 min se buscan en la
+  // API los pagos de las órdenes abiertas de los últimos 3 días y se aplican igual que un aviso.
+  const reconcileOrders = async () => {
+    const pay = mercadoPagoEnv();
+    if (!pay) return;
+    const since = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    const open = listOrders({ limit: 500 }).filter(
+      (o) => o.provider === 'mercadopago' && (o.status === 'created' || o.status === 'pending') && o.createdAt >= since
+    );
+    for (const o of open) {
+      try {
+        const payments = await searchPayments(pay, o.invoice);
+        // Del más antiguo al más reciente, para que el último estado sea el que cuente
+        for (const p of payments.reverse()) applyMercadoPagoPayment(p, 'revisión periódica');
+      } catch (err) {
+        void reportError('Mercado Pago · revisión de órdenes pendientes', err);
+        return; // si la API falla, se reintenta en la siguiente vuelta
+      }
+    }
+  };
+  setTimeout(() => void reconcileOrders(), 60_000).unref();
+  setInterval(() => void reconcileOrders(), 20 * 60_000).unref();
 
   app.post('/webhooks/mercadopago', { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } }, async (req, reply) => {
     const pay = mercadoPagoEnv();

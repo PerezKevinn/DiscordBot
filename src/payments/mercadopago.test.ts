@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'crypto';
-import { isValidSignature, mapStatus } from './mercadopago';
+import { credentialsMismatch, isValidSignature, mapStatus, searchPayments } from './mercadopago';
 
 const SECRET = 'clave-de-prueba';
 
@@ -46,5 +46,27 @@ test('isValidSignature rechaza firmas manipuladas o con otra clave', () => {
 test('isValidSignature rechaza cabeceras mal formadas sin lanzar', () => {
   for (const bad of ['', 'basura', 'ts=1', 'v1=abc', 'ts=1,v1=corta']) {
     assert.equal(isValidSignature(SECRET, bad, 'req-1', '123456'), false, bad);
+  }
+});
+
+test('credentialsMismatch avisa de un token de prueba con MP_TEST=false', () => {
+  assert.match(credentialsMismatch({ accessToken: 'TEST-123', webhookSecret: null, test: false }) ?? '', /de prueba/);
+  assert.equal(credentialsMismatch({ accessToken: 'APP_USR-123', webhookSecret: null, test: false }), null);
+  assert.equal(credentialsMismatch({ accessToken: 'TEST-123', webhookSecret: null, test: true }), null);
+});
+
+test('searchPayments busca por la referencia de la orden y devuelve los resultados', async () => {
+  const realFetch = globalThis.fetch;
+  let called = '';
+  globalThis.fetch = (async (url: string) => {
+    called = String(url);
+    return new Response(JSON.stringify({ results: [{ id: 1, status: 'approved' }] }), { status: 200 });
+  }) as typeof fetch;
+  try {
+    const r = await searchPayments({ accessToken: 'APP_USR-1', webhookSecret: null, test: false }, 'MU-ABC');
+    assert.equal(r.length, 1);
+    assert.match(called, /\/v1\/payments\/search\?external_reference=MU-ABC/);
+  } finally {
+    globalThis.fetch = realFetch;
   }
 });
