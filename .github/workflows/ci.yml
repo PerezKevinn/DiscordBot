@@ -1,0 +1,46 @@
+# Comprueba en cada push y PR que el bot y el panel compilan y que no hay vulnerabilidades graves.
+# Si algo falla aquí, no despliegues en el VPS hasta arreglarlo.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22 # la misma que instala deploy/setup-vps.sh
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            dashboard/package-lock.json
+
+      - name: Bot · dependencias
+        run: npm ci
+
+      - name: Bot · compilación
+        run: npm run build
+
+      - name: Panel · dependencias
+        run: npm run panel:install
+
+      - name: Panel · compilación
+        run: npm run panel:build
+
+      - name: Vulnerabilidades graves (bot y panel)
+        run: |
+          npm audit --omit=dev --audit-level=high
+          npm --prefix dashboard audit --omit=dev --audit-level=high
+
+      - name: Scripts de despliegue · sintaxis
+        run: for f in deploy/*.sh; do bash -n "$f"; done
