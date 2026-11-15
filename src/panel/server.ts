@@ -1,3 +1,14 @@
+/**
+ * Panel web de administración (https://panel.massup.shop): API REST, login con Discord, pagos con
+ * Mercado Pago y los archivos compilados de dashboard/.
+ *
+ * Corre dentro del mismo proceso que el bot y usa la misma configuración en memoria, así que un
+ * cambio en el panel se ve al instante en Discord. Escucha solo en 127.0.0.1; en producción va
+ * detrás de Caddy, que pone el HTTPS.
+ *
+ * Variables de entorno: PANEL_URL, PANEL_PORT, DISCORD_CLIENT_SECRET, SESSION_SECRET y las de
+ * Mercado Pago (ver src/payments/mercadopago.ts).
+ */
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -83,14 +94,6 @@ import {
 import { GuildConfig } from '../types/ping';
 import { z } from 'zod';
 
-/**
- * Panel web de administración (https://panel.massup.shop).
- * Corre dentro del mismo proceso que el bot: lee y guarda la misma configuración en memoria,
- * así un cambio en el panel se ve al instante en Discord.
- *
- * Variables de entorno: PANEL_URL, PANEL_PORT, DISCORD_CLIENT_SECRET, SESSION_SECRET.
- */
-
 const STATE_COOKIE = 'massup_oauth_state';
 const DIST = path.join(process.cwd(), 'dashboard', 'dist');
 const GUILDS_REFRESH_MS = 5 * 60 * 1000;
@@ -101,15 +104,20 @@ declare module 'fastify' {
   }
 }
 
+// Error con código HTTP; el manejador de errores devuelve su mensaje al panel tal cual.
 class HttpError extends Error {
   constructor(public status: number, message: string) {
     super(message);
   }
 }
 
-// Caché corta del permiso real (miembro del servidor) para no consultar a Discord en cada clic
+// Caché de 1 min del permiso real del miembro, para no consultar a Discord en cada clic.
 const permCache = new Map<string, { ok: boolean; at: number }>();
 
+/**
+ * Arranca el servidor del panel. Si falta alguna variable obligatoria, lo indica en el log y no
+ * arranca, sin afectar al bot.
+ */
 export async function startPanel(client: Client) {
   const panelUrl = process.env.PANEL_URL?.replace(/\/$/, '');
   const clientSecret = process.env.DISCORD_CLIENT_SECRET;
@@ -141,7 +149,7 @@ export async function startPanel(client: Client) {
       'Content-Security-Policy',
       [
         "default-src 'self'",
-        // El pago con Mercado Pago es una redirección a su web: no carga nada de terceros aquí
+        // El pago con Mercado Pago es una redirección a su web, así que no hace falta cargar scripts de terceros.
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com",
@@ -162,7 +170,7 @@ export async function startPanel(client: Client) {
     const unsigned = raw ? req.unsignCookie(raw) : null;
     req.panelSession = unsigned?.valid ? getSession(unsigned.value ?? undefined) : undefined;
 
-    // Cualquier petición que cambie datos debe venir del propio panel (no de otra web)
+    // Protección CSRF: toda petición que cambie datos tiene que venir del propio panel.
     if (req.url.startsWith('/api/') && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       const origin = req.headers.origin;
       if (origin !== panelOrigin) throw new HttpError(403, 'Origen no permitido');
@@ -181,7 +189,8 @@ export async function startPanel(client: Client) {
     return req.panelSession;
   };
 
-  /** Comprueba (con datos reales del servidor) que el usuario puede gestionarlo y que el bot está dentro. */
+  // Comprueba con los datos reales del servidor (no con la lista del login) que el usuario puede
+  // gestionarlo y que el bot está dentro.
   const requireGuild = async (req: FastifyRequest): Promise<{ guild: Guild; config: GuildConfig; session: PanelSession }> => {
     const session = requireSession(req);
     const id = (req.params as { guildId?: string }).guildId;
@@ -207,8 +216,8 @@ export async function startPanel(client: Client) {
     return r.data;
   };
 
-  // ---------- Estado (para monitores como UptimeRobot) ----------
-  // 200 si el bot está conectado a Discord; 503 si no. No expone datos de los servidores.
+  // ---------- Estado, para monitores como UptimeRobot ----------
+  // 200 si el bot está conectado a Discord y 503 si no. No expone datos de los servidores.
   app.get('/health', { config: { rateLimit: { max: 60, timeWindow: '1 minute' } } }, async (_req, reply) => {
     const ready = client.isReady();
     reply.header('Cache-Control', 'no-store');
@@ -221,6 +230,7 @@ export async function startPanel(client: Client) {
   });
 
   // ---------- Login con Discord ----------
+  // El state aleatorio va en una cookie firmada y se compara en el callback (anti-CSRF del login).
   app.get('/auth/login', { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } }, async (_req, reply) => {
     const state = crypto.randomBytes(24).toString('base64url');
     reply.setCookie(STATE_COOKIE, state, {
@@ -290,6 +300,7 @@ export async function startPanel(client: Client) {
         }
       }
     }
+    // El número de permisos es la suma de BOT_PERMISSIONS de src/index.ts: si cambia allí, hay que actualizarlo aquí.
     const invite = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=326417763344&integration_type=0&scope=bot+applications.commands`;
     return {
       user: {
@@ -312,6 +323,9 @@ export async function startPanel(client: Client) {
   });
 
   // ---------- Datos de un servidor ----------
+
+  // Todo lo que necesita el panel de un servidor en una sola respuesta. Casi todas las rutas de
+  // escritura devuelven esto mismo para que el panel se actualice sin otra petición.
   const serializeGuild = (guild: Guild, config: GuildConfig) => {
     const tier = getEffectiveTier(config);
     const limits = getLimits(config);
@@ -364,7 +378,7 @@ export async function startPanel(client: Client) {
           type,
           days,
           until,
-          code: code ? `${code.slice(0, 5)}••••-${code.slice(-4)}` : undefined,
+          code: code ? `${code.slice(0, 5)}••••-${code.slice(-4)}` : undefined, // Enmascarado: lo ven todos los admins del servidor.
         })),
       },
       settings: {
@@ -441,7 +455,7 @@ export async function startPanel(client: Client) {
       input.name
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[̀-ͯ]/g, '') // Quita las tildes que deja separadas normalize('NFD').
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_|_$/g, '')
         .slice(0, 24) || 'contenido';
@@ -534,6 +548,8 @@ export async function startPanel(client: Client) {
   });
 
   // ---------- Puntos de actividad ----------
+
+  // Convierte los PointsError en 400 con su mensaje; cualquier otro error sigue siendo un 500.
   const pointsCall = <T>(fn: () => T): T => {
     try {
       return fn();
@@ -546,7 +562,7 @@ export async function startPanel(client: Client) {
   const serializePoints = (guild: Guild, config: GuildConfig, period: 'total' | 'month' | 'week') => {
     const limits = getLimits(config);
     const pro = limits.pointsPro;
-    const p = pro ? period : 'total';
+    const p = pro ? period : 'total'; // Semana y mes son Premium.
     const nameOf = (id: string) => guild.members.cache.get(id)?.displayName ?? null;
     const pending = Object.values(ConfigManager.getActivePings(guild.id))
       .filter((ping) => ping.status === 'CLOSED')
@@ -623,7 +639,7 @@ export async function startPanel(client: Client) {
     const { guild, config, session } = await requireGuild(req);
     const ping = closedPing(guild.id, (req.params as { pingId: string }).pingId);
     const { entries } = parse(pointsAwardSchema, req.body);
-    // Solo participantes o jugadores ya puntuados (los nombres salen de ahí, no del navegador)
+    // Solo se aceptan participantes o jugadores ya puntuados, y el nombre sale del servidor, no del navegador.
     const known = new Map(proposedEntries(config, ping).map((e) => [e.userId, e.name]));
     const clean = entries.filter((e) => known.has(e.userId)).map((e) => ({ ...e, name: known.get(e.userId)! }));
     pointsCall(() => setActivityAward(config, ping, clean, session.userId));
@@ -704,7 +720,7 @@ export async function startPanel(client: Client) {
         description: `Premium ${pkg.label} para ${guild.name}`.slice(0, 250),
         amount: pkg.priceCop,
         returnUrl: `${panelUrl}/pago/respuesta/${order.invoice}`,
-        // source_news=webhooks: solo avisos en formato Webhooks (firmados), no IPN antiguo
+        // source_news=webhooks: solo avisos en formato Webhooks (firmados), no los IPN antiguos.
         notificationUrl: `${panelUrl}/webhooks/mercadopago?source_news=webhooks`,
       });
       return { url, test: pay.test, invoice: order.invoice };
@@ -722,10 +738,8 @@ export async function startPanel(client: Client) {
     return { status: order.status, days: order.days, amount: order.amount };
   });
 
-  /**
-   * Consulta un pago a la API de Mercado Pago y lo aplica a su orden. Es lo ÚNICO que da o quita
-   * Premium: el aviso del webhook o la vuelta del usuario solo traen el id del pago.
-   */
+  // Consulta un pago a la API de Mercado Pago y lo aplica a su orden. Es la única vía que da o quita
+  // Premium: el webhook y la vuelta del usuario solo aportan el id del pago.
   const syncMercadoPagoPayment = async (paymentId: string, source: string) => {
     const pay = mercadoPagoEnv();
     if (!pay || !/^\d{1,20}$/.test(paymentId)) return;
@@ -737,9 +751,11 @@ export async function startPanel(client: Client) {
     applyMercadoPagoPayment(p, source);
   };
 
+  // Pagos de prueba en órdenes reales ya avisados, para no repetir la alerta en cada revisión.
   const reportedTestPayments = new Set<number>();
 
-  /** Aplica a su orden un pago ya consultado a la API (nunca datos que vengan del navegador). */
+  // Aplica a su orden un pago ya consultado a la API, nunca datos que vengan del navegador.
+  // Descarta pagos de órdenes desconocidas, con otro importe o moneda, o de prueba en una orden real.
   const applyMercadoPagoPayment = (p: MpPayment, source: string) => {
     const order = getOrder(p.external_reference ?? '');
     if (!order) {
@@ -750,9 +766,9 @@ export async function startPanel(client: Client) {
       console.warn(`[Mercado Pago] ${order.invoice}: importe ${p.transaction_amount} ${p.currency_id} no coincide con ${order.amount} ${order.currency}.`);
       return;
     }
-    // Una orden real (MP_TEST=false) solo se paga con dinero real: un pago de prueba no da Premium
+    // Una orden real (MP_TEST=false) solo se paga con dinero real: un pago de prueba no da Premium.
     if (!order.test && p.live_mode === false) {
-      if (reportedTestPayments.has(p.id)) return; // la revisión periódica lo vuelve a ver: avisar una vez
+      if (reportedTestPayments.has(p.id)) return; // La revisión periódica lo vuelve a ver; se avisa una vez.
       reportedTestPayments.add(p.id);
       void reportError(
         'Mercado Pago · pago de prueba en producción',
@@ -766,8 +782,8 @@ export async function startPanel(client: Client) {
     if (changed) console.log(`💳 Mercado Pago ${order.invoice} (${order.guildName ?? order.guildId}): ${state} · pago ${p.id}${order.test ? ' [prueba]' : ''} · vía ${source}.`);
   };
 
-  // Página a la que vuelve el usuario tras pagar. Si trae el id del pago lo consultamos ya
-  // (por si el webhook tarda); el resultado se toma de la API, nunca de la URL.
+  // Página a la que vuelve el usuario tras pagar. Si trae el id del pago se consulta en el momento,
+  // por si el webhook tarda; el resultado se toma de la API, nunca de los parámetros de la URL.
   app.get('/pago/respuesta/:invoice', async (req, reply) => {
     const { invoice } = req.params as { invoice: string };
     const order = /^MU-[0-9A-F]{12}$/.test(invoice) ? getOrder(invoice) : undefined;
@@ -782,17 +798,18 @@ export async function startPanel(client: Client) {
     return reply.redirect(`/?pago=${order.invoice}#/g/${order.guildId}/plan`, 303);
   });
 
-  // Avisos de Mercado Pago (servidor a servidor). Formato webhook (?data.id=&type=payment, cuerpo JSON)
-  // o IPN antiguo (?topic=payment&id=). Error 500 = Mercado Pago lo reintenta.
+  // Avisos de Mercado Pago, servidor a servidor. Llegan en formato Webhooks (?data.id=&type=payment,
+  // con cuerpo JSON) o IPN antiguo (?topic=payment&id=). Responder 500 hace que Mercado Pago reintente.
   //
   // El aviso solo trae un id y el Premium sale siempre de consultar el pago a la API con nuestro
   // token, así que un aviso falso no puede dar nada por sí solo. Aun así:
-  //  - En PRODUCCIÓN (MP_TEST=false) con MP_WEBHOOK_SECRET, la firma es obligatoria: los avisos sin
-  //    firma válida (y los IPN, que no se firman) se rechazan y se avisa por el canal de alertas.
-  //    Se puede volver al modo tolerante con MP_WEBHOOK_STRICT=false.
-  //  - En pruebas, la firma se comprueba pero no bloquea, y se registra el detalle para diagnosticar.
+  //  - En producción (MP_TEST=false) con MP_WEBHOOK_SECRET la firma es obligatoria: los avisos sin
+  //    firma válida, y los IPN, que no se firman, se rechazan y se avisa por el canal de alertas.
+  //    MP_WEBHOOK_STRICT=false vuelve al modo tolerante.
+  //  - En pruebas la firma se comprueba pero no bloquea, y se registra el detalle para diagnosticar.
   const strictSignature = (pay: NonNullable<ReturnType<typeof mercadoPagoEnv>>) =>
     Boolean(pay.webhookSecret && !pay.test && process.env.MP_WEBHOOK_STRICT !== 'false');
+  // Comprobaciones de la configuración de Mercado Pago al arrancar; los problemas van al canal de alertas.
   {
     const pay = mercadoPagoEnv();
     if (pay && !pay.test && !pay.webhookSecret) {
@@ -807,9 +824,9 @@ export async function startPanel(client: Client) {
     }
   }
 
-  // Red de seguridad: si un aviso de Mercado Pago se pierde (o se rechaza), las órdenes quedarían
-  // pendientes para siempre (PSE y Efecty se aprueban horas después). Cada 20 min se buscan en la
-  // API los pagos de las órdenes abiertas de los últimos 3 días y se aplican igual que un aviso.
+  // Red de seguridad: si un aviso de Mercado Pago se pierde o se rechaza, la orden quedaría pendiente
+  // para siempre (PSE y Efecty se aprueban horas después). Cada 20 min se buscan en la API los pagos
+  // de las órdenes abiertas de los últimos 3 días y se aplican igual que un aviso.
   const reconcileOrders = async () => {
     const pay = mercadoPagoEnv();
     if (!pay) return;
@@ -820,11 +837,11 @@ export async function startPanel(client: Client) {
     for (const o of open) {
       try {
         const payments = await searchPayments(pay, o.invoice);
-        // Del más antiguo al más reciente, para que el último estado sea el que cuente
+        // Del más antiguo al más reciente, para que el último estado sea el que cuente.
         for (const p of payments.reverse()) applyMercadoPagoPayment(p, 'revisión periódica');
       } catch (err) {
         void reportError('Mercado Pago · revisión de órdenes pendientes', err);
-        return; // si la API falla, se reintenta en la siguiente vuelta
+        return; // Si la API falla, se reintenta en la siguiente vuelta.
       }
     }
   };
@@ -837,14 +854,14 @@ export async function startPanel(client: Client) {
     const q = req.query as Record<string, unknown>;
     const body = (req.body && typeof req.body === 'object' ? req.body : {}) as { type?: string; data?: { id?: unknown } };
     const type = String(q.type ?? q.topic ?? body.type ?? '');
-    if (type !== 'payment') return reply.send('ok'); // merchant_order y demás: no hacen falta
+    if (type !== 'payment') return reply.send('ok'); // merchant_order y demás no se usan.
     const dataId = String(q['data.id'] ?? body.data?.id ?? q.id ?? '');
 
-    // Los avisos IPN (?topic=&id=) no usan la firma de Webhooks
+    // Los avisos IPN (?topic=&id=) no llevan la firma de Webhooks.
     const isIpn = q.topic !== undefined && q['data.id'] === undefined;
     const signature = req.headers['x-signature'];
     const strict = strictSignature(pay);
-    if (strict && isIpn) return reply.send('ignorado'); // 200 para que no lo reintente; se usan los Webhooks firmados
+    if (strict && isIpn) return reply.send('ignorado'); // 200 para que no lo reintente; cuentan los Webhooks firmados.
     if (strict && typeof signature !== 'string') {
       void reportError('Mercado Pago · webhook', new Error(`Aviso sin firma rechazado (pago ${dataId || '?'}).`));
       return reply.status(401).send('firma requerida');
@@ -853,7 +870,7 @@ export async function startPanel(client: Client) {
       const requestId = typeof req.headers['x-request-id'] === 'string' ? req.headers['x-request-id'] : undefined;
       const secret = pay.webhookSecret;
       if (!isValidSignature(secret, signature, requestId, String(q['data.id'] ?? dataId))) {
-        // Diagnóstico sin datos secretos: qué variante del manifiesto sí cuadraría
+        // Diagnóstico sin datos secretos: qué variante del manifiesto sí cuadraría.
         const variants: Record<string, boolean> = {
           'body.data.id': isValidSignature(secret, signature, requestId, String(body.data?.id ?? '')),
           'query.id': isValidSignature(secret, signature, requestId, String(q.id ?? '')),
@@ -888,7 +905,7 @@ export async function startPanel(client: Client) {
     return reply.send('ok');
   });
 
-  // ---------- Administración (solo el dueño del bot) ----------
+  // ---------- Administración, solo para el dueño del bot (BOT_OWNER_ID) ----------
   const ownerId = process.env.BOT_OWNER_ID;
   const isOwner = (s: PanelSession | undefined) => Boolean(ownerId && s?.userId === ownerId);
   const requireOwner = (req: FastifyRequest): PanelSession => {
@@ -909,7 +926,7 @@ export async function startPanel(client: Client) {
       botPresent: Boolean(guild),
       joinedAt: guild?.joinedTimestamp ?? config.createdAt,
       tier: getEffectiveTier(config),
-      endsAt: ends === undefined ? null : ends, // null = no vence (o gratis: mirar tier)
+      endsAt: ends === undefined ? null : ends, // null: no vence, o es gratis (se distingue con tier).
       lifetime: ends === null,
       timed: hasTimedPremium(config)
         ? { source: config.premiumSource ?? 'manual', until: config.premiumUntil ?? null }
@@ -991,6 +1008,7 @@ export async function startPanel(client: Client) {
   });
 
   // ---------- Catálogo de ítems ----------
+  // Se serializa una vez al arrancar: el catálogo solo cambia con npm run items:update y un reinicio.
   const itemsJson = JSON.stringify(allItems());
   app.get('/api/items', async (req, reply) => {
     requireSession(req);
@@ -1000,8 +1018,10 @@ export async function startPanel(client: Client) {
 
   // ---------- Archivos del panel (aplicación React compilada) ----------
   if (fs.existsSync(DIST)) {
-    // wildcard (por defecto): sirve también los archivos creados después de arrancar (al recompilar el panel)
+    // Con wildcard (el valor por defecto) se sirven también los archivos creados después de
+    // arrancar, así que recompilar el panel no obliga a reiniciar el bot.
     await app.register(fastifyStatic, { root: DIST, index: 'index.html' });
+    // Enrutado del lado del cliente: cualquier GET que no sea de la API devuelve la aplicación.
     app.setNotFoundHandler((req, reply: FastifyReply) => {
       if (req.method === 'GET' && !req.url.startsWith('/api/') && !req.url.startsWith('/auth/')) {
         return reply.type('text/html').sendFile('index.html');

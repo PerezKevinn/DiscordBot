@@ -20,7 +20,7 @@ dpkg-reconfigure -f noninteractive unattended-upgrades
 
 echo "==> SSH: solo con clave, sin contraseña"
 # Archivo propio en sshd_config.d: tiene prioridad sobre el de cloud-init, que en algunos
-# proveedores (p. ej. Hostinger) deja "PasswordAuthentication yes"
+# proveedores (p. ej. Hostinger) deja "PasswordAuthentication yes".
 printf "PasswordAuthentication no\nKbdInteractiveAuthentication no\nPermitRootLogin prohibit-password\n" > /etc/ssh/sshd_config.d/00-massup.conf
 sshd -t
 systemctl reload ssh || systemctl reload sshd

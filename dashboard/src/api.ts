@@ -1,3 +1,7 @@
+/**
+ * Cliente de la API del panel. Todas las rutas son del mismo origen y van con la cookie de sesión;
+ * el servidor rechaza las escrituras que no traen el Origin del panel (CSRF).
+ */
 import type {
   AdminGuild,
   AdminOverview,
@@ -13,6 +17,7 @@ import type {
   RedeemCode,
 } from './types';
 
+/** Error de la API con su código HTTP; el mensaje es el que devuelve el servidor, apto para mostrar. */
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -33,6 +38,10 @@ async function request<T>(method: string, url: string, body?: unknown): Promise<
 
 type ContentBody = Omit<Content, 'id'>;
 
+/**
+ * Llamadas a la API, una por ruta. Las escrituras devuelven el estado completo actualizado
+ * (GuildData o PointsData), así el panel no necesita volver a pedirlo.
+ */
 export const api = {
   me: () => request<Me>('GET', '/api/me'),
   logout: () => request<{ ok: true }>('POST', '/api/logout', {}),
@@ -58,7 +67,7 @@ export const api = {
   order: (id: string, invoice: string) =>
     request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
 
-  // Puntos de actividad
+  // Puntos de actividad. El periodo va en todas las llamadas porque la respuesta trae el ranking.
   points: (id: string, period: RankingPeriod) => request<PointsData>('GET', `/api/guilds/${id}/points?period=${period}`),
   savePointsSettings: (id: string, period: RankingPeriod, body: Partial<PointsData['settings']>) =>
     request<PointsData>('PATCH', `/api/guilds/${id}/points/settings?period=${period}`, body),
@@ -73,7 +82,7 @@ export const api = {
   newSeason: (id: string, period: RankingPeriod) =>
     request<PointsData>('POST', `/api/guilds/${id}/points/season?period=${period}`, {}),
 
-  // Administración (solo el dueño del bot)
+  // Administración, solo para el dueño del bot.
   adminOverview: () => request<AdminOverview>('GET', '/api/admin/overview'),
   adminPlan: (
     guildId: string,

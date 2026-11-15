@@ -1,13 +1,12 @@
+/**
+ * Retención de datos: cuando un servidor expulsa al bot, sus datos (config, pings con nombres de
+ * jugadores, puntos y logo) se borran pasados RETENTION_DAYS días. Si el bot vuelve antes, no se
+ * pierde nada. El plazo tiene que coincidir con lo que dice la política de privacidad.
+ */
 import { Client } from 'discord.js';
 import { ConfigManager } from './configManager';
 
-/**
- * Retención de datos: cuando un servidor expulsa al bot, sus datos (config, pings con
- * nombres de jugadores y logo) se borran pasados RETENTION_DAYS días. Si el bot vuelve
- * antes, no se pierde nada.
- *
- * Esto es lo que debe indicar la política de privacidad del bot.
- */
+/** Días que se conservan los datos de un servidor después de que expulse al bot. */
 export const RETENTION_DAYS = 30;
 const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
 const CHECK_EVERY_MS = 6 * 60 * 60 * 1000;
@@ -20,12 +19,13 @@ const CHECK_EVERY_MS = 6 * 60 * 60 * 1000;
 export function runRetention(client: Client, now = Date.now()): { marked: number; purged: number } {
   let marked = 0;
   let purged = 0;
-  // Si Discord no ha entregado la lista de servidores (fallo al arrancar), no tocar nada
+  // Si Discord no ha entregado la lista de servidores (fallo al arrancar), no se toca nada:
+  // se marcarían como expulsados todos los servidores.
   if (client.guilds.cache.size === 0) return { marked, purged };
 
   for (const guildId of ConfigManager.listStoredGuildIds()) {
     if (client.guilds.cache.has(guildId)) {
-      // Está dentro: si quedó marcado por error, se desmarca
+      // Está dentro: si quedó marcado por error, se desmarca.
       if (ConfigManager.peekConfig(guildId)?.leftAt) ConfigManager.clearGuildLeft(guildId);
       continue;
     }
@@ -45,6 +45,7 @@ export function runRetention(client: Client, now = Date.now()): { marked: number
   return { marked, purged };
 }
 
+/** Ejecuta la retención al arrancar y luego cada 6 horas. */
 export function startDataRetention(client: Client) {
   const run = () => {
     try {

@@ -1,3 +1,10 @@
+/**
+ * Puntos de actividad en Discord: el editor de reparto tras el GG y los comandos /ranking y /puntos.
+ *
+ * El editor es efímero: todos los participantes salen con los puntos por defecto y el Caller (o un
+ * oficial con Gestionar canales) puede cambiarlos uno a uno, poner a todos igual o añadir a alguien
+ * que no se anotó. Al guardar se publica un resumen en el canal del ping.
+ */
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -34,12 +41,7 @@ import {
 import { takeCooldown } from '../utils/security';
 import { baseEmbed, fitEmbed } from '../utils/ui';
 
-/**
- * Reparto de puntos en Discord. Tras el GG, el Caller (o un oficial) abre un editor efímero:
- * todos los participantes salen con los puntos por defecto y puede cambiarlos uno a uno,
- * poner a todos igual o añadir a alguien que no se anotó. Al guardar se publica el resumen.
- */
-
+// Borradores del editor en memoria, por servidor, ping y usuario. Caducan a los 30 min.
 const DRAFT_TTL_MS = 30 * 60 * 1000;
 const drafts = new Map<string, { entries: PointsEntry[]; at: number }>();
 setInterval(() => {
@@ -49,12 +51,13 @@ setInterval(() => {
 
 const draftKey = (guildId: string, pingId: string, userId: string) => `${guildId}:${pingId}:${userId}`;
 
-/** Botón "Repartir puntos" para un ping terminado (o nada si no aplica). */
+/** Botón "Repartir puntos" para un ping terminado, o null si los puntos están desactivados o el ping no está cerrado. */
 export function pointsButton(config: GuildConfig, ping: ActivePing): ButtonBuilder | null {
   if (!pointsSettings(config).enabled || ping.status !== 'CLOSED') return null;
   return new ButtonBuilder().setCustomId(`pts_open:${ping.id}`).setLabel('Repartir puntos').setEmoji('🏆').setStyle(ButtonStyle.Success);
 }
 
+// Puede repartir el Caller del ping o quien tenga Gestionar canales.
 function canManagePing(interaction: { user: { id: string }; memberPermissions: Readonly<{ has(p: bigint): boolean }> | null }, ping: ActivePing) {
   return interaction.user.id === ping.callerId || Boolean(interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels));
 }
@@ -95,7 +98,7 @@ function editorMessage(config: GuildConfig, ping: ActivePing, entries: PointsEnt
 
 type PointsInteraction = ButtonInteraction | UserSelectMenuInteraction | ModalSubmitInteraction;
 
-/** Botones, menú y formularios del editor de puntos (customId pts_*). */
+/** Atiende los botones, menús y formularios del editor de puntos (customId pts_*). */
 export async function handlePointsInteraction(interaction: PointsInteraction, config: GuildConfig) {
   const [action, pingId] = interaction.customId.split(':');
   const ping = ConfigManager.getPing(config.guildId, pingId);
@@ -245,7 +248,7 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
     drafts.delete(key);
     const { award, previous } = result;
     if (!award) {
-      // Sin reparto el mensaje vuelve a quedarse hasta la limpieza de los 3 días
+      // Sin reparto se cancela el borrado programado: el mensaje se queda hasta la limpieza de los 3 días.
       if (ping.messageDeleteAt && !ping.messageDeleted) {
         ping.messageDeleteAt = undefined;
         ConfigManager.savePing(config.guildId, ping);
@@ -254,7 +257,7 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
       return;
     }
     const total = award.entries.reduce((s, e) => s + e.points, 0);
-    // El anuncio de puntos queda como registro; el mensaje del ping se borra en unos minutos
+    // El anuncio de puntos queda como registro; el mensaje del ping se borra en unos minutos.
     const deleteMinutes = Math.round(DELETE_AFTER_POINTS_MS / 60000);
     const scheduleDelete = !ping.messageDeleted;
     if (scheduleDelete) schedulePingMessageDelete(config.guildId, ping, DELETE_AFTER_POINTS_MS);
@@ -271,10 +274,8 @@ export async function handlePointsInteraction(interaction: PointsInteraction, co
   }
 }
 
-/**
- * Publica el resumen del reparto en el canal del ping (sin mencionar a nadie).
- * No responde al mensaje del ping porque ese mensaje se borra después del reparto.
- */
+// Publica el resumen del reparto en el canal del ping, sin mencionar a nadie. No se publica como
+// respuesta al mensaje del ping porque ese mensaje se borra después del reparto.
 async function announceAward(interaction: ButtonInteraction, ping: ActivePing, entries: PointsEntry[], corrected: boolean) {
   const channel = await interaction.client.channels.fetch(ping.channelId).catch(() => null);
   if (!channel || !channel.isTextBased() || !('send' in channel)) return;
@@ -305,7 +306,7 @@ function seasonText(guildId: string) {
   return start ? `desde <t:${Math.floor(start / 1000)}:D>` : 'desde el principio';
 }
 
-/** /ranking: tabla de puntos del servidor (pública). */
+/** /ranking: tabla de puntos del servidor, visible para todos. Semana y mes son Premium. */
 export async function handleRankingCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   if (!pointsSettings(config).enabled) {
     await interaction.reply({ content: 'Los puntos están desactivados en este servidor.', flags: MessageFlags.Ephemeral });
@@ -340,7 +341,7 @@ export async function handleRankingCommand(interaction: ChatInputCommandInteract
   await interaction.reply({ embeds: [fitEmbed(embed)], allowedMentions: { parse: [] } });
 }
 
-/** /puntos [jugador]: puntos y puesto de un jugador (efímero). */
+/** /puntos [jugador]: puntos, puesto y últimos movimientos de un jugador, en un mensaje efímero. */
 export async function handlePointsCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   if (!pointsSettings(config).enabled) {
     await interaction.reply({ content: 'Los puntos están desactivados en este servidor.', flags: MessageFlags.Ephemeral });

@@ -1,3 +1,7 @@
+/**
+ * Mensajes del flujo de creación de pings en Discord: el panel fijo de Callers que queda en un
+ * canal y el asistente privado donde el Caller arma el ping.
+ */
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -14,7 +18,7 @@ import { draftSlot, formatUtc, MINUTE_STEP, nextUtcStartUnix } from './pingTime'
 import { baseEmbed, fitEmbed, formatCompo, formatCompoInline, hexToInt } from './ui';
 import { partyMax } from './party';
 
-/** Rol que se mencionará para un contenido (el propio del contenido o el rol por defecto). */
+/** Rol que se mencionará para un contenido: el suyo propio o, si no tiene, el rol por defecto. */
 export function resolvePingRoleId(config: GuildConfig, contentTypeId: string): string | undefined {
   return config.pingRoles[contentTypeId] || config.defaultPingRoleId;
 }
@@ -23,9 +27,7 @@ const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 const MINUTE_OPTIONS = Array.from({ length: 60 / MINUTE_STEP }, (_, i) => i * MINUTE_STEP);
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
-/**
- * Panel fijo de Callers que queda en un canal
- */
+/** Panel fijo de Callers que se deja en un canal con /panel-ping. */
 export function buildFixedCallerPanel(config: GuildConfig) {
   const embed = baseEmbed(config, 'Mesa de Callers')
     .setTitle('⚔️ ¿Qué sale hoy?')
@@ -39,7 +41,7 @@ export function buildFixedCallerPanel(config: GuildConfig) {
       ].join('\n')
     );
 
-  // Contenidos en dos columnas para que el panel no sea una lista eterna
+  // Contenidos en dos columnas para que el panel no sea una lista eterna.
   const lines = config.contentTypes.map((c) => {
     const roleId = config.pingRoles[c.id];
     return `${c.emoji} ${c.name}${roleId ? ` · <@&${roleId}>` : ''}`;
@@ -58,7 +60,7 @@ export function buildFixedCallerPanel(config: GuildConfig) {
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder().setCustomId('panel_refresh').setEmoji('🔄').setStyle(ButtonStyle.Secondary)
   );
-  // La configuración (contenidos, compos, builds, avisos) se hace en el panel web
+  // La configuración (contenidos, compos, builds, avisos) se hace en el panel web.
   const url = panelUrl(config.guildId, 'contenidos');
   if (url) {
     row.addComponents(new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(url).setLabel('Configurar').setEmoji('🖥️'));
@@ -68,7 +70,8 @@ export function buildFixedCallerPanel(config: GuildConfig) {
 }
 
 /**
- * Vista privada del Caller mientras arma el ping (asistente)
+ * Vista privada (efímera) del asistente mientras el Caller arma el ping. Si el contenido del
+ * borrador ya no existe, usa el primero de la lista.
  */
 export function buildWizardStepMessage(draft: DraftPingSession, config: GuildConfig) {
   const content: ContentTypeConfig =

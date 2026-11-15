@@ -13,12 +13,13 @@
  *     manuales que se hicieron mientras se probaba).
  *  3. Deja el Premium por tiempo como quedó tras el último evento que se conserva.
  *
- * ⚠️ Con el bot PARADO (pm2 stop massup): el bot guarda estos archivos en memoria y los
- * sobrescribiría.
+ * Hay que ejecutarlo con el bot parado (pm2 stop massup): el bot tiene estos archivos cargados en
+ * memoria y sobrescribiría los cambios en el siguiente guardado.
  */
 import fs from 'fs';
 import path from 'path';
 
+// Copias mínimas de los tipos del bot: el script lee los JSON directamente y no importa de src/.
 type Event = { at: number; guildId: string; type: string; days?: number | null; until?: number | null; note?: string };
 type Order = { invoice: string; guildId: string; test: boolean; status: string; amount: number; createdAt: number; paymentRef?: string };
 type Store = { codes: Record<string, unknown>; history: Event[]; orders: Record<string, Order> };
@@ -65,7 +66,8 @@ const guildEvents = store.history.filter((e) => e.guildId === guildId);
 const removeEvents = guildEvents.filter((e) => e.at >= since);
 const keptEvents = guildEvents.filter((e) => e.at < since);
 
-// Estado del Premium por tiempo tras el último evento que se conserva (las suscripciones de Discord van aparte)
+// Estado del Premium por tiempo tras el último evento que se conserva. Las suscripciones de
+// Discord no se tocan: van en config.subscription y no dependen de este historial.
 const TIMED = ['grant', 'extend', 'revoke', 'code_redeemed', 'expired', 'payment', 'payment_reversed'];
 const last = [...keptEvents].reverse().find((e) => TIMED.includes(e.type));
 const SOURCE: Record<string, string> = { grant: 'manual', extend: 'manual', code_redeemed: 'code', payment: 'payment', payment_reversed: 'payment' };
@@ -102,6 +104,7 @@ Object.assign(config, next, { notices: {} });
 if (next.premiumUntil === undefined) delete config.premiumUntil;
 if (next.premiumSource === undefined) delete config.premiumSource;
 
+// Escribe en .tmp y renombra, como hace el bot, para no dejar un JSON a medias si algo falla.
 const write = (file: string, data: unknown) => {
   fs.writeFileSync(`${file}.tmp`, JSON.stringify(data, null, 2), 'utf-8');
   fs.renameSync(`${file}.tmp`, file);

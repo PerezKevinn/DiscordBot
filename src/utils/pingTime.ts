@@ -1,16 +1,20 @@
 /**
- * Hora de salida de los pings: se elige una hora fija en UTC (la hora del juego),
- * no "dentro de X minutos".
+ * Hora de salida de los pings. Se elige una hora fija en UTC, que es la hora del juego, en vez de
+ * "dentro de X minutos".
  */
 
+/** Paso de los minutos en el selector de hora. */
 export const MINUTE_STEP = 5;
 
+/** Hora del día en UTC. */
 export interface UtcSlot {
-  hour: number; // 0-23
-  minute: number; // 0-55, múltiplo de MINUTE_STEP
+  /** 0-23. */
+  hour: number;
+  /** 0-55, múltiplo de MINUTE_STEP. */
+  minute: number;
 }
 
-/** "20:05 UTC" */
+/** Formato para mostrar: "20:05 UTC". */
 export function formatUtc(slot: UtcSlot): string {
   return `${String(slot.hour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')} UTC`;
 }

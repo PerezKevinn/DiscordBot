@@ -1,10 +1,13 @@
+/** Pestaña "Marca" (Premium): nombre, siglas, lema, color y logo propios. */
 import { useState } from 'react';
 import { api } from '../api';
 import type { GuildData } from '../types';
 import type { Save } from './GuildPanel';
 
+// Mismo límite que el servidor (src/utils/logo.ts); se comprueba aquí para avisar antes de subir.
 const MAX_LOGO_BYTES = 4 * 1024 * 1024;
 
+/** Formulario de marca. En plan gratis se muestra desactivado. */
 export function BrandingTab({ data, save }: { data: GuildData; save: Save }) {
   const premium = data.plan.limits.customBranding;
   const [b, setB] = useState(data.branding);

@@ -1,22 +1,22 @@
+/**
+ * Logo del gremio para el banner de los pings, por orden de preferencia:
+ *  1. Logo propio subido desde el panel (Premium), en data/logos/<guildId>.png.
+ *  2. El icono del servidor de Discord.
+ *  3. Si no hay ninguno, el banner dibuja un escudo con las iniciales.
+ */
 import fs from 'fs';
 import path from 'path';
 import { createCanvas, Image, loadImage } from '@napi-rs/canvas';
 import { GuildConfig } from '../types/ping';
 
-/**
- * Logo del gremio para el banner de los pings:
- * 1. Logo propio subido desde el panel web (Premium) -> data/logos/<guildId>.png
- * 2. Si no, el icono del servidor de Discord
- * 3. Si no hay ninguno, el banner dibuja el escudo con las iniciales
- */
-
 const LOGOS_DIR = path.join(process.cwd(), 'data', 'logos');
 const LOGO_SIZE = 256;
 const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const FETCH_TIMEOUT_MS = 4000;
+// Solo se descargan imágenes del CDN de Discord, para que una URL guardada no sirva para hacer peticiones a otros hosts (SSRF).
 const ALLOWED_HOSTS = new Set(['cdn.discordapp.com', 'media.discordapp.net']);
 
-// Caché en memoria para no descargar el icono en cada actualización del roster
+// Caché en memoria para no descargar el icono en cada actualización del roster.
 const cache = new Map<string, { img: Image; at: number }>();
 const CACHE_MAX = 300;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
@@ -26,6 +26,7 @@ function logoPath(guildId: string) {
   return path.join(LOGOS_DIR, `${guildId}.png`);
 }
 
+// Al llenarse, se descarta la entrada más antigua (los Map conservan el orden de inserción).
 function remember(key: string, img: Image) {
   if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string);
   cache.set(key, { img, at: Date.now() });
@@ -44,13 +45,13 @@ async function download(url: string, maxBytes = MAX_UPLOAD_BYTES): Promise<Buffe
   return buf;
 }
 
-/** Devuelve la imagen del logo o null si no hay (o falla: el banner usa el escudo). */
+/** Imagen del logo, o null si no hay o no se pudo cargar (en ese caso el banner dibuja el escudo). */
 export async function getGuildLogo(config: GuildConfig): Promise<Image | null> {
   try {
     if (config.customLogo) {
       const file = logoPath(config.guildId);
       if (fs.existsSync(file)) {
-        const key = `file:${file}:${fs.statSync(file).mtimeMs}`;
+        const key = `file:${file}:${fs.statSync(file).mtimeMs}`; // mtime en la clave: al subir otro logo cambia la entrada.
         const hit = cache.get(key);
         if (hit) return hit.img;
         const img = await loadImage(fs.readFileSync(file));
@@ -72,14 +73,14 @@ export async function getGuildLogo(config: GuildConfig): Promise<Image | null> {
 }
 
 /**
- * Descarga un adjunto de Discord, comprueba que es una imagen y la guarda recortada
- * en cuadrado a 256x256 PNG (re-codificarla también limpia cualquier dato raro del archivo).
+ * Descarga un adjunto de Discord, comprueba que es una imagen y la guarda recortada en cuadrado
+ * a 256x256 PNG. Volver a codificarla descarta metadatos y cualquier contenido extra del archivo.
  */
 export async function saveCustomLogo(guildId: string, url: string): Promise<void> {
   await saveCustomLogoBuffer(guildId, await download(url));
 }
 
-/** Igual que saveCustomLogo pero con la imagen ya en memoria (subida desde el panel web). */
+/** Igual que saveCustomLogo, pero con la imagen ya en memoria (subida desde el panel). Lanza con un mensaje para el usuario. */
 export async function saveCustomLogoBuffer(guildId: string, data: Buffer): Promise<void> {
   if (data.length > MAX_UPLOAD_BYTES) throw new Error('Imagen demasiado grande');
   const img = await loadImage(data);
@@ -95,6 +96,7 @@ export async function saveCustomLogoBuffer(guildId: string, data: Buffer): Promi
   fs.writeFileSync(logoPath(guildId), canvas.toBuffer('image/png'));
 }
 
+/** Borra el logo propio del servidor, si existe. */
 export function deleteCustomLogo(guildId: string): void {
   const file = logoPath(guildId);
   if (fs.existsSync(file)) fs.unlinkSync(file);

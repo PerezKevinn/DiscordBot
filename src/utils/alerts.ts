@@ -1,13 +1,12 @@
-import { Client, Events } from 'discord.js';
-
 /**
  * Avisos de errores a un canal privado de Discord mediante un webhook (ALERT_WEBHOOK_URL).
- * Sin esa variable solo se escriben en el log, como antes.
+ * Sin esa variable solo se escriben en el log.
  *
  * - Nunca lanza: un fallo al avisar no debe tumbar el bot.
- * - Agrupa errores repetidos (el mismo mensaje solo se avisa una vez cada 10 min)
- *   y pone un tope de avisos para no saturar el canal si algo entra en bucle.
+ * - Agrupa los errores repetidos (el mismo mensaje se avisa una vez cada 10 min) y pone un tope
+ *   de avisos por ventana para no saturar el canal si algo entra en bucle.
  */
+import { Client, Events } from 'discord.js';
 
 const REPEAT_WINDOW_MS = 10 * 60 * 1000;
 const MAX_ALERTS_PER_WINDOW = 15;
@@ -16,6 +15,7 @@ let windowStart = 0;
 let sentInWindow = 0;
 let suppressed = 0;
 
+// Solo se aceptan URLs de webhook de Discord, para no enviar errores (con trazas) a otro sitio por un .env mal puesto.
 function webhookUrl(): string | null {
   const url = process.env.ALERT_WEBHOOK_URL?.trim();
   return url && /^https:\/\/(?:canary\.|ptb\.)?discord(?:app)?\.com\/api\/webhooks\/\d+\/[\w-]+$/.test(url) ? url : null;
@@ -81,15 +81,16 @@ export async function reportError(context: string, err: unknown): Promise<void> 
   });
 }
 
-/** Aviso informativo (arranques, etc.). */
+/** Aviso informativo, como el arranque del bot. No pasa por la agrupación ni el tope de errores. */
 export async function reportInfo(text: string): Promise<void> {
   console.log(`ℹ️ ${text}`);
   await post({ content: text.slice(0, 1900) });
 }
 
 /**
- * Captura los errores que se escaparían sin control. Una excepción no capturada deja el
- * proceso en un estado dudoso: se avisa y se sale para que pm2 lo reinicie limpio.
+ * Captura los errores que se escaparían sin control. Una excepción no capturada deja el proceso
+ * en un estado dudoso: se avisa y se sale para que pm2 lo reinicie limpio. Si el aviso tarda más
+ * de 4 s, se sale igualmente.
  */
 export function installErrorHandlers(client: Client) {
   process.on('unhandledRejection', (reason) => {

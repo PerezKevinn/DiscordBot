@@ -1,3 +1,7 @@
+/**
+ * Raíz del panel: comprueba la sesión, enruta por el hash de la URL y muestra el selector de
+ * servidores, el panel de un servidor o la administración.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError } from './api';
 import type { Me } from './types';
@@ -7,7 +11,8 @@ import { ToastProvider } from './components/Toast';
 import { AdminPanel } from './components/AdminPanel';
 import { ThemeToggle } from './components/ThemeToggle';
 
-/** Ruta mínima con el hash: #/ (servidores) o #/g/<id>/<pestaña> */
+// Enrutado mínimo por hash: #/ (servidores), #/g/<id>/<pestaña> o #/admin. El hash no llega al
+// servidor, así que Fastify solo tiene que servir index.html.
 function useHashRoute() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -19,6 +24,7 @@ function useHashRoute() {
   return { guildId: m?.[1] ?? null, tab: m?.[2] ?? 'pings', admin: hash.startsWith('#/admin') };
 }
 
+/** Componente raíz de la aplicación. */
 export function App() {
   const [me, setMe] = useState<Me | null>(null);
   const [state, setState] = useState<'loading' | 'login' | 'ready' | 'error'>('loading');
@@ -28,7 +34,7 @@ export function App() {
   const load = useCallback(async () => {
     try {
       setMe(await api.me());
-      // Volver a la pantalla que se quería abrir antes de iniciar sesión (p. ej. desde el botón "Configurar")
+      // Vuelve a la pantalla que se quería abrir antes de iniciar sesión (p. ej. desde el botón "Configurar").
       const pending = sessionStorage.getItem('massup_after_login');
       if (pending) {
         sessionStorage.removeItem('massup_after_login');

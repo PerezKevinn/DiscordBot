@@ -1,4 +1,7 @@
-// Servidor estático mínimo para previsualizar la web en local: node scripts/serveWeb.js
+/**
+ * Servidor estático mínimo para previsualizar web/ en local, sin dependencias.
+ * Uso: node scripts/serveWeb.js (puerto 4321, o PORT).
+ */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +12,7 @@ http
   .createServer((req, res) => {
     const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
     const file = path.normalize(path.join(root, urlPath === '/' ? 'index.html' : urlPath));
+    // Rechaza rutas que salgan de web/ (p. ej. /../.env).
     if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
       res.writeHead(404);
       return res.end('No encontrado');

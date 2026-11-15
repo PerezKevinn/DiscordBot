@@ -1,3 +1,4 @@
+/** Panel de un servidor: cabecera, pestañas y el guardado común que usan todas ellas. */
 import { useCallback, useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import type { GuildData } from '../types';
@@ -19,8 +20,13 @@ const TABS = [
   { id: 'plan', label: 'Plan' },
 ];
 
+/**
+ * Ejecuta una llamada que devuelve el servidor actualizado, sustituye los datos y muestra un aviso.
+ * Devuelve false si falló; el error ya se ha mostrado.
+ */
 export type Save = (fn: () => Promise<GuildData>, okText?: string) => Promise<boolean>;
 
+/** Carga los datos del servidor y muestra la pestaña indicada en la URL. */
 export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
   const [data, setData] = useState<GuildData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +37,6 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
     api.guild(guildId).then(setData, (e: Error) => setError(e.message));
   }, [guildId]);
 
-  /** Ejecuta un guardado, actualiza los datos y avisa. */
   const save: Save = useCallback(
     async (fn, okText = 'Guardado') => {
       try {
@@ -40,7 +45,7 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
         return true;
       } catch (e) {
         if (e instanceof ApiError && e.status === 401) {
-          // Sesión caducada: los cambios del editor siguen guardados como borrador en el navegador
+          // Sesión caducada: los cambios del editor siguen guardados como borrador en el navegador.
           setExpired(true);
           toast('Tu sesión caducó. Inicia sesión para guardar; tus cambios no se pierden.', true);
           return false;
@@ -86,11 +91,11 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
             className="btn btn-sm btn-primary"
             href="/auth/login"
             onClick={() => {
-              // Volver a esta misma pestaña del panel después de iniciar sesión
+              // Vuelve a esta misma pestaña del panel después de iniciar sesión.
               try {
                 sessionStorage.setItem('massup_after_login', window.location.hash);
               } catch {
-                /* nada */
+                // Sin almacenamiento: tras el login se vuelve al inicio.
               }
             }}
           >
@@ -102,7 +107,7 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
       <nav
         className="tabs"
         ref={(nav) => {
-          // En móvil las pestañas se desplazan: deja visible la activa
+          // En móvil las pestañas se desplazan: se deja visible la activa.
           const active = nav?.querySelector<HTMLElement>('.tab.active');
           if (nav && active) nav.scrollLeft = active.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
         }}

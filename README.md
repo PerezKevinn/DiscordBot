@@ -135,6 +135,10 @@ Cookies firmadas `HttpOnly` + `SameSite=Lax` (+ `Secure` con HTTPS), comprobaci�
 ### Catálogo de ítems
 `src/data/itemCatalog.json` sale de los datos públicos del juego. Para actualizarlo tras un parche: `npm run items:update`.
 
+## Contribuir
+
+Comprobaciones antes de un PR y guía de estilo de los comentarios: [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Vista previa del banner
 
 `npm run samples` genera en `samples/` un banner y una tarjeta de builds de ejemplo (sirve para comprobar fuentes e iconos en un servidor nuevo).

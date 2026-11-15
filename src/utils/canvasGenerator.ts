@@ -1,12 +1,15 @@
+/**
+ * Banner PNG de 960x200 que encabeza cada ping: logo o escudo del gremio, título, subtítulo del
+ * contenido, estado y contador de la party. Los datos que cambian a menudo (hora, masa, roster)
+ * van en el embed, que se edita sin regenerar tanto texto en la imagen.
+ */
 import { createCanvas, Image, SKRSContext2D } from '@napi-rs/canvas';
 import { FONT_STACK } from './fonts';
 import { getGuildLogo } from './logo';
 import { ActivePing, ContentTypeConfig, GuildConfig } from '../types/ping';
 import { partyJoined, partyMax } from './party';
 
-/**
- * Dibuja un rectángulo con esquinas redondeadas o biseladas estilo medieval/Albion
- */
+// Traza (sin pintar) un rectángulo con las esquinas cortadas en diagonal.
 function drawBeveledRect(
   ctx: SKRSContext2D,
   x: number,
@@ -27,13 +30,11 @@ function drawBeveledRect(
   ctx.closePath();
 }
 
-/**
- * Dibuja el emblema del gremio (escudo + corona + siglas)
- */
+// Escudo con corona y siglas; se usa cuando el servidor no tiene icono ni logo propio.
 function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: number, initials: string) {
   ctx.save();
 
-  // Resplandor dorado exterior
+  // Resplandor exterior.
   const glow = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius * 1.35);
   glow.addColorStop(0, 'rgba(212, 175, 55, 0.35)');
   glow.addColorStop(0.6, 'rgba(212, 175, 55, 0.10)');
@@ -43,14 +44,14 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.arc(cx, cy, radius * 1.35, 0, Math.PI * 2);
   ctx.fill();
 
-  // Escudo octogonal / heráldico negro y dorado
+  // Degradado del borde dorado.
   const goldGrad = ctx.createLinearGradient(cx - radius, cy - radius, cx + radius, cy + radius);
   goldGrad.addColorStop(0, '#FFF1A8');
   goldGrad.addColorStop(0.3, '#D4AF37');
   goldGrad.addColorStop(0.7, '#99731C');
   goldGrad.addColorStop(1, '#F3CE5A');
 
-  // Forma de escudo heráldico
+  // Silueta del escudo.
   ctx.beginPath();
   ctx.moveTo(cx, cy - radius);
   ctx.lineTo(cx + radius * 0.85, cy - radius * 0.65);
@@ -71,7 +72,7 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.strokeStyle = goldGrad;
   ctx.stroke();
 
-  // Borde interior fino del escudo
+  // Borde interior fino.
   ctx.save();
   ctx.scale(0.86, 0.86);
   const sCx = cx / 0.86;
@@ -89,7 +90,7 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.stroke();
   ctx.restore();
 
-  // Dibujar Corona Dorada en el centro superior del escudo
+  // Corona en la parte superior.
   ctx.fillStyle = goldGrad;
   const cw = radius * 0.9;
   const ch = radius * 0.48;
@@ -106,10 +107,10 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.closePath();
   ctx.fill();
 
-  // Base inferior de la corona
+  // Base de la corona.
   ctx.fillRect(cx - cw * 0.42, cyCrown + ch * 0.46, cw * 0.84, ch * 0.14);
 
-  // Siglas debajo de la corona
+  // Siglas debajo de la corona.
   ctx.font = `bold 20px ${FONT_STACK}`;
   ctx.fillStyle = '#FFE57F';
   ctx.textAlign = 'center';
@@ -118,9 +119,7 @@ function drawKingdomEmblem(ctx: SKRSContext2D, cx: number, cy: number, radius: n
   ctx.restore();
 }
 
-/**
- * Trunca un texto si supera el ancho máximo en píxeles
- */
+// Recorta el texto con "..." si supera el ancho máximo en píxeles.
 function truncateText(ctx: SKRSContext2D, text: string, maxWidth: number): string {
   if (ctx.measureText(text).width <= maxWidth) return text;
   let truncated = text;
@@ -131,7 +130,8 @@ function truncateText(ctx: SKRSContext2D, text: string, maxWidth: number): strin
 }
 
 /**
- * Genera el banner PNG personalizado en Negro Obsidiana y Dorado Imperial 
+ * Genera el banner del ping. Recibe la config ya filtrada por plan (brandForRender), así que en
+ * plan gratis no usa siglas, lema ni logo propios.
  */
 export async function generatePingBanner(
   ping: ActivePing,
@@ -139,12 +139,12 @@ export async function generatePingBanner(
   guildConfig: GuildConfig
 ): Promise<Buffer> {
   const width = 960;
-  // Cabecera compacta: los datos (hora, masa, IP...) van en el embed, que se actualiza en vivo
+  // Altura reducida: los datos (hora, masa, IP…) van en el embed.
   const height = 200;
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  // 1. Fondo Negro Obsidiana con degradado profundo
+  // 1. Fondo.
   const bgGrad = ctx.createLinearGradient(0, 0, width, height);
   bgGrad.addColorStop(0, '#070709');
   bgGrad.addColorStop(0.45, '#111117');
@@ -152,15 +152,15 @@ export async function generatePingBanner(
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, width, height);
 
-  // 2. Resplandor radial ambiental (Dorado + Color de acento del contenido)
+  // 2. Resplandor con el color de acento del contenido.
   const ambientGlow = ctx.createRadialGradient(width * 0.8, height * 0.25, 20, width * 0.75, height * 0.3, 480);
-  ambientGlow.addColorStop(0, contentConfig.accentColor + '33'); // 20% opacidad
+  ambientGlow.addColorStop(0, contentConfig.accentColor + '33'); // 0x33 = 20 % de opacidad; accentColor viene validado como #RRGGBB.
   ambientGlow.addColorStop(0.5, 'rgba(212, 175, 55, 0.08)');
   ambientGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = ambientGlow;
   ctx.fillRect(0, 0, width, height);
 
-  // 3. Patrón geométrico sutil de fondo (líneas diagonales doradas tenues)
+  // 3. Rayado diagonal tenue.
   ctx.save();
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.04)';
   ctx.lineWidth = 1;
@@ -172,7 +172,7 @@ export async function generatePingBanner(
   }
   ctx.restore();
 
-  // 4. Marco Imperial Dorado Exterior e Interior
+  // 4. Marco doble.
   const goldGrad = ctx.createLinearGradient(0, 0, width, height);
   goldGrad.addColorStop(0, '#FFF1A8');
   goldGrad.addColorStop(0.25, '#D4AF37');
@@ -180,19 +180,19 @@ export async function generatePingBanner(
   goldGrad.addColorStop(0.75, '#D4AF37');
   goldGrad.addColorStop(1, '#FFF1A8');
 
-  // Borde exterior biselado
+  // Borde exterior.
   drawBeveledRect(ctx, 12, 12, width - 24, height - 24, 18);
   ctx.lineWidth = 3;
   ctx.strokeStyle = goldGrad;
   ctx.stroke();
 
-  // Borde interior sutil
+  // Borde interior.
   drawBeveledRect(ctx, 20, 20, width - 40, height - 40, 14);
   ctx.lineWidth = 1;
   ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
   ctx.stroke();
 
-  // Adornos de diamantes dorados en las 4 esquinas
+  // Rombos en las cuatro esquinas.
   const corners = [
     [28, 28],
     [width - 28, 28],
@@ -210,19 +210,18 @@ export async function generatePingBanner(
     ctx.fill();
   }
 
-  // 5. Emblema del gremio (Izquierda Superior)
+  // 5. Logo o escudo del gremio, a la izquierda.
   const logo = await getGuildLogo(guildConfig);
   if (logo) drawGuildLogo(ctx, logo, 96, 98, 52);
   else drawKingdomEmblem(ctx, 96, 98, 52, getInitials(guildConfig));
 
-  // 6. Encabezado del Gremio y Estado del Ping
+  // 6. Nombre del gremio, título y subtítulo.
   ctx.textAlign = 'left';
   ctx.font = `bold 16px ${FONT_STACK}`;
   ctx.fillStyle = '#D4AF37';
   ctx.fillText(`${guildConfig.guildName}  •  ARMANDO PARTY / MASS UP`, 172, 62);
 
-  // Título Principal (Nombre del Contenido / Actividad)
-  // El título se achica (de 36 a 24 px) para caber entero; solo si aun así no cabe se recorta
+  // El título se reduce de 36 a 24 px para caber entero; solo si aun así no cabe, se recorta.
   const titleText = ping.title.toUpperCase();
   let titleSize = 36;
   ctx.font = `bold ${titleSize}px ${FONT_STACK}`;
@@ -234,14 +233,14 @@ export async function generatePingBanner(
   const mainTitle = truncateText(ctx, titleText, 560);
   ctx.fillText(mainTitle, 172, 104);
 
-  // Subtítulo de la categoría con barra de acento
+  // Subtítulo del contenido con una barra del color de acento.
   ctx.fillStyle = contentConfig.accentColor;
   ctx.fillRect(172, 118, 5, 22);
   ctx.font = `bold 17px ${FONT_STACK}`;
   ctx.fillStyle = '#FFE57F';
   ctx.fillText(truncateText(ctx, contentConfig.subtitle, 550), 186, 135);
 
-  // 7. Badge de Estado y Contador de Jugadores (Arriba Derecha)
+  // 7. Recuadro de estado y contador de la party, a la derecha.
   const totalJoined = partyJoined(ping);
   const totalMax = partyMax(ping.roles, ping.partySize) ?? 0;
 
@@ -274,7 +273,7 @@ export async function generatePingBanner(
   ctx.fillStyle = '#B8B8C8';
   ctx.fillText('EN LA PARTY', width - 137, 119);
 
-  // 10. Pie de tarjeta con lema del gremio e ID
+  // 8. Pie con el lema del gremio o, si no tiene, una indicación para anotarse.
   ctx.textAlign = 'center';
   ctx.font = `bold 12px ${FONT_STACK}`;
   ctx.fillStyle = 'rgba(255, 229, 127, 0.75)';
@@ -288,7 +287,7 @@ export async function generatePingBanner(
 }
 
 
-/** Siglas para el emblema: usa el tag ([KOS] -> KOS) o las iniciales del nombre. */
+// Siglas para el escudo: las del tag ([KOS] -> KOS) o, si no hay, las iniciales del nombre.
 function getInitials(guildConfig: GuildConfig): string {
   const fromTag = guildConfig.guildTag.replace(/[^\p{L}\p{N}]/gu, '').toUpperCase();
   if (fromTag) return fromTag.slice(0, 4);
@@ -297,7 +296,7 @@ function getInitials(guildConfig: GuildConfig): string {
   return (initials || 'AO').slice(0, 3);
 }
 
-/** Logo del gremio en círculo con aro dorado (icono del servidor o logo propio). */
+// Logo del gremio (icono del servidor o logo propio) recortado en círculo con aro dorado.
 function drawGuildLogo(ctx: SKRSContext2D, img: Image, cx: number, cy: number, radius: number) {
   ctx.save();
   const glow = ctx.createRadialGradient(cx, cy, radius * 0.4, cx, cy, radius * 1.45);

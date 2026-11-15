@@ -1,12 +1,12 @@
+/**
+ * El banner usa @napi-rs/canvas, un módulo nativo: este test comprueba en la CI (Linux, como el
+ * VPS) que se puede dibujar de verdad, no solo que compila. Si una actualización lo rompe, falla aquí.
+ */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { generatePingBanner } from './canvasGenerator';
 import type { ActivePing, ContentTypeConfig, GuildConfig } from '../types/ping';
 
-/**
- * El banner usa @napi-rs/canvas, un módulo nativo: este test comprueba en la CI (Linux, como el
- * VPS) que se puede dibujar de verdad, no solo que compila. Si una actualización lo rompe, falla aquí.
- */
 test('genera el banner de un ping como PNG de 960x200', async () => {
   const content = { id: 'x', name: 'Gankeo Ava', emoji: '🛕', subtitle: 'ROAMING CAMINOS AVA', accentColor: '#D4AF37', roles: [{ id: 'a', label: 'DPS', emoji: '🗡️', maxSlots: 0 }] } as ContentTypeConfig;
   const ping = {

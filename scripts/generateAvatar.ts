@@ -24,7 +24,7 @@ function goldGradient(ctx: SKRSContext2D, x0: number, y0: number, x1: number, y1
   return g;
 }
 
-/** Fondo oscuro con resplandor central y anillo dorado (pensado para el recorte circular de Discord). */
+// Fondo oscuro con resplandor central y anillo dorado (pensado para el recorte circular de Discord).
 function drawBackground(ctx: SKRSContext2D, accent = 'rgba(212,175,55,0.22)') {
   const bg = ctx.createRadialGradient(C, C * 0.9, 40, C, C, SIZE * 0.72);
   bg.addColorStop(0, '#1E1A12');
@@ -52,7 +52,7 @@ function drawBackground(ctx: SKRSContext2D, accent = 'rgba(212,175,55,0.22)') {
   ctx.stroke();
 }
 
-/** Punto y tangente sobre una curva Bézier cúbica. */
+// Punto y tangente sobre una curva Bézier cúbica.
 function bezier(p0: Pt, p1: Pt, p2: Pt, p3: Pt, t: number) {
   const u = 1 - t;
   const pt = {
@@ -67,10 +67,8 @@ function bezier(p0: Pt, p1: Pt, p2: Pt, p3: Pt, t: number) {
   return { pt, n: { x: -d.y / len, y: d.x / len }, tan: { x: d.x / len, y: d.y / len } };
 }
 
-/**
- * Cuerno de guerra: un cono curvado que se ensancha hacia la campana, con anillos dorados
- * y ondas de sonido saliendo de la boca.
- */
+// Cuerno de guerra: un cono curvado que se ensancha hacia la campana, con anillos dorados
+// y ondas de sonido saliendo de la boca.
 function drawWarHorn(ctx: SKRSContext2D, scale = 1, offset: Pt = { x: 0, y: 0 }, waves = true) {
   ctx.save();
   ctx.translate(C + offset.x, C + offset.y);
@@ -215,7 +213,7 @@ function drawWarHorn(ctx: SKRSContext2D, scale = 1, offset: Pt = { x: 0, y: 0 },
   ctx.restore();
 }
 
-/** Escudo heráldico de fondo. */
+// Escudo heráldico de fondo.
 function drawShield(ctx: SKRSContext2D, cx: number, cy: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(cx, cy - r);
@@ -235,7 +233,7 @@ function drawShield(ctx: SKRSContext2D, cx: number, cy: number, r: number) {
   ctx.stroke();
 }
 
-/** Monograma "M" dorado con biselado. */
+// Monograma "M" dorado con biselado.
 function drawMonogram(ctx: SKRSContext2D, cx: number, cy: number, size: number) {
   ctx.save();
   ctx.font = `bold ${size}px "Segoe UI", Arial, sans-serif`;

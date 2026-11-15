@@ -1,6 +1,6 @@
 /**
  * Genera src/data/itemCatalog.json: catálogo compacto de equipo, monturas y consumibles de
- * Albion Online con los nombres OFICIALES en español (ES-ES), a partir del volcado público
+ * Albion Online con los nombres oficiales en español (ES-ES), a partir del volcado público
  * ao-data/ao-bin-dumps (formatted/items.json).
  *
  * Uso:
@@ -15,6 +15,7 @@ import path from 'path';
 const SOURCE = 'https://raw.githubusercontent.com/ao-data/ao-bin-dumps/master/formatted/items.json';
 const OUT = path.join(__dirname, '..', 'src', 'data', 'itemCatalog.json');
 
+/** Hueco de equipo; tiene que coincidir con ItemSlot de src/data/items.ts. */
 export type ItemSlot = 'weapon' | 'offhand' | 'head' | 'armor' | 'shoes' | 'cape' | 'mount' | 'food' | 'potion';
 
 interface RawItem {
@@ -22,7 +23,7 @@ interface RawItem {
   LocalizedNames?: Record<string, string> | null;
 }
 
-/** Equipo: se guarda sin tier (la build vale para cualquier tier); el icono se pide en T8. */
+// Equipo: se guarda sin tier (la build vale para cualquier tier); el icono se pide en T8.
 const GEAR: Array<[ItemSlot, RegExp]> = [
   ['weapon', /^T8_((MAIN|2H)_[A-Z0-9_]+)$/],
   ['offhand', /^T8_(OFF_[A-Z0-9_]+)$/],
@@ -31,7 +32,7 @@ const GEAR: Array<[ItemSlot, RegExp]> = [
   ['shoes', /^T8_(SHOES_[A-Z0-9_]+)$/],
   ['cape', /^T8_(CAPE[A-Z0-9_]*)$/],
 ];
-/** Monturas y consumibles: el tier sí importa (Guiso T8 ≠ Guiso T6), se guarda el id completo. */
+// Monturas y consumibles: el tier sí importa (Guiso T8 ≠ Guiso T6), se guarda el id completo.
 const TIERED: Array<[ItemSlot, RegExp]> = [
   ['mount', /^T([3-8])_(MOUNT_[A-Z0-9_]+)(@\d)?$/], // la Garrapresta es T5_MOUNT_COUGAR_KEEPER@1
   ['food', /^T([1-8])_(MEAL_[A-Z0-9_]+)$/],

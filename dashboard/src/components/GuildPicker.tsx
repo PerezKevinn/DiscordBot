@@ -1,5 +1,7 @@
+/** Selector de servidores: los que ya tienen el bot y los que se pueden invitar. */
 import type { Me } from '../types';
 
+/** Icono del servidor o, si no tiene, sus iniciales. */
 export function GuildIcon({ name, icon, size = 44 }: { name: string; icon: string | null; size?: number }) {
   if (icon) return <img src={icon} alt="" style={{ width: size, height: size }} />;
   const initials = name
@@ -15,6 +17,7 @@ export function GuildIcon({ name, icon, size = 44 }: { name: string; icon: strin
   );
 }
 
+/** Lista de servidores que el usuario puede gestionar, separados según si el bot está dentro. */
 export function GuildPicker({ guilds }: { guilds: Me['guilds'] }) {
   const withBot = guilds.filter((g) => g.botPresent);
   const withoutBot = guilds.filter((g) => !g.botPresent);

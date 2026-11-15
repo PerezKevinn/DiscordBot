@@ -1,18 +1,23 @@
+/**
+ * Catálogo de ítems de Albion Online, con los nombres oficiales en español, para las builds por rol.
+ * itemCatalog.json se genera con scripts/buildItemCatalog.ts (npm run items:update).
+ */
 import catalog from './itemCatalog.json';
 
-/**
- * Catálogo de ítems de Albion (nombres oficiales ES) para las builds por rol.
- * Se genera con scripts/buildItemCatalog.ts.
- */
-
+/** Hueco de equipo de una build. */
 export type ItemSlot = 'weapon' | 'offhand' | 'head' | 'armor' | 'shoes' | 'cape' | 'mount' | 'food' | 'potion';
 
+/** Ítem del catálogo. */
 export interface CatalogItem {
-  id: string; // Equipo sin tier (MAIN_MACE_HELL); monturas y consumibles con tier (T8_MEAL_STEW)
+  /** Sin tier para el equipo (MAIN_MACE_HELL); con tier para monturas y consumibles (T8_MEAL_STEW). */
+  id: string;
   slot: ItemSlot;
-  name: string; // Nombre oficial ES
-  en: string; // Nombre EN (para buscar también en inglés)
-  icon: string; // Id para el servicio de iconos oficial
+  /** Nombre oficial en español. */
+  name: string;
+  /** Nombre en inglés, para poder buscar también en inglés. */
+  en: string;
+  /** Id para el servicio oficial de iconos. */
+  icon: string;
   tier?: number;
 }
 
@@ -32,11 +37,12 @@ export const BUILD_SLOTS: Array<{ slot: ItemSlot; label: string; short: string; 
 const ITEMS = catalog as CatalogItem[];
 const BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
 
+/** Busca un ítem por id. */
 export function getItem(id: string | undefined): CatalogItem | undefined {
   return id ? BY_ID.get(id) : undefined;
 }
 
-/** ¿Es un arma a dos manos? (entonces la mano secundaria no aplica) */
+/** Indica si es un arma a dos manos, en cuyo caso no hay mano secundaria. */
 export function isTwoHanded(id: string | undefined): boolean {
   return Boolean(id && id.startsWith('2H_'));
 }
@@ -47,7 +53,10 @@ const norm = (s: string) =>
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '');
 
-/** Busca por nombre en español o inglés (sin tildes), opcionalmente en un hueco concreto. */
+/**
+ * Busca por nombre en español o inglés, sin distinguir tildes ni mayúsculas, opcionalmente en un
+ * solo hueco. Primero van los que empiezan por el texto buscado y después los que lo contienen.
+ */
 export function searchItems(query: string, slot?: ItemSlot, limit = 30): CatalogItem[] {
   const q = norm(query.trim());
   const pool = slot ? ITEMS.filter((i) => i.slot === slot) : ITEMS;
@@ -69,6 +78,7 @@ export function itemIconUrl(item: CatalogItem, size = 128): string {
   return `https://render.albiononline.com/v1/item/${encodeURIComponent(item.icon)}.png?size=${size}`;
 }
 
+/** Catálogo completo (lo descarga el panel una vez para su buscador). */
 export function allItems(): readonly CatalogItem[] {
   return ITEMS;
 }

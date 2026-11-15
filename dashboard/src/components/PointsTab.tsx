@@ -1,13 +1,19 @@
+/**
+ * Pestaña "Puntos": ajustes, ranking, historial de repartos y ajustes manuales. El reparto también
+ * se puede hacer desde Discord al terminar una salida.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api';
 import { fmtDate, PERIOD_LABEL } from '../types';
 import type { GuildData, PointsData, PointsEditor, RankingPeriod } from '../types';
 import { useToast } from './Toast';
 
+// Como Save, pero para las llamadas que devuelven PointsData.
 type Run = (fn: () => Promise<PointsData>, okText?: string) => Promise<boolean>;
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
+/** Carga los puntos del servidor para el periodo elegido y muestra sus secciones. */
 export function PointsTab({ data }: { data: GuildData }) {
   const guildId = data.guild.id;
   const [period, setPeriod] = useState<RankingPeriod>('total');

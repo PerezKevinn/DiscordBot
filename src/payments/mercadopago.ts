@@ -1,33 +1,38 @@
+/**
+ * Cliente mínimo de Mercado Pago (Checkout Pro) para una cuenta de Colombia (COP).
+ *
+ * Flujo de un pago:
+ *  1. El servidor crea una preferencia con el paquete y el número de orden como external_reference.
+ *  2. El panel redirige al usuario a init_point, donde paga con tarjeta, PSE, Efecty o saldo.
+ *  3. Mercado Pago llama al webhook con el id del pago. El aviso no se da por bueno: se consulta
+ *     el pago a la API con nuestro token y solo esa respuesta da o quita Premium. La página de
+ *     vuelta (back_urls) solo informa al usuario.
+ *
+ * Variables de entorno: MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET (opcional, valida x-signature) y MP_TEST.
+ */
 import crypto from 'crypto';
 import type { OrderStatus } from '../utils/memberships';
 
-/**
- * Cliente mínimo de Mercado Pago (Checkout Pro), cuenta de Colombia (COP).
- *
- *  1. El servidor crea una "preferencia" con el paquete y nuestra referencia (external_reference).
- *  2. El panel redirige al usuario a init_point: ahí paga con tarjeta, PSE, Efecty o saldo MP.
- *  3. Mercado Pago avisa a nuestro webhook con el id del pago. NO nos fiamos del aviso:
- *     consultamos el pago a la API con nuestro token y solo eso da (o quita) Premium.
- *     La página de vuelta (back_urls) solo informa.
- *
- * Variables: MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET (opcional, valida x-signature), MP_TEST.
- */
-
 const API = 'https://api.mercadopago.com';
 
+/** Credenciales y modo de Mercado Pago leídos del entorno. */
 export interface MercadoPagoEnv {
   accessToken: string;
+  /** Clave para validar x-signature; null si no está configurada. */
   webhookSecret: string | null;
+  /** Modo prueba: las órdenes se guardan con test=true y el historial las marca como PRUEBA. */
   test: boolean;
 }
 
+/** Lee la configuración del entorno. Devuelve null si falta el token (pagos desactivados). */
 export function mercadoPagoEnv(): MercadoPagoEnv | null {
   const { MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET, MP_TEST } = process.env;
   if (!MP_ACCESS_TOKEN) return null;
-  // Por seguridad, modo prueba salvo que se diga explícitamente que no
+  // Modo prueba por defecto: hace falta MP_TEST=false explícito para cobrar de verdad.
   return { accessToken: MP_ACCESS_TOKEN, webhookSecret: MP_WEBHOOK_SECRET || null, test: MP_TEST !== 'false' };
 }
 
+// Timeout de 10 s para que una API lenta no deje colgada la petición del panel o del webhook.
 async function mpFetch(env: MercadoPagoEnv, path: string, init: RequestInit = {}) {
   return fetch(`${API}${path}`, {
     ...init,
@@ -40,7 +45,10 @@ async function mpFetch(env: MercadoPagoEnv, path: string, init: RequestInit = {}
   });
 }
 
-/** Crea la preferencia de pago y devuelve la URL del checkout. */
+/**
+ * Crea la preferencia de pago y devuelve la URL del checkout (init_point).
+ * El número de orden se usa también como clave de idempotencia, así un reintento no duplica la preferencia.
+ */
 export async function createPreference(
   env: MercadoPagoEnv,
   p: { invoice: string; title: string; description: string; amount: number; returnUrl: string; notificationUrl: string }
@@ -73,6 +81,7 @@ export async function createPreference(
   return data.init_point;
 }
 
+/** Campos del pago de la API de Mercado Pago que usa el bot; la respuesta trae muchos más. */
 export interface MpPayment {
   id: number;
   status: string;
@@ -83,7 +92,7 @@ export interface MpPayment {
   live_mode?: boolean;
 }
 
-/** Consulta un pago a la API. Solo devuelve pagos de nuestra cuenta (404 si no es nuestro). */
+/** Consulta un pago a la API. Devuelve null si no existe o no es de nuestra cuenta (la API da 404). */
 export async function getPayment(env: MercadoPagoEnv, paymentId: string): Promise<MpPayment | null> {
   const res = await mpFetch(env, `/v1/payments/${encodeURIComponent(paymentId)}`);
   if (res.status === 404) return null;
@@ -92,8 +101,8 @@ export async function getPayment(env: MercadoPagoEnv, paymentId: string): Promis
 }
 
 /**
- * Pagos de una orden nuestra (external_reference), del más reciente al más antiguo.
- * Sirve para recuperar pagos cuyo aviso nunca llegó.
+ * Pagos asociados a una orden (external_reference), del más reciente al más antiguo.
+ * Se usa para recuperar pagos cuyo webhook nunca llegó.
  */
 export async function searchPayments(env: MercadoPagoEnv, externalReference: string): Promise<MpPayment[]> {
   const qs = new URLSearchParams({ external_reference: externalReference, sort: 'date_created', criteria: 'desc', limit: '10' });
@@ -104,9 +113,12 @@ export async function searchPayments(env: MercadoPagoEnv, externalReference: str
 }
 
 /**
- * Comprueba con la API de qué cuenta es el token y si cuadra con MP_TEST. Los vendedores de prueba
- * tienen tokens APP_USR- como los reales y sus pagos llegan con live_mode=true, así que solo la
- * marca "test_user" de la cuenta los distingue. Devuelve el aviso o null si todo cuadra.
+ * Comprueba con la API a qué cuenta pertenece el token y si cuadra con MP_TEST y con el país.
+ *
+ * Los vendedores de prueba tienen tokens APP_USR- igual que los reales y sus pagos llegan con
+ * live_mode=true, así que lo único que los distingue es la etiqueta "test_user" de la cuenta.
+ *
+ * @returns El aviso para el log, o null si todo cuadra.
  */
 export async function checkAccount(env: MercadoPagoEnv): Promise<string | null> {
   const res = await mpFetch(env, '/users/me');
@@ -125,7 +137,10 @@ export async function checkAccount(env: MercadoPagoEnv): Promise<string | null> 
   return null;
 }
 
-/** Un token de prueba (TEST-...) con MP_TEST=false daría Premium por pagos que no son reales. */
+/**
+ * Detecta un token de prueba (TEST-...) con MP_TEST=false, que daría Premium por pagos que no son reales.
+ * A diferencia de checkAccount, no llama a la API.
+ */
 export function credentialsMismatch(env: MercadoPagoEnv): string | null {
   if (!env.test && env.accessToken.startsWith('TEST-')) {
     return 'MP_TEST=false pero MP_ACCESS_TOKEN es de prueba (TEST-...): los pagos no serían reales. Usa las credenciales de producción.';
@@ -136,7 +151,7 @@ export function credentialsMismatch(env: MercadoPagoEnv): string | null {
 /**
  * Valida la cabecera x-signature ("ts=...,v1=...") de un webhook:
  * HMAC-SHA256(secret, "id:<data.id>;request-id:<x-request-id>;ts:<ts>;").
- * Las partes que no vienen se omiten del manifiesto.
+ * Las partes que no vienen se omiten del manifiesto, como indica la documentación de Mercado Pago.
  */
 export function isValidSignature(secret: string, signature: string, requestId: string | undefined, dataId: string): boolean {
   const parts = Object.fromEntries(
@@ -149,14 +164,16 @@ export function isValidSignature(secret: string, signature: string, requestId: s
   const given = (parts.v1 ?? '').toLowerCase();
   if (!ts || !given) return false;
   let manifest = '';
+  // Mercado Pago firma los ids alfanuméricos en minúsculas.
   if (dataId) manifest += `id:${/^[a-z0-9]+$/i.test(dataId) ? dataId.toLowerCase() : dataId};`;
   if (requestId) manifest += `request-id:${requestId};`;
   manifest += `ts:${ts};`;
   const expected = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+  // timingSafeEqual lanza si las longitudes difieren, de ahí la comprobación previa.
   return given.length === expected.length && crypto.timingSafeEqual(Buffer.from(given), Buffer.from(expected));
 }
 
-/** Traduce el estado de un pago de Mercado Pago al de nuestras órdenes (null = no cambia nada). */
+/** Traduce el estado de un pago de Mercado Pago al de nuestras órdenes. null significa que la orden no cambia. */
 export function mapStatus(status: string): Exclude<OrderStatus, 'created'> | null {
   switch (status) {
     case 'approved':
@@ -172,6 +189,6 @@ export function mapStatus(status: string): Exclude<OrderStatus, 'created'> | nul
     case 'charged_back':
       return 'reversed';
     default:
-      return null; // in_mediation, etc.: se espera a que se resuelva
+      return null; // in_mediation y similares: se espera a que se resuelvan.
   }
 }

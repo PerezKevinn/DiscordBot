@@ -1,3 +1,4 @@
+/** Editor de una build: los huecos de equipo de un rol o de un swap. */
 import { useState } from 'react';
 import { BUILD_SLOTS, iconUrl, type ItemSlot, type RoleBuild } from '../types';
 import { ItemPicker, useCatalog } from './ItemPicker';
@@ -12,7 +13,7 @@ export function BuildEditor({ build, onChange, base }: { build: RoleBuild; onCha
   const [picking, setPicking] = useState<ItemSlot | null>(null);
   const byId = (id?: string) => (id && catalog ? catalog.find((i) => i.id === id) : undefined);
   const isSwap = Boolean(base);
-  // En un swap manda el arma del swap; si no la cambia, la de la build principal
+  // En un swap cuenta el arma del swap; si no la cambia, la de la build principal.
   const weapon = build.weapon ?? base?.weapon;
   const twoHanded = Boolean(weapon?.startsWith('2H_'));
 
@@ -20,7 +21,7 @@ export function BuildEditor({ build, onChange, base }: { build: RoleBuild; onCha
     const next = { ...build };
     if (id) next[slot] = id;
     else delete next[slot];
-    // Un arma a dos manos no lleva mano secundaria
+    // Un arma a dos manos no lleva mano secundaria.
     if (slot === 'weapon' && id?.startsWith('2H_')) delete next.offhand;
     onChange(next);
     setPicking(null);

@@ -1,3 +1,7 @@
+/**
+ * Comandos de Discord sobre la configuración y el plan del servidor: /panel, /plan, /canjear y
+ * /plan-admin. La configuración en sí se hace en el panel web; aquí solo se enlaza a él.
+ */
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -14,7 +18,7 @@ import { getEffectiveTier, hasActiveSubscription, hasTimedPremium, PLAN_LIMITS, 
 import { panelButtonRow, panelUrl } from '../utils/panelLink';
 import { baseEmbed, fitEmbed } from '../utils/ui';
 
-/** /panel: enlace directo al panel web, donde se configura todo. */
+/** /panel: responde con el enlace al panel web del servidor. */
 export async function handlePanelCommand(interaction: ChatInputCommandInteraction) {
   if (!interaction.inGuild()) return;
   const url = panelUrl(interaction.guildId, 'contenidos');
@@ -46,7 +50,7 @@ export async function handlePanelCommand(interaction: ChatInputCommandInteractio
   });
 }
 
-/** Texto con el estado de la membresía: fuentes y fin. */
+// Texto con el estado de la membresía: qué fuentes de Premium tiene y cuándo terminan.
 function membershipSummary(config: GuildConfig): string {
   const tier = getEffectiveTier(config);
   if (tier === 'free') return 'Este servidor está en **🆓 Gratis**.';
@@ -70,7 +74,7 @@ function membershipSummary(config: GuildConfig): string {
   return `Este servidor está en **💎 Premium**.\n${lines.join('\n')}`;
 }
 
-/** Botón nativo de compra (SKU) + enlace al panel. */
+// Botón nativo de compra del SKU (si está configurado) y enlace al panel.
 function planComponents(guildId: string, showBuy: boolean) {
   const row = new ActionRowBuilder<ButtonBuilder>();
   const sku = premiumSkuId();
@@ -89,6 +93,7 @@ function planComponents(guildId: string, showBuy: boolean) {
   return row.components.length ? [row] : [];
 }
 
+/** /plan: muestra el plan del servidor, qué incluye cada uno y cómo conseguir Premium. */
 export async function handlePlanCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   const tier = getEffectiveTier(config);
   const free = PLAN_LIMITS.free;
@@ -149,6 +154,10 @@ export async function handleRedeemCommand(interaction: ChatInputCommandInteracti
   }
 }
 
+/**
+ * /plan-admin: el dueño del bot (BOT_OWNER_ID) da o quita Premium a cualquier servidor. El comando
+ * solo se registra en su servidor, pero el id se comprueba igualmente aquí.
+ */
 export async function handlePlanAdminCommand(interaction: ChatInputCommandInteraction) {
   const ownerId = process.env.BOT_OWNER_ID;
   if (!ownerId || interaction.user.id !== ownerId) {

@@ -1,19 +1,26 @@
+/**
+ * Planes Gratis y Premium: límites de cada uno, plan efectivo de un servidor y precios de los
+ * paquetes. Para mover una función de un plan a otro basta con cambiar PLAN_LIMITS.
+ */
 import { GuildConfig, PlanTier } from '../types/ping';
 
-/**
- * Límites y funciones por plan. Para mover algo de gratis a premium (o al revés),
- * se cambia aquí y nada más.
- */
+/** Límites y funciones de un plan. */
 export interface PlanLimits {
-  maxActivePings: number; // Pings abiertos/en ruta a la vez por servidor
-  maxContentTypes: number; // Plantillas de contenido por servidor (Discord permite 25 en un menú)
-  customBranding: boolean; // Nombre, siglas, lema y color propios en banner/embeds
-  hideBotFooter: boolean; // Quitar el "Creado con <bot>" de los pings
-  pointsRankingSize: number; // Puestos que muestra el ranking de puntos
-  /** Ranking por semana/mes, temporadas, ajustes manuales e historial completo */
+  /** Pings abiertos o en ruta a la vez por servidor. */
+  maxActivePings: number;
+  /** Plantillas de contenido por servidor. 25 es el máximo de opciones de un menú de Discord. */
+  maxContentTypes: number;
+  /** Nombre, siglas, lema, color y logo propios en el banner y los embeds. */
+  customBranding: boolean;
+  /** Quitar el pie "Creado con <bot>" de los pings. */
+  hideBotFooter: boolean;
+  /** Puestos que muestra el ranking de puntos. */
+  pointsRankingSize: number;
+  /** Ranking por semana y mes, temporadas, ajustes manuales e historial completo. */
   pointsPro: boolean;
 }
 
+/** Límites de cada plan. */
 export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   free: {
     maxActivePings: 3,
@@ -33,18 +40,18 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
   },
 };
 
-/** Nombre público del bot (se lee en cada llamada porque dotenv carga después de los imports). */
+/** Nombre público del bot. Se lee en cada llamada y no al cargar el módulo, por si el .env aún no se ha cargado. */
 export function botBrandName(): string {
   return process.env.BOT_BRAND_NAME || 'MassUp';
 }
 
-/** Suscripción de Discord vigente. */
+/** Indica si el servidor tiene una suscripción de Discord vigente. */
 export function hasActiveSubscription(config: GuildConfig, now = Date.now()): boolean {
   const s = config.subscription;
   return Boolean(s?.active && (!s.endsAt || s.endsAt > now));
 }
 
-/** Premium por tiempo (manual o código) vigente. */
+/** Indica si el servidor tiene Premium por tiempo vigente (manual, código o pago). */
 export function hasTimedPremium(config: GuildConfig, now = Date.now()): boolean {
   return config.plan === 'premium' && (!config.premiumUntil || config.premiumUntil > now);
 }
@@ -55,8 +62,8 @@ export function getEffectiveTier(config: GuildConfig, now = Date.now()): PlanTie
 }
 
 /**
- * Cuándo deja de ser Premium: null = no vence (de por vida o suscripción que se renueva),
- * undefined = ya es gratis.
+ * Cuándo deja de ser Premium, teniendo en cuenta todas las fuentes: el fin más lejano.
+ * @returns null si no vence (de por vida o suscripción que se renueva); undefined si ya es gratis.
  */
 export function premiumEndsAt(config: GuildConfig, now = Date.now()): number | null | undefined {
   const ends: Array<number | null> = [];
@@ -67,24 +74,26 @@ export function premiumEndsAt(config: GuildConfig, now = Date.now()): number | n
   return Math.max(...(ends as number[]));
 }
 
-/** Enlace a la tienda de Discord para comprar Premium (o null si no hay SKU configurado). */
+/** Enlace a la tienda de Discord para suscribirse a Premium, o null si no hay SKU configurado. */
 export function premiumStoreUrl(): string | null {
   const sku = premiumSkuId();
   const app = process.env.CLIENT_ID;
   return sku && app ? `https://discord.com/application-directory/${app}/store/${sku}` : null;
 }
 
-/**
- * Paquetes de Premium prepagado (Mercado Pago). Precio en pesos colombianos, sin decimales.
- * Se pueden cambiar con PREMIUM_PRICE_1M / _3M / _12M en el .env.
- */
+/** Paquete de Premium prepagado con Mercado Pago. */
 export interface PremiumPackage {
   id: '1m' | '3m' | '12m';
   label: string;
   days: number;
+  /** Precio en pesos colombianos, sin decimales. */
   priceCop: number;
 }
 
+/**
+ * Paquetes a la venta. Los precios se pueden cambiar con PREMIUM_PRICE_1M, _3M y _12M en el .env;
+ * un valor no entero o menor de 1000 se ignora y se usa el precio por defecto.
+ */
 export function premiumPackages(): PremiumPackage[] {
   const price = (env: string | undefined, fallback: number) => {
     const n = Number(env);
@@ -97,24 +106,26 @@ export function premiumPackages(): PremiumPackage[] {
   ];
 }
 
-/** SKU de la suscripción Premium de servidor (Developer Portal -> Monetización). */
+/** SKU de la suscripción Premium de servidor (Developer Portal > Monetización), o null si no hay o no es válido. */
 export function premiumSkuId(): string | null {
   const sku = process.env.PREMIUM_SKU_ID;
   return sku && /^\d{15,25}$/.test(sku) ? sku : null;
 }
 
+/** Límites del plan efectivo del servidor. */
 export function getLimits(config: GuildConfig): PlanLimits {
   return PLAN_LIMITS[getEffectiveTier(config)];
 }
 
+/** Mensaje que se muestra al intentar usar una función Premium en plan gratis. */
 export const PREMIUM_UPSELL = '💎 Esta función es **Premium**. Usa `/plan` para ver qué incluye.';
 
 const FREE_MOTTO = 'ARMEN PARTY • ANÓTENSE EN SU ROL';
 const FREE_EMBED_HEX = 0xd4af37;
 
 /**
- * Config "visual" para pintar pings: en plan gratis se ignoran siglas, lema y color personalizados.
- * El nombre del servidor sí se muestra en ambos planes.
+ * Copia de la config para dibujar pings: en plan gratis se ignoran las siglas, el lema, el color y
+ * el logo personalizados. El nombre del servidor se muestra en ambos planes. No modifica la config.
  */
 export function brandForRender(config: GuildConfig): GuildConfig {
   if (getLimits(config).customBranding) return config;
@@ -122,7 +133,7 @@ export function brandForRender(config: GuildConfig): GuildConfig {
     ...config,
     guildTag: '',
     motto: FREE_MOTTO,
-    customLogo: false, // en gratis se usa el icono del servidor
+    customLogo: false, // En gratis se usa el icono del servidor.
     colors: { ...config.colors, embedHex: FREE_EMBED_HEX },
   };
 }

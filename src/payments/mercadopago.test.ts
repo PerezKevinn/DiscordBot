@@ -1,3 +1,4 @@
+/** Tests del cliente de Mercado Pago: firma de los webhooks, estados y comprobación de la cuenta. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'crypto';
@@ -5,7 +6,7 @@ import { checkAccount, credentialsMismatch, isValidSignature, mapStatus, searchP
 
 const SECRET = 'clave-de-prueba';
 
-/** Firma como lo hace Mercado Pago: HMAC-SHA256 del manifiesto "id:..;request-id:..;ts:..;" */
+// Firma igual que Mercado Pago: HMAC-SHA256 del manifiesto "id:..;request-id:..;ts:..;".
 function sign(manifest: string, ts = '1731500000') {
   const v1 = crypto.createHmac('sha256', SECRET).update(manifest).digest('hex');
   return `ts=${ts},v1=${v1}`;

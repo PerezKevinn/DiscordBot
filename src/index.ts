@@ -1,4 +1,9 @@
+/**
+ * Punto de entrada del bot: carga el .env, registra los comandos, arranca las tareas periódicas
+ * (limpieza de pings, retención de datos, membresías) y el panel web, y conecta los eventos de Discord.
+ */
 import dotenv from 'dotenv';
+// Antes que el resto de imports: algunos módulos leen process.env al cargarse.
 dotenv.config({ quiet: true });
 
 import { Client, Events, GatewayIntentBits, OAuth2Scopes, PermissionFlagsBits, REST, Routes } from 'discord.js';
@@ -12,7 +17,7 @@ import { startMemberships } from './utils/memberships';
 import { startPanel } from './panel/server';
 import { installErrorHandlers, reportError, reportInfo } from './utils/alerts';
 
-/** Permisos mínimos que necesita el bot (nada de Administrador en un bot público). */
+// Permisos mínimos que necesita el bot (nada de Administrador en un bot público).
 const BOT_PERMISSIONS = [
   PermissionFlagsBits.ViewChannel,
   PermissionFlagsBits.SendMessages,
@@ -21,17 +26,16 @@ const BOT_PERMISSIONS = [
   PermissionFlagsBits.ReadMessageHistory,
   PermissionFlagsBits.CreatePublicThreads,
   PermissionFlagsBits.SendMessagesInThreads,
-  PermissionFlagsBits.ManageThreads, // Borrar el hilo del ping al terminar
-  PermissionFlagsBits.ManageChannels, // Crear/borrar las voces temporales
-  PermissionFlagsBits.MentionEveryone, // Mencionar roles no mencionables / @here si el Caller puede
+  PermissionFlagsBits.ManageThreads, // Borrar el hilo del ping al terminar.
+  PermissionFlagsBits.ManageChannels, // Crear y borrar las voces temporales.
+  PermissionFlagsBits.MentionEveryone, // Mencionar roles no mencionables y @here si el Caller puede.
 ];
 
-/**
- * Registro de comandos:
- * - Producción: comandos públicos globales (tardan hasta ~1h en aparecer la primera vez) y
- *   /plan-admin solo en GUILD_ID (tu servidor).
- * - DEV_MODE=true: todo solo en GUILD_ID (aparece al instante) y se limpian los globales para no ver duplicados.
- */
+// Registra los comandos de barra.
+// - Producción: los comandos públicos son globales (tardan hasta ~1 h en aparecer la primera vez)
+//   y /plan-admin se registra solo en GUILD_ID, el servidor del dueño.
+// - DEV_MODE=true: todo se registra solo en GUILD_ID, donde aparece al instante, y se vacían los
+//   globales para no ver los comandos duplicados.
 async function registerSlashCommands(token: string, clientId: string, ownerGuildId?: string) {
   const rest = new REST({ version: '10' }).setToken(token);
   const devMode = process.env.DEV_MODE === 'true';
@@ -64,7 +68,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Migrar la config antigua de un solo servidor (data/config.json) si existe
+  // Migra data/config.json de la versión de un solo servidor, si todavía existe.
   ConfigManager.migrateLegacy(ownerGuildId);
 
   console.log(`⚔️ Iniciando ${botBrandName()}...`);
@@ -74,7 +78,7 @@ async function main() {
 
   client.once(Events.ClientReady, async (readyClient) => {
     console.log(`✅ Conectado como ${readyClient.user.tag} en ${readyClient.guilds.cache.size} servidores.`);
-    // Un arranque inesperado en el canal de alertas suele indicar que el bot se cayó y pm2 lo reinició
+    // Se avisa en el canal de alertas: un arranque inesperado suele indicar que el bot se cayó y pm2 lo reinició.
     void reportInfo(`✅ **${botBrandName()}** en marcha como ${readyClient.user.tag} en ${readyClient.guilds.cache.size} servidores.`);
     const invite = readyClient.generateInvite({
       scopes: [OAuth2Scopes.Bot, OAuth2Scopes.ApplicationsCommands],
@@ -93,9 +97,9 @@ async function main() {
   });
 
   client.on(Events.GuildCreate, (guild) => {
-    // Si el bot vuelve antes del plazo de retención, se conservan sus datos
+    // Si el bot vuelve antes de que venza el plazo de retención, se conservan sus datos.
     ConfigManager.clearGuildLeft(guild.id);
-    // Crea la config por defecto del servidor nuevo
+    // getConfig crea la config por defecto si el servidor es nuevo.
     ConfigManager.syncGuildIcon(ConfigManager.getConfig(guild.id, guild.name), guild);
     console.log(`🎉 Añadido a ${guild.name} (${guild.id}). Total: ${client.guilds.cache.size}`);
   });
@@ -105,7 +109,7 @@ async function main() {
   });
 
   client.on(Events.GuildDelete, (guild) => {
-    // Un corte de Discord no es una expulsión: solo se marca si el servidor sigue disponible
+    // Con una caída de Discord llega GuildDelete con available=false: no es una expulsión.
     if (guild.available === false) return;
     ConfigManager.markGuildLeft(guild.id);
     console.log(`👋 Expulsado de ${guild.name ?? guild.id}. Total: ${client.guilds.cache.size}`);

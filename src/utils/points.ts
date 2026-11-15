@@ -1,48 +1,55 @@
+/**
+ * Puntos de actividad: al terminar una salida (GG), el Caller o un oficial reparte puntos a cada
+ * participante. Los puntos solo sirven para el ranking del servidor; no se canjean por nada.
+ *
+ * Se guardan por servidor en data/points/<guildId>.json:
+ *  - awards: un registro por actividad puntuada (su id es el del ping, así que se puede corregir)
+ *    y uno por cada ajuste manual (Premium).
+ *  - seasonStart: inicio de la temporada actual (Premium); el ranking 'total' cuenta desde ahí.
+ *  - base: totales de los registros antiguos ya compactados, para que el archivo no crezca sin límite.
+ */
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { ActivePing, GuildConfig, PointsSettings } from '../types/ping';
 import { getLimits } from './plans';
 
-/**
- * Puntos de actividad: al terminar una salida (GG), el Caller (o un oficial) reparte puntos
- * a cada participante. Los puntos solo sirven para el ranking del servidor; no se canjean.
- *
- * Se guardan por servidor en data/points/<guildId>.json:
- *  - awards: un registro por actividad puntuada (clave = id del ping, se puede corregir)
- *    y por cada ajuste manual (Premium).
- *  - seasonStart: inicio de la temporada actual (Premium); el ranking "total" cuenta desde ahí.
- *  - base: totales de registros antiguos ya compactados (para no crecer sin límite).
- */
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 const POINTS_DIR = path.join(process.cwd(), 'data', 'points');
-/** Registros detallados por servidor; los más antiguos se resumen en `base`. */
+// Registros detallados por servidor; los más antiguos se resumen en `base`.
 const MAX_AWARDS = 3000;
+/** Valor absoluto máximo de un ajuste manual. */
 export const MAX_ADJUST = 100_000;
 
+/** Ajustes de puntos de un servidor que nunca los ha cambiado. */
 export const DEFAULT_POINTS: PointsSettings = { enabled: true, defaultAward: 10, maxPerActivity: 100 };
 
+/** Periodo del ranking: 'total' es la temporada actual; los otros son ventanas móviles. */
 export type RankingPeriod = 'total' | 'month' | 'week';
+/** Nombre de cada periodo tal como se muestra en Discord y en el panel. */
 export const PERIOD_LABEL: Record<RankingPeriod, string> = {
   total: 'Temporada',
   month: 'Últimos 30 días',
   week: 'Últimos 7 días',
 };
 
+/** Puntos de un jugador dentro de un registro. */
 export interface PointsEntry {
   userId: string;
   name: string;
   points: number;
 }
 
+/** Registro de puntos: el reparto de una actividad o un ajuste manual. */
 export interface PointsAward {
-  id: string; // id del ping (actividad) o adj-<hex> (ajuste)
+  /** Id del ping si es una actividad; adj-<hex> si es un ajuste. */
+  id: string;
   kind: 'activity' | 'adjust';
   title: string;
   contentName?: string;
   callerId?: string;
-  by: string; // quien repartió o ajustó
+  /** Usuario que repartió o ajustó. */
+  by: string;
   at: number;
   updatedAt?: number;
   note?: string;
@@ -55,6 +62,7 @@ interface GuildPoints {
   base?: Record<string, { name: string; points: number; activities: number }>;
 }
 
+/** Error con un mensaje apto para mostrar al usuario tal cual. */
 export class PointsError extends Error {}
 
 const cache = new Map<string, GuildPoints>();
@@ -90,14 +98,14 @@ function save(guildId: string, data: GuildPoints) {
   fs.renameSync(tmp, file);
 }
 
-/** Resume los registros más antiguos en `base` cuando se pasa del máximo. */
+// Resume los registros más antiguos en `base` cuando se pasa del máximo.
 function compact(data: GuildPoints) {
   if (data.awards.length <= MAX_AWARDS) return;
   data.awards.sort((a, b) => a.at - b.at);
   const old = data.awards.splice(0, data.awards.length - MAX_AWARDS);
   data.base ||= {};
   for (const a of old) {
-    // Lo anterior a la temporada ya no cuenta para el ranking: no hace falta conservarlo
+    // Lo anterior a la temporada ya no cuenta para el ranking: no hace falta conservarlo.
     if (data.seasonStart && a.at < data.seasonStart) continue;
     for (const e of a.entries) {
       const b = (data.base[e.userId] ||= { name: e.name, points: 0, activities: 0 });
@@ -115,14 +123,20 @@ export function purgePoints(guildId: string) {
   if (fs.existsSync(file)) fs.unlinkSync(file);
 }
 
+/** Libera la caché de un servidor sin tocar el archivo. */
 export function evictPoints(guildId: string) {
   cache.delete(guildId);
 }
 
+/** Ajustes de puntos del servidor, completados con los valores por defecto. */
 export function pointsSettings(config: GuildConfig): PointsSettings {
   return { ...DEFAULT_POINTS, ...config.points };
 }
 
+/**
+ * Aplica un cambio parcial a los ajustes de puntos. No guarda la config: lo hace quien llama.
+ * El reparto por defecto se recorta para no superar el máximo por actividad.
+ */
 export function updatePointsSettings(config: GuildConfig, patch: Partial<PointsSettings>): PointsSettings {
   const next = { ...pointsSettings(config), ...patch };
   next.defaultAward = Math.min(next.defaultAward, next.maxPerActivity);
@@ -130,7 +144,7 @@ export function updatePointsSettings(config: GuildConfig, patch: Partial<PointsS
   return next;
 }
 
-/** Jugadores que participaron en un ping: anotados en un rol y en banca (no los que se bajaron). */
+/** Jugadores que participaron en un ping: los anotados en un rol y los de la banca, no los ausentes. */
 export function participantsOf(ping: ActivePing): Array<{ userId: string; name: string }> {
   const seen = new Map<string, string>();
   for (const list of Object.values(ping.roster)) for (const u of list) seen.set(u.userId, u.displayName || u.username);
@@ -138,11 +152,15 @@ export function participantsOf(ping: ActivePing): Array<{ userId: string; name: 
   return [...seen].map(([userId, name]) => ({ userId, name }));
 }
 
+/** Reparto ya guardado de una actividad, si lo hay. */
 export function getActivityAward(guildId: string, pingId: string): PointsAward | undefined {
   return load(guildId).awards.find((a) => a.kind === 'activity' && a.id === pingId);
 }
 
-/** Puntos propuestos para el editor: lo ya repartido o el valor por defecto para cada participante. */
+/**
+ * Puntos que se proponen en el editor: lo ya repartido si existe y, para cada participante que no
+ * esté, el valor por defecto (o 0 si se está corrigiendo un reparto anterior).
+ */
 export function proposedEntries(config: GuildConfig, ping: ActivePing): PointsEntry[] {
   const existing = getActivityAward(config.guildId, ping.id);
   const { defaultAward } = pointsSettings(config);
@@ -153,6 +171,7 @@ export function proposedEntries(config: GuildConfig, ping: ActivePing): PointsEn
   return out;
 }
 
+/** Lanza PointsError si en este ping no se pueden repartir puntos ahora. */
 export function assertCanAward(config: GuildConfig, ping: ActivePing) {
   if (!pointsSettings(config).enabled) throw new PointsError('Los puntos están desactivados en este servidor.');
   if (ping.status === 'CANCELLED') throw new PointsError('Esta salida se canceló: no da puntos.');
@@ -160,8 +179,10 @@ export function assertCanAward(config: GuildConfig, ping: ActivePing) {
 }
 
 /**
- * Guarda (o corrige) los puntos de una actividad. Los jugadores con 0 no se guardan;
- * si nadie recibe puntos, se borra el registro.
+ * Guarda o corrige los puntos de una actividad. Los jugadores con 0 no se guardan y, si nadie
+ * recibe puntos, se borra el registro. Los ids con formato inválido se descartan sin error.
+ *
+ * @returns El registro nuevo (null si se borró) y el anterior, para el log de cambios.
  */
 export function setActivityAward(config: GuildConfig, ping: ActivePing, entries: PointsEntry[], byUserId: string, now = Date.now()) {
   assertCanAward(config, ping);
@@ -190,7 +211,7 @@ export function setActivityAward(config: GuildConfig, ping: ActivePing, entries:
     contentName: ping.contentName,
     callerId: ping.callerId,
     by: byUserId,
-    // La fecha de la actividad es la del cierre: así una corrección no la mueve de semana
+    // La fecha es la del cierre de la actividad: así una corrección no la cambia de semana.
     at: previous?.at ?? ping.closedAt ?? now,
     updatedAt: previous ? now : undefined,
     entries: [...clean.values()].sort((a, b) => b.points - a.points),
@@ -242,6 +263,7 @@ export function startSeason(config: GuildConfig, now = Date.now()) {
   return now;
 }
 
+/** Inicio de la temporada actual, o null si nunca se ha empezado una. */
 export function seasonStart(guildId: string): number | null {
   return load(guildId).seasonStart ?? null;
 }
@@ -252,6 +274,7 @@ function periodFrom(guildId: string, period: RankingPeriod, now: number): number
   return load(guildId).seasonStart ?? 0;
 }
 
+/** Fila del ranking. */
 export interface RankingRow {
   userId: string;
   name: string;
@@ -260,7 +283,10 @@ export interface RankingRow {
   rank: number;
 }
 
-/** Ranking completo de un periodo, ordenado (empates comparten puesto). */
+/**
+ * Ranking completo de un periodo, ordenado por puntos y, a igualdad, por actividades y nombre.
+ * Los empates a puntos comparten puesto. Se muestra el nombre más reciente de cada jugador.
+ */
 export function ranking(guildId: string, period: RankingPeriod = 'total', now = Date.now()): RankingRow[] {
   const data = load(guildId);
   const from = periodFrom(guildId, period, now);
@@ -308,6 +334,7 @@ export function recentAwards(guildId: string, limit: number): PointsAward[] {
   return [...load(guildId).awards].sort((a, b) => b.at - a.at).slice(0, limit);
 }
 
+/** Número de registros detallados guardados (sin contar los compactados en `base`). */
 export function totalAwards(guildId: string): number {
   return load(guildId).awards.length;
 }

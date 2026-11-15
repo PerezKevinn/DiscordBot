@@ -1,5 +1,13 @@
+/**
+ * Tipos de las respuestas de la API del panel y utilidades de formato compartidas.
+ * Reflejan lo que serializa src/panel/server.ts, no los tipos internos del bot: si cambia una
+ * respuesta allí, hay que actualizarla aquí a mano.
+ */
+
+/** Hueco de equipo de una build. */
 export type ItemSlot = 'weapon' | 'offhand' | 'head' | 'armor' | 'shoes' | 'cape' | 'mount' | 'food' | 'potion';
 
+/** Ítem del catálogo (GET /api/items). */
 export interface CatalogItem {
   id: string;
   slot: ItemSlot;
@@ -9,19 +17,24 @@ export interface CatalogItem {
   tier?: number;
 }
 
+/** Build de un rol: id de ítem por hueco. */
 export type RoleBuild = Partial<Record<ItemSlot, string>>;
 
-/** Cambio de equipo para un momento concreto ("Boss"…): solo los huecos que cambian. */
+/** Cambio de equipo para un momento concreto (p. ej. "Boss"): solo los huecos que cambian. */
 export interface BuildSwap {
   label: string;
   build: RoleBuild;
 }
 
+/** Máximo de swaps por rol; tiene que coincidir con el del bot (src/types/ping.ts). */
 export const MAX_SWAPS_PER_ROLE = 3;
 
+/** Rol tal como lo edita el panel: el bot guarda nombre y armas juntos en una sola etiqueta. */
 export interface Role {
+  /** Sin valor en los roles nuevos; el servidor les asigna uno al guardar. */
   id?: string;
   name: string;
+  /** Armas sugeridas, en texto libre. */
   weapons: string;
   emoji: string;
   maxSlots: number;
@@ -30,6 +43,7 @@ export interface Role {
   swaps: BuildSwap[];
 }
 
+/** Plantilla de contenido. */
 export interface Content {
   id: string;
   name: string;
@@ -40,24 +54,26 @@ export interface Content {
   defaultMount: string;
   defaultZone: string;
   roles: Role[];
-  /** Tamaño fijo de la party; sin valor = suma de los cupos de los roles */
+  /** Tamaño fijo de la party; sin valor, la suma de los cupos de los roles. */
   partySize?: number | null;
   createVoice?: boolean;
   createThread?: boolean;
 }
 
+/** Usuario con sesión y los servidores que puede gestionar (GET /api/me). */
 export interface Me {
   user: { id: string; name: string; avatar: string | null; isOwner: boolean };
   guilds: Array<{ id: string; name: string; icon: string | null; botPresent: boolean; inviteUrl: string }>;
 }
 
+/** Todo lo que el panel necesita de un servidor (GET /api/guilds/:id y casi todas las escrituras). */
 export interface GuildData {
   guild: { id: string; name: string; icon: string | null };
   plan: {
     tier: 'free' | 'premium';
     limits: { maxActivePings: number; maxContentTypes: number; customBranding: boolean; hideBotFooter: boolean };
     premiumUntil: number | null;
-    /** Fin del Premium (null = no vence o gratis: mirar tier) */
+    /** Fin del Premium. null si no vence o si es gratis; se distingue con tier. */
     endsAt: number | null;
     timed: { source: 'manual' | 'code' | 'payment'; until: number | null } | null;
     subscription: { endsAt: number | null } | null;
@@ -93,6 +109,7 @@ export interface GuildData {
   }>;
 }
 
+/** Paquete de Premium a la venta. */
 export interface PremiumPackage {
   id: '1m' | '3m' | '12m';
   label: string;
@@ -100,6 +117,7 @@ export interface PremiumPackage {
   priceCop: number;
 }
 
+/** Orden de pago, tal como la ve la administración. */
 export interface PaymentOrder {
   invoice: string;
   guildId: string;
@@ -118,8 +136,10 @@ export interface PaymentOrder {
   paidAt?: number;
 }
 
+/** Formatea un importe en pesos colombianos: "$15.000 COP". */
 export const cop = (n: number) => `$${n.toLocaleString('es-CO')} COP`;
 
+/** Tipos de evento del historial de Premium; los textos están en EVENT_LABELS. */
 export type MembershipEventType =
   | 'payment'
   | 'payment_reversed'
@@ -132,6 +152,7 @@ export type MembershipEventType =
   | 'subscription_ended'
   | 'expired';
 
+/** Entrada del historial de Premium. */
 export interface MembershipEvent {
   at: number;
   guildId: string;
@@ -144,6 +165,7 @@ export interface MembershipEvent {
   note?: string;
 }
 
+/** Fila de un servidor en la administración. */
 export interface AdminGuild {
   id: string;
   name: string;
@@ -152,12 +174,14 @@ export interface AdminGuild {
   botPresent: boolean;
   joinedAt: number;
   tier: 'free' | 'premium';
+  /** null si no vence o si es gratis; se distingue con tier. */
   endsAt: number | null;
   lifetime: boolean;
   timed: { source: 'manual' | 'code' | 'payment'; until: number | null } | null;
   subscription: { active: boolean; endsAt: number | null; userId: string } | null;
 }
 
+/** Código canjeable, con su estado calculado por el servidor. */
 export interface RedeemCode {
   code: string;
   days: number | null;
@@ -171,6 +195,7 @@ export interface RedeemCode {
   status: 'active' | 'used' | 'expired' | 'disabled';
 }
 
+/** Respuesta de GET /api/admin/overview. */
 export interface AdminOverview {
   stats: { guilds: number; premium: number; subscriptions: number; timed: number; expiringSoon: number };
   skuConfigured: boolean;
@@ -180,6 +205,7 @@ export interface AdminOverview {
   payments: { enabled: boolean; test: boolean; orders: PaymentOrder[]; revenue30d: number };
 }
 
+/** Texto de cada tipo de evento del historial. */
 export const EVENT_LABELS: Record<MembershipEventType, string> = {
   grant: 'Premium concedido',
   extend: 'Días añadidos',
@@ -193,11 +219,13 @@ export const EVENT_LABELS: Record<MembershipEventType, string> = {
   payment_reversed: 'Pago reversado',
 };
 
+/** Fecha en formato local, opcionalmente con hora. Sin valor devuelve "—". */
 export function fmtDate(ms: number | null | undefined, withTime = false) {
   if (!ms) return '—';
   return new Date(ms).toLocaleString('es', withTime ? { dateStyle: 'medium', timeStyle: 'short' } : { dateStyle: 'medium' });
 }
 
+/** Huecos de la build en el orden en que se muestran, como en el juego. */
 export const BUILD_SLOTS: Array<{ slot: ItemSlot; label: string }> = [
   { slot: 'weapon', label: 'Arma' },
   { slot: 'offhand', label: 'Mano secundaria' },
@@ -210,27 +238,34 @@ export const BUILD_SLOTS: Array<{ slot: ItemSlot; label: string }> = [
   { slot: 'mount', label: 'Montura' },
 ];
 
+/** URL del icono oficial de un ítem (servicio de render de Albion Online). */
 export function iconUrl(item: CatalogItem, size = 64) {
   return `https://render.albiononline.com/v1/item/${encodeURIComponent(item.icon)}.png?size=${size}`;
 }
 
 // ---------- Puntos ----------
+
+/** Periodo del ranking: 'total' es la temporada actual. */
 export type RankingPeriod = 'total' | 'month' | 'week';
 
+/** Nombre de cada periodo; coincide con los del bot. */
 export const PERIOD_LABEL: Record<RankingPeriod, string> = {
   total: 'Temporada',
   month: 'Últimos 30 días',
   week: 'Últimos 7 días',
 };
 
+/** Puntos de un jugador dentro de un registro. */
 export interface PointsEntry {
   userId: string;
   name: string;
   points: number;
 }
 
+/** Respuesta de GET /api/guilds/:id/points y de las escrituras de puntos. */
 export interface PointsData {
   settings: { enabled: boolean; defaultAward: number; maxPerActivity: number };
+  /** El servidor tiene las funciones de puntos Premium. */
   pro: boolean;
   rankingSize: number;
   period: RankingPeriod;
@@ -249,6 +284,7 @@ export interface PointsData {
     total: number;
     entries: PointsEntry[];
   }>;
+  /** Salidas cerradas que siguen guardadas; awarded es null si aún no se repartieron puntos. */
   pending: Array<{
     pingId: string;
     title: string;
@@ -260,9 +296,11 @@ export interface PointsData {
   }>;
 }
 
+/** Datos para el editor de reparto de una salida. */
 export interface PointsEditor {
   pingId: string;
   title: string;
+  /** Máximo por jugador (maxPerActivity del servidor). */
   max: number;
   entries: PointsEntry[];
 }

@@ -1,3 +1,13 @@
+/**
+ * Membresías Premium. Un servidor es Premium si tiene vigente cualquiera de estas fuentes:
+ *  - Suscripción de Discord (entitlement del SKU PREMIUM_SKU_ID): Discord cobra y renueva.
+ *  - Premium por tiempo: concedido a mano por el dueño (panel o /plan-admin), por un código
+ *    canjeado o por un paquete pagado con Mercado Pago.
+ * Las fuentes no se pisan: cancelar la suscripción no borra los días canjeados, y al revés.
+ *
+ * Todo cambio queda en el historial de data/memberships.json, junto con los códigos y las órdenes.
+ * Este módulo también envía los avisos de vencimiento.
+ */
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -17,68 +27,71 @@ import { panelUrl } from './panelLink';
 import { reportError } from './alerts';
 import { botBrandName, getEffectiveTier, hasActiveSubscription, hasTimedPremium, premiumEndsAt, premiumSkuId, premiumStoreUrl } from './plans';
 
-/**
- * Membresías Premium. Un servidor es Premium si tiene CUALQUIERA de estas fuentes vigente:
- *  - Suscripción de Discord (entitlement del SKU PREMIUM_SKU_ID): Discord cobra y renueva.
- *  - Tiempo concedido: a mano por el dueño (panel o /plan-admin) o canjeando un código.
- * Las fuentes no se pisan: cancelar la suscripción no borra los días canjeados y al revés.
- *
- * Todo cambio queda en el historial (data/memberships.json), junto con los códigos.
- */
-
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STORE_PATH = path.join(process.cwd(), 'data', 'memberships.json');
 const MAX_HISTORY = 5000;
-/** El historial de Premium se guarda 2 años (lo indica la política de privacidad). */
+// El historial de Premium se guarda 2 años: es lo que dice la política de privacidad.
 const HISTORY_RETENTION_MS = 2 * 365 * DAY_MS;
 const WARN_BEFORE_MS = 3 * DAY_MS;
 const CHECK_EVERY_MS = 60 * 60 * 1000;
 
+/** Tipos de evento del historial de Premium. */
 export type MembershipEventType =
-  | 'grant' // el dueño fija Premium (N días o de por vida)
-  | 'extend' // el dueño suma días
-  | 'revoke' // el dueño lo quita
+  | 'grant' // El dueño fija el Premium (N días o de por vida).
+  | 'extend' // El dueño suma días.
+  | 'revoke' // El dueño lo quita.
   | 'code_redeemed'
   | 'subscription_started'
   | 'subscription_updated'
   | 'subscription_ended'
-  | 'expired' // se acabó el tiempo concedido
-  | 'payment' // pago aprobado (Mercado Pago; antes ePayco)
-  | 'payment_reversed'; // pago reversado: se descuentan sus días
+  | 'expired' // Se acabó el Premium por tiempo.
+  | 'payment' // Pago aprobado (Mercado Pago; antes, ePayco).
+  | 'payment_reversed'; // Pago reembolsado o con contracargo: se descuentan sus días.
 
+/** Entrada del historial de Premium. */
 export interface MembershipEvent {
   at: number;
   guildId: string;
   guildName?: string;
   type: MembershipEventType;
-  actorId?: string; // usuario que lo hizo (dueño, quien canjea o quien paga)
-  days?: number | null; // null = de por vida
-  until?: number | null; // fin resultante del Premium por tiempo (null = de por vida)
+  /** Usuario que lo hizo: el dueño, quien canjea o quien paga. */
+  actorId?: string;
+  /** Días concedidos; null significa de por vida. */
+  days?: number | null;
+  /** Fin resultante del Premium por tiempo; null significa de por vida. */
+  until?: number | null;
   code?: string;
   note?: string;
 }
 
+/** Código canjeable por Premium. */
 export interface RedeemCode {
   code: string;
-  days: number | null; // null = de por vida
+  /** Días que da; null significa de por vida. */
+  days: number | null;
   maxUses: number;
   uses: Array<{ guildId: string; guildName?: string; userId: string; at: number }>;
   createdAt: number;
   createdBy: string;
-  expiresAt?: number; // el código deja de servir (no el Premium)
+  /** Fecha a partir de la cual el código ya no se puede canjear (no afecta al Premium ya dado). */
+  expiresAt?: number;
   note?: string;
   disabled?: boolean;
 }
 
+/** Estado de una orden de pago. Solo 'reversed' es final (ver settleOrder). */
 export type OrderStatus = 'created' | 'pending' | 'paid' | 'rejected' | 'reversed';
 
-/** Compra de un paquete de Premium. Solo guardamos lo necesario: nada de datos del pagador. */
+/** Compra de un paquete de Premium. No se guarda ningún dato del pagador. */
 export interface PaymentOrder {
-  invoice: string; // nuestra referencia (external_reference en Mercado Pago)
-  provider?: 'mercadopago' | 'epayco'; // sin valor = orden antigua de ePayco
+  /** Número de orden propio; es el external_reference en Mercado Pago. */
+  invoice: string;
+  /** Sin valor: orden antigua de ePayco. */
+  provider?: 'mercadopago' | 'epayco';
   guildId: string;
   guildName?: string;
-  userId: string; // quien inició el pago en el panel
+  /** Usuario que inició el pago en el panel. */
+  userId: string;
   packageId: string;
   days: number;
   amount: number;
@@ -87,7 +100,8 @@ export interface PaymentOrder {
   test: boolean;
   createdAt: number;
   updatedAt: number;
-  paymentRef?: string; // id del pago en la pasarela (antes refPayco)
+  /** Id del pago en la pasarela. Antes se llamaba refPayco; load() migra el nombre. */
+  paymentRef?: string;
   transactionId?: string;
   paidAt?: number;
 }
@@ -98,6 +112,7 @@ interface Store {
   orders: Record<string, PaymentOrder>;
 }
 
+/** Error con un mensaje apto para mostrar al usuario tal cual. */
 export class MembershipError extends Error {}
 
 // ---------- Almacenamiento ----------
@@ -108,22 +123,23 @@ function load(): Store {
   try {
     const raw = JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8')) as Partial<Store>;
     store = { codes: raw.codes ?? {}, history: raw.history ?? [], orders: raw.orders ?? {} };
-    // Órdenes de ePayco guardadas con el nombre de campo antiguo
+    // Órdenes de ePayco guardadas con el nombre de campo antiguo.
     for (const o of Object.values(store.orders) as Array<PaymentOrder & { refPayco?: string }>) {
       if (o.refPayco && !o.paymentRef) o.paymentRef = o.refPayco;
       delete o.refPayco;
     }
   } catch {
-    store = { codes: {}, history: [], orders: {} };
+    store = { codes: {}, history: [], orders: {} }; // Primer arranque o archivo ilegible.
   }
   return store;
 }
 
+// Recorta historial y órdenes antes de guardar, para que el archivo no crezca sin límite.
 function persist() {
   const s = load();
   const cutoff = Date.now() - HISTORY_RETENTION_MS;
   s.history = s.history.filter((e) => e.at >= cutoff).slice(-MAX_HISTORY);
-  // Órdenes que nunca se pagaron: fuera a los 7 días. Las pagadas, como el historial.
+  // Las órdenes que nunca se pagaron se borran a los 7 días; el resto, con el mismo plazo que el historial.
   for (const [k, o] of Object.entries(s.orders)) {
     const stale = o.status === 'created' && Date.now() - o.createdAt > 7 * DAY_MS;
     if (stale || o.updatedAt < cutoff) delete s.orders[k];
@@ -139,13 +155,14 @@ function log(event: Omit<MembershipEvent, 'at'> & { at?: number }) {
   persist();
 }
 
+/** Historial de Premium, del evento más reciente al más antiguo. Por defecto, los últimos 200. */
 export function getHistory(opts: { guildId?: string; limit?: number } = {}): MembershipEvent[] {
   const all = load().history;
   const filtered = opts.guildId ? all.filter((e) => e.guildId === opts.guildId) : all;
   return filtered.slice(-(opts.limit ?? 200)).reverse();
 }
 
-// ---------- Premium por tiempo (manual) ----------
+// ---------- Premium por tiempo concedido a mano ----------
 
 /** Fija el Premium por tiempo: N días desde hoy, o de por vida si days es null. */
 export function grantPremium(config: GuildConfig, days: number | null, actorId: string, note?: string): GuildConfig {
@@ -167,7 +184,7 @@ export function extendPremium(config: GuildConfig, days: number, actorId: string
   return config;
 }
 
-/** Quita el Premium por tiempo. La suscripción de Discord (si hay) solo la cancela quien paga. */
+/** Quita el Premium por tiempo. La suscripción de Discord, si la hay, solo la puede cancelar quien paga. */
 export function revokePremium(config: GuildConfig, actorId: string, note?: string): GuildConfig {
   config.plan = 'free';
   config.premiumUntil = undefined;
@@ -177,6 +194,7 @@ export function revokePremium(config: GuildConfig, actorId: string, note?: strin
   return config;
 }
 
+// Suma días desde el fin actual si sigue vigente, o desde ahora. No guarda la config.
 function addDays(config: GuildConfig, days: number) {
   if (hasTimedPremium(config) && !config.premiumUntil) {
     throw new MembershipError('Este servidor ya tiene Premium de por vida.');
@@ -188,7 +206,7 @@ function addDays(config: GuildConfig, days: number) {
 }
 
 // ---------- Códigos canjeables ----------
-const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sin 0/O ni 1/I
+const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Sin 0/O ni 1/I, que se confunden al copiarlos.
 
 function randomCode(): string {
   const bytes = crypto.randomBytes(8);
@@ -196,12 +214,17 @@ function randomCode(): string {
   return `MASS-${chars.slice(0, 4)}-${chars.slice(4)}`;
 }
 
+/**
+ * Normaliza lo que escribe el usuario al formato MASS-XXXX-XXXX: acepta minúsculas, sin guiones
+ * o sin el prefijo. Si no tiene 8 caracteres, lo devuelve en mayúsculas para que falle la búsqueda.
+ */
 export function normalizeCode(input: string): string {
   const clean = input.toUpperCase().replace(/[^A-Z0-9]/g, '');
   const body = clean.startsWith('MASS') ? clean.slice(4) : clean;
   return body.length === 8 ? `MASS-${body.slice(0, 4)}-${body.slice(4)}` : input.trim().toUpperCase();
 }
 
+/** Crea `count` códigos con las mismas condiciones y los guarda. */
 export function createCodes(opts: {
   days: number | null;
   maxUses: number;
@@ -232,10 +255,12 @@ export function createCodes(opts: {
   return created;
 }
 
+/** Todos los códigos, del más reciente al más antiguo. */
 export function listCodes(): RedeemCode[] {
   return Object.values(load().codes).sort((a, b) => b.createdAt - a.createdAt);
 }
 
+/** Activa o desactiva un código. Lanza MembershipError si no existe. */
 export function setCodeDisabled(code: string, disabled: boolean): RedeemCode {
   const entry = load().codes[code];
   if (!entry) throw new MembershipError('Código no encontrado.');
@@ -244,6 +269,7 @@ export function setCodeDisabled(code: string, disabled: boolean): RedeemCode {
   return entry;
 }
 
+/** Borra un código sin usar. Los usados no se borran para no perder su rastro en el historial. */
 export function deleteCode(code: string): void {
   const s = load();
   if (!s.codes[code]) throw new MembershipError('Código no encontrado.');
@@ -252,6 +278,7 @@ export function deleteCode(code: string): void {
   persist();
 }
 
+/** Estado de un código. Si se cumplen varios, manda el primero de: desactivado, agotado, caducado. */
 export function codeStatus(c: RedeemCode, now = Date.now()): 'active' | 'used' | 'expired' | 'disabled' {
   if (c.disabled) return 'disabled';
   if (c.uses.length >= c.maxUses) return 'used';
@@ -259,9 +286,13 @@ export function codeStatus(c: RedeemCode, now = Date.now()): 'active' | 'used' |
   return 'active';
 }
 
-// Freno contra probar códigos al azar: 5 fallos cada 15 min por usuario
+// Freno contra probar códigos al azar: 5 fallos cada 15 min por usuario.
 const failedAttempts = new Map<string, { count: number; resetAt: number }>();
 
+/**
+ * Canjea un código para el servidor y guarda la config. Lanza MembershipError con el motivo si no
+ * se puede; los fallos cuentan para el límite de intentos del usuario.
+ */
 export function redeemCode(input: string, config: GuildConfig, userId: string): { days: number | null; until: number | null } {
   const now = Date.now();
   const fails = failedAttempts.get(userId);
@@ -289,7 +320,7 @@ export function redeemCode(input: string, config: GuildConfig, userId: string): 
     config.premiumUntil = undefined;
     config.notices = {};
   } else {
-    addDays(config, entry.days); // lanza si ya es de por vida
+    addDays(config, entry.days); // Lanza si ya es de por vida.
   }
   config.premiumSource = 'code';
   entry.uses.push({ guildId: config.guildId, guildName: config.guildName, userId, at: now });
@@ -309,6 +340,7 @@ export function redeemCode(input: string, config: GuildConfig, userId: string): 
 
 // ---------- Pagos (paquetes prepagados) ----------
 
+/** Crea una orden en estado 'created' con un número de orden único (MU-XXXXXXXXXXXX). */
 export function createOrder(o: Omit<PaymentOrder, 'invoice' | 'status' | 'createdAt' | 'updatedAt'>): PaymentOrder {
   const s = load();
   let invoice = `MU-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
@@ -320,10 +352,12 @@ export function createOrder(o: Omit<PaymentOrder, 'invoice' | 'status' | 'create
   return order;
 }
 
+/** Busca una orden por su número. */
 export function getOrder(invoice: string): PaymentOrder | undefined {
   return load().orders[invoice];
 }
 
+/** Órdenes de la más reciente a la más antigua, opcionalmente de un solo servidor. Por defecto, 100. */
 export function listOrders(opts: { guildId?: string; limit?: number } = {}): PaymentOrder[] {
   return Object.values(load().orders)
     .filter((o) => !opts.guildId || o.guildId === opts.guildId)
@@ -334,11 +368,13 @@ export function listOrders(opts: { guildId?: string; limit?: number } = {}): Pay
 const money = (n: number) => `$${n.toLocaleString('es-CO')} COP`;
 
 /**
- * Aplica el estado que confirma la pasarela a una orden. Idempotente: la pasarela reintenta
+ * Aplica a una orden el estado que confirma la pasarela. Es idempotente: la pasarela reintenta
  * los avisos y un mismo pago nunca suma días dos veces.
  *
- * Con Mercado Pago una misma orden puede tener varios intentos de pago (p. ej. una tarjeta
- * rechazada y luego un pago aprobado), así que "rechazado" no es final.
+ * Con Mercado Pago una orden puede tener varios intentos de pago (p. ej. una tarjeta rechazada
+ * y luego otra aprobada), así que 'rejected' no es un estado final.
+ *
+ * @returns La orden y si cambió de estado.
  */
 export function settleOrder(
   invoice: string,
@@ -351,11 +387,12 @@ export function settleOrder(
   const otherPayment = Boolean(ref.paymentRef && order.paymentRef && ref.paymentRef !== order.paymentRef);
 
   if (prev === 'paid' && next === 'paid' && otherPayment) {
-    // El usuario pagó dos veces la misma orden: los días se dieron una sola vez
+    // El usuario pagó dos veces la misma orden: los días ya se dieron una vez y no se repiten.
     console.warn(`[Pagos] ${invoice}: segundo pago aprobado (${ref.paymentRef}); ya estaba pagada con ${order.paymentRef}. Revisar y reembolsar a mano.`);
     return { order, changed: false };
   }
-  // Un pagado solo pasa a reversado, y solo si es ese mismo pago; reversado es final
+  // Transiciones permitidas. Una orden pagada solo pasa a 'reversed', y solo por ese mismo pago;
+  // 'reversed' es final.
   const allowed =
     prev === 'created' || prev === 'pending'
       ? true
@@ -375,7 +412,7 @@ export function settleOrder(
   if (next === 'paid') {
     order.paidAt = Date.now();
     if (hasTimedPremium(config) && !config.premiumUntil) {
-      // Ya era de por vida: el pago se registra pero no hay días que sumar
+      // Ya era de por vida: el pago se registra pero no hay días que sumar.
       log({ guildId: order.guildId, guildName: config.guildName, type: 'payment', actorId: order.userId, days: order.days, until: null, note: `${money(order.amount)} · ref ${order.paymentRef ?? '?'} · ya tenía Premium de por vida` });
     } else {
       addDays(config, order.days);
@@ -408,7 +445,8 @@ function isPremiumEntitlement(e: Entitlement): e is Entitlement & { guildId: str
 
 /**
  * Aplica un entitlement de Discord a la config del servidor.
- * Devuelve el tipo de evento registrado (o null si no cambió nada relevante).
+ * @param removed true cuando llega por EntitlementDelete.
+ * @returns El tipo de evento registrado, o null si no cambió nada relevante.
  */
 export function applyEntitlement(client: Client, e: Entitlement, removed = false): MembershipEventType | null {
   if (!isPremiumEntitlement(e)) return null;
@@ -425,7 +463,7 @@ export function applyEntitlement(client: Client, e: Entitlement, removed = false
     updatedAt: Date.now(),
   };
 
-  // Otro entitlement ya inactivo no debe pisar una suscripción vigente distinta
+  // Un entitlement inactivo distinto del vigente (p. ej. una suscripción anterior) no debe pisarlo.
   if (!active && prev?.active && prev.entitlementId !== e.id) return null;
 
   const same = prev && prev.entitlementId === next.entitlementId && prev.active === next.active && prev.endsAt === next.endsAt;
@@ -451,7 +489,10 @@ export function applyEntitlement(client: Client, e: Entitlement, removed = false
   return type;
 }
 
-/** Descarga de Discord todas las suscripciones vigentes y corrige las guardadas. */
+/**
+ * Descarga de Discord todas las suscripciones vigentes y corrige las guardadas, incluidas las
+ * que terminaron con el bot apagado.
+ */
 export async function syncEntitlements(client: Client): Promise<{ active: number; ended: number }> {
   const sku = premiumSkuId();
   if (!sku || !client.application) return { active: 0, ended: 0 };
@@ -465,10 +506,11 @@ export async function syncEntitlements(client: Client): Promise<{ active: number
       applyEntitlement(client, e);
     }
     if (batch.size < 100) break;
+    // Los ids son snowflakes: se comparan como BigInt para paginar desde el más alto.
     after = [...batch.keys()].sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1)).pop();
   }
 
-  // Las guardadas como activas que Discord ya no devuelve: terminaron mientras el bot estaba apagado
+  // Las guardadas como activas que Discord ya no devuelve terminaron mientras el bot estaba apagado.
   let ended = 0;
   for (const guildId of ConfigManager.listStoredGuildIds()) {
     const stored = ConfigManager.peekConfig(guildId);
@@ -498,7 +540,7 @@ function noticeComponents(guildId: string) {
   return row.components.length ? [row] : [];
 }
 
-/** Avisa al dueño del servidor por MD; si no se puede, en el canal de pings o el de sistema. */
+// Avisa al dueño del servidor por MD; si no se puede, en el canal de pings o el de sistema.
 async function notifyGuild(client: Client, guildId: string, embed: EmbedBuilder) {
   const guild = client.guilds.cache.get(guildId);
   if (!guild) return;
@@ -508,7 +550,7 @@ async function notifyGuild(client: Client, guildId: string, embed: EmbedBuilder)
     await owner.send(payload);
     return;
   } catch {
-    // MD cerrados: probamos en el servidor
+    // MD cerrados: se intenta en el servidor.
   }
   const config = ConfigManager.getConfig(guildId);
   const me = guild.members.me;
@@ -519,7 +561,7 @@ async function notifyGuild(client: Client, guildId: string, embed: EmbedBuilder)
       await channel.send(payload);
       return;
     } catch {
-      // siguiente opción
+      // Se prueba con el siguiente canal.
     }
   }
 }
@@ -533,8 +575,9 @@ function noticeEmbed(config: GuildConfig, title: string, text: string) {
 }
 
 /**
- * Revisa vencimientos de todos los servidores donde está el bot:
- * avisa 3 días antes y cuando vuelven a gratis, y limpia el Premium por tiempo vencido.
+ * Revisa los vencimientos de todos los servidores donde está el bot: avisa 3 días antes y cuando
+ * vuelven a gratis, y limpia el Premium por tiempo vencido. Cada aviso se envía una sola vez por
+ * fecha de fin (config.notices).
  */
 export async function checkExpirations(client: Client, now = Date.now()) {
   for (const guild of client.guilds.cache.values()) {
@@ -542,7 +585,7 @@ export async function checkExpirations(client: Client, now = Date.now()) {
     config.notices ||= {};
     let changed = false;
 
-    // 1. Se acabó el tiempo concedido
+    // 1. Se acabó el Premium por tiempo.
     if (config.plan === 'premium' && config.premiumUntil && config.premiumUntil <= now) {
       const endedAt = config.premiumUntil;
       config.plan = 'free';
@@ -560,7 +603,7 @@ export async function checkExpirations(client: Client, now = Date.now()) {
       }
     }
 
-    // 2. La suscripción cancelada llegó a su fin
+    // 2. La suscripción cancelada llegó a su fin.
     const sub = config.subscription;
     if (sub?.active && sub.endsAt && sub.endsAt <= now) {
       config.subscription = { ...sub, active: false, updatedAt: now };
@@ -572,7 +615,7 @@ export async function checkExpirations(client: Client, now = Date.now()) {
       }
     }
 
-    // 3. Aviso previo
+    // 3. Aviso previo al vencimiento.
     const endsAt = premiumEndsAt(config, now);
     if (endsAt && endsAt - now <= WARN_BEFORE_MS && config.notices.warnedFor !== endsAt) {
       config.notices.warnedFor = endsAt;
@@ -592,6 +635,10 @@ export async function checkExpirations(client: Client, now = Date.now()) {
   }
 }
 
+/**
+ * Escucha los eventos de entitlements, sincroniza al arrancar y programa la revisión de
+ * vencimientos (cada hora) y la resincronización con Discord (cada 12 h).
+ */
 export function startMemberships(client: Client) {
   client.on(Events.EntitlementCreate, (e) => void applyEntitlement(client, e));
   client.on(Events.EntitlementUpdate, (_old, e) => void applyEntitlement(client, e));
@@ -612,6 +659,6 @@ export function startMemberships(client: Client) {
   };
   void run();
   setInterval(() => void checkExpirations(client).catch((err) => void reportError('Revisar vencimientos de Premium', err)), CHECK_EVERY_MS).unref();
-  // Resincroniza con Discord cada 12 h por si se perdió algún evento
+  // Por si se perdió algún evento de entitlement con el bot conectado.
   setInterval(() => void syncEntitlements(client).catch(() => null), 12 * CHECK_EVERY_MS).unref();
 }

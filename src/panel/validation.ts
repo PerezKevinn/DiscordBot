@@ -1,3 +1,9 @@
+/**
+ * Esquemas Zod de los cuerpos que acepta la API del panel. Nada de lo que llega del navegador se
+ * guarda sin pasar por aquí: largos máximos, emojis válidos, ids con formato correcto e ítems que
+ * existen en el catálogo y van en su hueco. Cada esquema se llama como el recurso que valida en
+ * src/panel/server.ts.
+ */
 import { z } from 'zod';
 import { getItem, ItemSlot } from '../data/items';
 import { sanitizeEmoji } from '../handlers/compoEditor';
@@ -6,19 +12,17 @@ import { composeRoleLabel } from '../utils/ui';
 import { ContentTypeConfig, MAX_SWAPS_PER_ROLE, RoleBuild, RoleTemplate } from '../types/ping';
 import { MAX_PARTY_SIZE } from '../utils/party';
 
-/**
- * Esquemas de lo que acepta el panel. Nada de lo que llega del navegador se guarda
- * sin pasar por aquí: largos máximos, emojis válidos, IDs con formato correcto e ítems
- * que existen en el catálogo y van en su hueco.
- */
-
+/** Id de Discord (snowflake). */
 export const snowflake = z.string().regex(/^\d{15,25}$/);
 const optionalSnowflake = snowflake.nullable().optional();
+// Admite el doble del largo antes de limpiar, porque cleanUserText quita caracteres invisibles y
+// reescribe enlaces; el recorte final a `max` lo hace cleanUserText.
 const text = (max: number) => z.string().max(max * 2).transform((s) => cleanUserText(s, max));
 const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 
 const SLOTS = ['weapon', 'offhand', 'head', 'armor', 'shoes', 'cape', 'mount', 'food', 'potion'] as const;
 
+// Cada hueco admite solo ítems del catálogo que correspondan a ese hueco.
 const buildSchema = z
   .object(Object.fromEntries(SLOTS.map((s) => [s, z.string().max(60).nullable().optional()])) as Record<
     (typeof SLOTS)[number],
@@ -55,6 +59,7 @@ const roleSchema = z.object({
     .default([]),
 });
 
+/** Plantilla de contenido (POST y PUT de /contents). */
 export const contentSchema = z.object({
   name: text(60).refine((s) => s.length > 0, 'El contenido necesita nombre'),
   emoji: z.string().max(64).transform((e) => sanitizeEmoji(e)),
@@ -64,14 +69,16 @@ export const contentSchema = z.object({
   defaultMount: text(100),
   defaultZone: text(100),
   roles: z.array(roleSchema).min(1).max(20),
-  /** Tamaño fijo de la party; null o sin valor = suma de los cupos de los roles */
+  /** Tamaño fijo de la party; null o sin valor significa la suma de los cupos de los roles. */
   partySize: z.number().int().min(1).max(MAX_PARTY_SIZE).nullable().optional(),
   createVoice: z.boolean().optional().default(true),
   createThread: z.boolean().optional().default(true),
 });
 
+/** Plantilla de contenido ya validada y limpiada. */
 export type ContentInput = z.infer<typeof contentSchema>;
 
+// Id estable a partir del nombre (r_tanque, r_tanque_2…), sin repetir dentro de la misma plantilla.
 function newRoleId(name: string, used: Set<string>): string {
   const slug = name.toLowerCase().normalize('NFD').replace(/[^a-z0-9]/g, '').slice(0, 12) || 'rol';
   let id = `r_${slug}`;
@@ -80,13 +87,16 @@ function newRoleId(name: string, used: Set<string>): string {
   return id;
 }
 
-/** Convierte lo que envía el panel en una plantilla del bot. */
+/**
+ * Convierte lo que envía el panel en una plantilla del bot. Conserva los ids de rol que envía el
+ * panel y genera uno nuevo si falta o está repetido.
+ */
 export function toContentType(id: string, input: ContentInput): ContentTypeConfig {
   const used = new Set<string>();
   const roles: RoleTemplate[] = input.roles.map((r) => {
     const roleId = r.id && !used.has(r.id) ? (used.add(r.id), r.id) : newRoleId(r.name, used);
     const build = r.build && Object.keys(r.build).length > 0 ? r.build : undefined;
-    // Un swap sin ningún ítem no sirve; sin nombre se llama "Swap N"
+    // Un swap sin ningún ítem no sirve; si no tiene nombre se llama "Swap N".
     const swaps = (r.swaps ?? [])
       .filter((s) => Object.keys(s.build).length > 0)
       .map((s, i) => ({ label: s.label.trim() || `Swap ${i + 1}`, build: s.build }));
@@ -116,6 +126,7 @@ export function toContentType(id: string, input: ContentInput): ContentTypeConfi
   };
 }
 
+/** Ajustes del servidor (PATCH /settings). null borra el valor. */
 export const settingsSchema = z.object({
   callerRoleId: optionalSnowflake,
   defaultPingRoleId: optionalSnowflake,
@@ -124,6 +135,7 @@ export const settingsSchema = z.object({
   pingRoles: z.record(z.string().regex(/^[a-zA-Z0-9_-]{1,60}$/), snowflake.nullable()).optional(),
 });
 
+/** Marca del servidor (PATCH /branding, Premium). */
 export const brandingSchema = z.object({
   guildName: text(40).optional(),
   guildTag: text(8).optional(),
@@ -131,14 +143,16 @@ export const brandingSchema = z.object({
   color: hexColor.optional(),
 });
 
+/** Logo subido como data URL (PUT /logo). */
 export const logoSchema = z.object({
-  // data:image/png;base64,....  (máx. ~4 MB de imagen)
+  // 6 MB de base64 son unos 4,5 MB de imagen; el límite real (4 MB) lo aplica utils/logo.ts.
   dataUrl: z
     .string()
     .max(6 * 1024 * 1024)
     .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
 });
 
+/** Cierre de un ping desde el panel: GG o cancelación. */
 export const closePingSchema = z.object({ status: z.enum(['CLOSED', 'CANCELLED']) });
 
 /** Formatea el primer error de validación en español para mostrarlo en el panel. */
@@ -148,17 +162,21 @@ export function firstIssue(err: z.ZodError): string {
 }
 
 // ---------- Membresías ----------
+
+/** Canje de un código; normalizeCode se encarga del formato. */
 export const redeemSchema = z.object({ code: z.string().min(8).max(32) });
 
 const days = z.number().int().min(1).max(3650);
 const note = z.string().max(200).optional().transform((s) => (s ? cleanUserText(s, 120) : undefined));
 
+/** Cambio manual de Premium desde la administración. */
 export const adminPlanSchema = z.discriminatedUnion('action', [
-  z.object({ action: z.literal('grant'), days: days.nullable(), note }), // null = de por vida
+  z.object({ action: z.literal('grant'), days: days.nullable(), note }), // null: de por vida.
   z.object({ action: z.literal('extend'), days, note }),
   z.object({ action: z.literal('revoke'), note }),
 ]);
 
+/** Creación de códigos desde la administración. */
 export const createCodesSchema = z.object({
   days: days.nullable(),
   maxUses: z.number().int().min(1).max(1000),
@@ -167,11 +185,15 @@ export const createCodesSchema = z.object({
   note,
 });
 
+/** Activar o desactivar un código. */
 export const codeUpdateSchema = z.object({ disabled: z.boolean() });
 
+/** Compra de un paquete de Premium; los ids salen de premiumPackages(). */
 export const checkoutSchema = z.object({ packageId: z.enum(['1m', '3m', '12m']) });
 
 // ---------- Puntos ----------
+
+/** Cambio parcial de los ajustes de puntos. strict() rechaza campos desconocidos. */
 export const pointsSettingsSchema = z
   .object({
     enabled: z.boolean().optional(),
@@ -180,16 +202,22 @@ export const pointsSettingsSchema = z
   })
   .strict();
 
+/**
+ * Reparto de puntos de una actividad. El tope de 10 000 es solo de formato: el límite real es el
+ * maxPerActivity del servidor, que se comprueba en setActivityAward.
+ */
 export const pointsAwardSchema = z.object({
   entries: z
     .array(z.object({ userId: snowflake, points: z.number().int().min(0).max(10_000) }))
     .max(300),
 });
 
+/** Ajuste manual de puntos (Premium). Los límites coinciden con MAX_ADJUST de utils/points.ts. */
 export const pointsAdjustSchema = z.object({
   userId: snowflake,
   points: z.number().int().min(-100_000).max(100_000).refine((n) => n !== 0, 'no puede ser 0'),
   note,
 });
 
+/** Periodo del ranking en la query; cualquier valor desconocido se trata como 'total'. */
 export const rankingPeriodSchema = z.enum(['total', 'month', 'week']).catch('total');

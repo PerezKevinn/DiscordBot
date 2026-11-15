@@ -1,3 +1,4 @@
+/** Tests de los avisos de errores: formato del webhook, agrupación de repetidos y URLs no válidas. */
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { reportError } from './alerts';
@@ -8,7 +9,7 @@ const realError = console.error;
 const URL_OK = 'https://discord.com/api/webhooks/123456789/abc-DEF_ghi';
 
 before(() => {
-  console.error = () => {}; // los tests provocan errores a propósito
+  console.error = () => {}; // Los tests provocan errores a propósito.
   globalThis.fetch = (async (url: string, init: RequestInit) => {
     calls.push({ url, body: JSON.parse(String(init.body)) });
     return new Response(null, { status: 204 });

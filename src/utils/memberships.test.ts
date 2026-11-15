@@ -1,13 +1,13 @@
+/**
+ * Tests de pagos y códigos de Premium. Se ejecutan en una carpeta temporal para no tocar el data/
+ * real: los módulos leen process.cwd() al cargarse, así que se importan después de cambiar de carpeta.
+ */
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-/**
- * Pagos y códigos de Premium. Se ejecuta en una carpeta temporal para no tocar data/ real:
- * los módulos leen process.cwd() al cargarse, así que se importan después de cambiar de carpeta.
- */
 const DAY = 24 * 60 * 60 * 1000;
 const originalCwd = process.cwd();
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'massup-test-'));
@@ -79,7 +79,7 @@ test('un reembolso descuenta los días y deja el servidor en gratis si no le que
   const c = C.ConfigManager.getConfig(g.guildId);
   assert.equal(c.plan, 'free');
   assert.equal(c.premiumUntil, undefined);
-  // Reversado es final
+  // 'reversed' es final.
   assert.equal(M.settleOrder(o.invoice, 'paid', { paymentRef: 'P1' }).changed, false);
 });
 
@@ -135,6 +135,6 @@ test('tras 5 intentos fallidos se bloquea a ese usuario un rato', () => {
   const g = newGuild();
   for (let i = 0; i < 5; i++) assert.throws(() => M.redeemCode('MASS-ZZZZ-ZZZZ', g, 'atacante'), /no existe/);
   assert.throws(() => M.redeemCode('MASS-ZZZZ-ZZZZ', g, 'atacante'), /Demasiados intentos/);
-  // Otro usuario no queda bloqueado
+  // Otro usuario no queda bloqueado.
   assert.throws(() => M.redeemCode('MASS-ZZZZ-ZZZZ', g, 'otro'), /no existe/);
 });

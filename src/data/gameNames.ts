@@ -1,7 +1,5 @@
-import { ContentTypeConfig } from '../types/ping';
-
 /**
- * Corrige nombres de la comunidad / mal escritos a los nombres OFICIALES del juego en español
+ * Corrige nombres de la comunidad o mal escritos a los nombres oficiales del juego en español
  * (cliente ES-ES de Albion Online). Se aplica una sola vez a las plantillas guardadas de cada
  * servidor (ver GuildConfig.namesVersion).
  *
@@ -12,9 +10,12 @@ import { ContentTypeConfig } from '../types/ping';
  * v2: Garra, Susurrante, Silencio y Golem identificados; Piro, Guardián, Áurico e Invocador
  *     (sin "oscuro") eliminados de las listas de armas.
  */
+import { ContentTypeConfig } from '../types/ping';
+
+/** Versión actual de las correcciones. Subirla hace que se apliquen otra vez a todos los servidores. */
 export const NAMES_VERSION = 2;
 
-/** Quita un arma de una lista "(A / B / C)", esté al principio, en medio o al final. */
+// Quita un arma de una lista "(A / B / C)", esté al principio, en medio o al final.
 function removeWeapon(pattern: string): Array<[RegExp, string]> {
   return [
     [new RegExp(`\\s*/\\s*${pattern}(?![\\p{L}])`, 'gu'), ''],
@@ -23,7 +24,7 @@ function removeWeapon(pattern: string): Array<[RegExp, string]> {
 }
 
 const FIXES: Array<[RegExp, string]> = [
-  // Confirmados por el dueño del servidor (v2)
+  // Confirmados por el dueño del servidor (v2).
   [/\bSilencio\b/g, 'Bastón arcano'],
   [/\bGolem\b/g, 'Bastón terrúnico'],
   [/\bGarra\b(?! ?[Pp]resta)/g, 'Garras'],
@@ -33,7 +34,7 @@ const FIXES: Array<[RegExp, string]> = [
   ...removeWeapon('Áurico'),
   ...removeWeapon('Invocador(?! oscuro| de luz)'),
 
-  // Roles
+  // Roles.
   [/\bMain Tank\b/g, 'Tanque principal'],
   [/\bOff-Tank\b/g, 'Tanque secundario'],
   [/\bTank Engage \/ Defensivo\b/g, 'Tanque'],
@@ -55,7 +56,7 @@ const FIXES: Array<[RegExp, string]> = [
   [/\bScout \/ Looter\b/g, 'Explorador'],
   [/\bScout\b/g, 'Explorador'],
   [/\bTank\b/g, 'Tanque'],
-  // Armas (EN / jerga -> ES oficial)
+  // Armas: nombre en inglés o de la jerga -> nombre oficial en español.
   [/\bMaza Pesada\b/g, 'Maza pesada'],
   [/\bIncubus\b/g, 'Maza íncubo'],
   [/\bPatas de Oso\b/g, 'Patas de oso'],
@@ -87,14 +88,14 @@ const FIXES: Array<[RegExp, string]> = [
   [/(?<!Bastón de )\bHielo\b/g, 'Bastón de hielo'],
   [/\bSegadora\b/g, 'Guadaña infernal'],
   [/\bGuantes\b/g, 'Brazales de batalla'],
-  // Monturas y consumibles
+  // Monturas y consumibles.
   [/\bGarra Presta\b/g, 'Garrapresta'],
   [/\bSwiftclaw\b/g, 'Garrapresta'],
   [/\bDirewolf\b/g, 'Huargo'],
   [/\bCaballo Blindado\b/g, 'Caballo blindado'],
   [/\bVenenos\b/g, 'Pociones de veneno'],
   [/\bOC\b/g, 'sobrecarga'],
-  // Zonas y actividades
+  // Zonas y actividades.
   [/\bGankeo Zona Negra\b/g, 'Gankeo en Tierras Lejanas'],
   [/\bGankeo Ava\b/g, 'Gankeo en Caminos de Avalon'],
   [/^Cofres Dorados$/g, 'Cofres dorados (legendarios)'],
@@ -108,11 +109,12 @@ const FIXES: Array<[RegExp, string]> = [
   [/\bMazmorra Avaloniana\b/g, 'Mazmorra avaloniana'],
 ];
 
+// Aplica las correcciones y deja las listas de armas como "A / B / C".
 function fix(text: string): string {
   return FIXES.reduce((acc, [re, to]) => acc.replace(re, to), text).replace(/\s+\//g, ' /').replace(/\/(?=\S)/g, '/ ').replace(/\/\s+/g, '/ ');
 }
 
-/** Devuelve las plantillas con los nombres oficiales del juego. */
+/** Devuelve una copia de las plantillas con los nombres oficiales del juego en el nombre, los valores por defecto y las etiquetas de rol. */
 export function applyGameNames(contentTypes: ContentTypeConfig[]): ContentTypeConfig[] {
   return contentTypes.map((c) => ({
     ...c,

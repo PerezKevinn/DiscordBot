@@ -1,3 +1,8 @@
+/**
+ * Almacenamiento de la config y los pings de cada servidor en data/ (un JSON por servidor), con
+ * caché en memoria. Es el único módulo que lee y escribe esos archivos: si algún día se pasa a una
+ * base de datos, el cambio queda aquí. También guarda en memoria los borradores del asistente de pings.
+ */
 import fs from 'fs';
 import path from 'path';
 import { cloneDefaultContentTypes } from '../data/defaultTemplates';
@@ -13,9 +18,10 @@ const PINGS_DIR = path.join(DATA_DIR, 'pings');
 const LEGACY_CONFIG_PATH = path.join(DATA_DIR, 'config.json');
 const LEGACY_PINGS_PATH = path.join(DATA_DIR, 'active_pings.json');
 
-// Pings cerrados/cancelados se borran del disco pasado este tiempo
+/** Tiempo que se conservan en disco los pings cerrados o cancelados. */
 export const CLOSED_PING_TTL_MS =3 * 24 * 60 * 60 * 1000;
 
+/** Paleta por defecto del banner y los embeds. */
 export const DEFAULT_COLORS: GuildConfig['colors'] = {
   primaryBlack: '#0A0A0D',
   secondaryBlack: '#14141A',
@@ -25,8 +31,8 @@ export const DEFAULT_COLORS: GuildConfig['colors'] = {
   embedHex: 0xd4af37,
 };
 
-// Borradores en memoria de los Callers armando un ping: clave `${guildId}:${userId}`.
-// Caducan a los 45 min sin tocarlos para no acumular memoria con miles de servidores.
+// Borradores de los Callers que están armando un ping, con clave `${guildId}:${userId}`.
+// Caducan a los 45 min sin tocarlos para que la memoria no crezca sin límite.
 const DRAFT_TTL_MS = 45 * 60 * 1000;
 const draftSessions = new Map<string, { draft: DraftPingSession; at: number }>();
 setInterval(() => {
@@ -43,13 +49,14 @@ function ensureDirs() {
   }
 }
 
-/** Escritura atómica: escribe a un .tmp y renombra, para no dejar JSON corrupto si el proceso muere. */
+// Escritura atómica: escribe a un .tmp y renombra, para no dejar un JSON corrupto si el proceso muere.
 function writeJsonAtomic(filePath: string, data: unknown) {
   const tmp = `${filePath}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf-8');
   fs.renameSync(tmp, filePath);
 }
 
+// El id acaba en una ruta de archivo: validarlo evita path traversal con ids manipulados.
 function isValidGuildId(guildId: string): boolean {
   return /^\d{5,25}$/.test(guildId);
 }
@@ -79,10 +86,11 @@ function buildDefaultConfig(guildId: string, guildName: string): GuildConfig {
   };
 }
 
+/** Acceso a la config, los pings y los borradores de cada servidor. Todos los métodos son estáticos. */
 export class ConfigManager {
   /**
-   * Migra el config.json/active_pings.json de la versión de un solo servidor
-   * al servidor indicado (LEGACY_GUILD_ID o GUILD_ID del .env).
+   * Migra config.json y active_pings.json de la versión de un solo servidor al servidor indicado
+   * (GUILD_ID del .env). No hace nada si ya se migró o si ese servidor ya tiene config.
    */
   public static migrateLegacy(targetGuildId: string | undefined): void {
     ensureDirs();
@@ -104,7 +112,7 @@ export class ConfigManager {
       pingTargetChannelId: legacy.pingTargetChannelId,
       defaultPingRoleId: legacy.defaultPingRoleId,
       contentTypes: legacy.contentTypes?.length ? legacy.contentTypes : cloneDefaultContentTypes(),
-      // El servidor original del dueño conserva su marca propia
+      // El servidor original del dueño ya tenía marca propia; se le da Premium para conservarla.
       plan: 'premium',
     };
     writeJsonAtomic(guildPath(targetGuildId), migrated);
@@ -124,6 +132,12 @@ export class ConfigManager {
   }
 
   // --- Config por servidor ---
+
+  /**
+   * Devuelve la config del servidor, desde caché o disco. Si no existe la crea con los valores por
+   * defecto y la guarda, así que nunca devuelve undefined.
+   * @param guildNameHint Nombre que se usa solo al crear la config.
+   */
   public static getConfig(guildId: string, guildNameHint = 'MI GREMIO'): GuildConfig {
     const cached = configCache.get(guildId);
     if (cached) return cached;
@@ -136,7 +150,7 @@ export class ConfigManager {
       config.pingRoles ||= {};
       config.plan ||= 'free';
       config.colors = { ...DEFAULT_COLORS, ...(config.colors || {}) };
-      // Pasar plantillas antiguas a los nombres oficiales del juego (una sola vez)
+      // Pasa las plantillas antiguas a los nombres oficiales del juego, una sola vez por versión.
       if ((config.namesVersion ?? 0) < NAMES_VERSION) {
         config.contentTypes = applyGameNames(config.contentTypes);
         config.namesVersion = NAMES_VERSION;
@@ -150,7 +164,7 @@ export class ConfigManager {
     return config;
   }
 
-  /** Guarda el icono actual del servidor (para el logo del banner) si cambió. */
+  /** Guarda la URL del icono actual del servidor (logo del banner en plan gratis) si cambió. */
   public static syncGuildIcon(config: GuildConfig, guild: { iconURL(options?: { extension?: 'png'; size?: 256 }): string | null }): void {
     const icon = guild.iconURL({ extension: 'png', size: 256 }) ?? undefined;
     if (config.iconUrl !== icon) {
@@ -159,6 +173,7 @@ export class ConfigManager {
     }
   }
 
+  /** Actualiza la caché y escribe la config en disco. */
   public static saveConfig(config: GuildConfig): void {
     configCache.set(config.guildId, config);
     writeJsonAtomic(guildPath(config.guildId), config);
@@ -168,6 +183,7 @@ export class ConfigManager {
     return this.getConfig(guildId).contentTypes.find((c) => c.id === id);
   }
 
+  /** Sustituye la plantilla de contenido con el mismo id o la añade al final. */
   public static upsertContentType(guildId: string, content: ContentTypeConfig): void {
     const config = this.getConfig(guildId);
     const index = config.contentTypes.findIndex((c) => c.id === content.id);
@@ -176,6 +192,7 @@ export class ConfigManager {
     this.saveConfig(config);
   }
 
+  /** Borra una plantilla y su rol de aviso. Devuelve false si no existía. */
   public static deleteContentType(guildId: string, id: string): boolean {
     const config = this.getConfig(guildId);
     const prevLen = config.contentTypes.length;
@@ -186,6 +203,7 @@ export class ConfigManager {
     return true;
   }
 
+  /** Sustituye la compo de roles de una plantilla. Devuelve false si la plantilla no existe. */
   public static updateContentRoles(guildId: string, contentId: string, roles: RoleTemplate[]): boolean {
     const config = this.getConfig(guildId);
     const content = config.contentTypes.find((c) => c.id === contentId);
@@ -195,6 +213,7 @@ export class ConfigManager {
     return true;
   }
 
+  /** Vuelve a las plantillas por defecto y borra los roles de aviso por contenido. */
   public static resetContentTypes(guildId: string): void {
     const config = this.getConfig(guildId);
     config.contentTypes = cloneDefaultContentTypes();
@@ -204,6 +223,11 @@ export class ConfigManager {
   }
 
   // --- Pings por servidor ---
+
+  /**
+   * Pings guardados del servidor, indexados por id. Incluye los cerrados que aún no han caducado.
+   * Devuelve el objeto de la caché: modificarlo sin llamar a savePing no persiste el cambio.
+   */
   public static getActivePings(guildId: string): Record<string, ActivePing> {
     const cached = pingsCache.get(guildId);
     if (cached) return cached;
@@ -215,7 +239,7 @@ export class ConfigManager {
       try {
         pings = JSON.parse(fs.readFileSync(file, 'utf-8'));
       } catch {
-        pings = {};
+        pings = {}; // Archivo dañado: se empieza de cero en vez de tumbar el bot.
       }
     }
     pingsCache.set(guildId, pings);
@@ -224,8 +248,8 @@ export class ConfigManager {
   }
 
   /**
-   * Borra (memoria y disco) los pings cerrados hace más de 3 días.
-   * Se llama al cargar y periódicamente desde la limpieza automática.
+   * Borra de memoria y disco los pings cerrados hace más de CLOSED_PING_TTL_MS.
+   * Se llama al cargar y periódicamente desde la limpieza automática. Devuelve cuántos borró.
    */
   public static pruneClosedPings(guildId: string, now = Date.now()): number {
     const pings = pingsCache.get(guildId);
@@ -242,6 +266,7 @@ export class ConfigManager {
     return removed;
   }
 
+  /** Pings abiertos o en ruta; es lo que cuenta para el límite del plan. */
   public static countOpenPings(guildId: string): number {
     return Object.values(this.getActivePings(guildId)).filter(
       (p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS'
@@ -252,6 +277,7 @@ export class ConfigManager {
     return this.getActivePings(guildId)[pingId];
   }
 
+  /** Guarda el ping en la caché y reescribe el archivo de pings del servidor. */
   public static savePing(guildId: string, ping: ActivePing): void {
     const pings = this.getActivePings(guildId);
     ping.guildId = guildId;
@@ -259,7 +285,9 @@ export class ConfigManager {
     writeJsonAtomic(pingsPath(guildId), pings);
   }
 
-  // --- Borradores (asistente paso a paso), separados por servidor ---
+  // --- Borradores del asistente paso a paso, separados por servidor ---
+
+  /** Borrador en curso del Caller, o undefined si no hay o caducó. */
   public static getDraft(guildId: string, callerId: string): DraftPingSession | undefined {
     const entry = draftSessions.get(`${guildId}:${callerId}`);
     if (!entry) return undefined;
@@ -327,7 +355,7 @@ export class ConfigManager {
     }
   }
 
-  /** Borra todos los datos de un servidor: config, pings y logo. */
+  /** Borra todos los datos de un servidor: config, pings, logo, borradores y puntos. El historial de Premium se conserva. */
   public static purgeGuild(guildId: string): void {
     this.evictGuild(guildId);
     for (const file of [guildPath(guildId), pingsPath(guildId), path.join(DATA_DIR, 'logos', `${guildId}.png`)]) {

@@ -1,3 +1,6 @@
+/**
+ * Pestaña "Plan" del panel: estado del Premium, compra con Mercado Pago, canje de códigos e historial.
+ */
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { cop, EVENT_LABELS, fmtDate, type GuildData, type PremiumPackage } from '../types';
@@ -6,6 +9,10 @@ import { useToast } from './Toast';
 
 const SOURCE_LABEL = { manual: 'Premium concedido', code: 'Código canjeado', payment: 'Premium pagado' } as const;
 
+/**
+ * Muestra el plan del servidor y permite comprar o canjear Premium.
+ * Si la URL trae ?pago=<orden> (vuelta desde Mercado Pago), consulta la orden hasta que se resuelva.
+ */
 export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
   const { plan } = data;
   const premium = plan.tier === 'premium';
@@ -16,10 +23,13 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
   const toast = useToast();
   const lifetime = Boolean(plan.timed && !plan.timed.until);
 
-  // Al volver de Mercado Pago: esperar la confirmación (llega servidor a servidor, puede tardar unos segundos)
+  // Al volver de Mercado Pago la orden puede seguir sin confirmar: el webhook llega servidor a
+  // servidor y tarda unos segundos. Se consulta cada 3 s durante unos 2 min; si no se resuelve,
+  // se muestra como pendiente (con PSE o Efecty la confirmación puede tardar más).
   useEffect(() => {
     const invoice = new URLSearchParams(window.location.search).get('pago');
     if (!invoice) return;
+    // Quita ?pago= de la URL para que recargar la página no repita la espera.
     window.history.replaceState(null, '', window.location.pathname + window.location.hash);
     setReturning('waiting');
     let tries = 0;
@@ -41,6 +51,7 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
     return () => {
       stop = true;
     };
+    // Solo al montar: la URL de vuelta se procesa una vez.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -48,7 +59,7 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
     setPaying(pkg.id);
     try {
       const { url } = await api.checkout(data.guild.id, pkg.id);
-      // Se paga en la web de Mercado Pago; al terminar vuelve a /pago/respuesta/<orden>
+      // El pago se hace en la web de Mercado Pago; al terminar vuelve a /pago/respuesta/<orden>.
       window.location.assign(url);
     } catch (e) {
       toast((e as Error).message, true);

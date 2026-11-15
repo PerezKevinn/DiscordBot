@@ -1,3 +1,4 @@
+/** Tests del tamaño de la party, los cupos y el paso a la banca. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cleanPartySize, isPartyFull, joinGoesToBench, partyCountLabel, partyMax } from './party';
@@ -6,7 +7,7 @@ import type { ActivePing, RoleTemplate } from '../types/ping';
 const role = (id: string, maxSlots: number): RoleTemplate => ({ id, label: id, emoji: '⚔️', maxSlots });
 const player = (n: number) => ({ userId: String(n), username: `u${n}`, displayName: `U${n}`, joinedAt: n });
 
-// Compo del Gankeo Ava: 4 roles de 1 cupo y 5 armas de daño sin límite, party de 7
+// Compo del Gankeo Ava: 4 roles de 1 cupo y 5 armas de daño sin límite, party de 7.
 const gankeoAva = [
   role('catch', 1),
   role('retencion', 1),

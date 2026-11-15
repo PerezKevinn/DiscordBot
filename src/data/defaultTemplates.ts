@@ -1,9 +1,7 @@
-import { ContentTypeConfig } from '../types/ping';
-
 /**
  * Plantillas de contenido que recibe cada servidor nuevo.
  *
- * Los nombres de armas, monturas, consumibles, zonas y actividades son los OFICIALES del
+ * Los nombres de armas, monturas, consumibles, zonas y actividades son los oficiales del
  * cliente de Albion Online en español (ES-ES), sacados de los datos del juego
  * (ao-data/ao-bin-dumps: items.json y localization.json). Ej.: Swiftclaw = Garrapresta,
  * Blight Staff = Bastón de infortunio, Shadowcaller = Invocador oscuro, Outlands = Tierras Lejanas.
@@ -12,6 +10,9 @@ import { ContentTypeConfig } from '../types/ping';
  * términos de la comunidad sin equivalente oficial (Atrape, Purga, Explorador) y siglas
  * universales (ZvZ, CTA, HO).
  */
+import { ContentTypeConfig } from '../types/ping';
+
+/** Plantillas por defecto. No se modifican: para usarlas hay que copiarlas con cloneDefaultContentTypes. */
 export const DEFAULT_CONTENT_TYPES: ContentTypeConfig[] = [
   {
     id: 'gankeo',
@@ -194,6 +195,7 @@ export const DEFAULT_CONTENT_TYPES: ContentTypeConfig[] = [
   },
 ];
 
+/** Copia profunda de las plantillas por defecto, para que un servidor no modifique las de otro. */
 export function cloneDefaultContentTypes(): ContentTypeConfig[] {
   return JSON.parse(JSON.stringify(DEFAULT_CONTENT_TYPES));
 }

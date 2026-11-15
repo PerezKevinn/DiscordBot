@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Instala/actualiza MassUp en el VPS. Ejecutar como el usuario "massup" dentro de la carpeta del bot:
+# Instala o actualiza MassUp en el VPS: descarga, compila el bot y el panel y reinicia con pm2.
+# Ejecutar como el usuario "massup" dentro de la carpeta del bot:
 #   cd ~/massup && bash deploy/deploy.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."

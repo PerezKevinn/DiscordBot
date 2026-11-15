@@ -19,16 +19,16 @@ FILE="$BACKUP_DIR/massup-data-$STAMP.tar.gz"
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
 
-# data/cache se regenera sola: no hace falta copiarla
+# data/cache se regenera sola: no hace falta copiarla.
 tar -czf "$FILE" -C "$APP_DIR" --exclude='data/cache' data
 chmod 600 "$FILE"
-tar -tzf "$FILE" > /dev/null # comprueba que el archivo se puede leer
+tar -tzf "$FILE" > /dev/null # Comprueba que el archivo se puede leer.
 echo "$(date -Is) Copia creada: $FILE ($(du -h "$FILE" | cut -f1))"
 
-# Borra las copias locales más antiguas que KEEP_DAYS
+# Borra las copias locales con más de KEEP_DAYS días.
 find "$BACKUP_DIR" -maxdepth 1 -name 'massup-data-*.tar.gz' -mtime +"$KEEP_DAYS" -delete
 
-# Copia fuera del VPS (si se configuró): sin esto, un fallo del disco se lleva también las copias
+# Copia fuera del VPS, si se configuró: sin ella, un fallo del disco se lleva también las copias.
 if [ -n "${RCLONE_REMOTE:-}" ]; then
   rclone copy "$FILE" "$RCLONE_REMOTE" && echo "$(date -Is) Subida a $RCLONE_REMOTE"
   rclone delete "$RCLONE_REMOTE" --min-age "${KEEP_DAYS}d" --include 'massup-data-*.tar.gz' || true

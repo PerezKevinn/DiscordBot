@@ -1,13 +1,13 @@
+/**
+ * Tamaño de la party y cupos. Una compo puede tener roles sin límite (p. ej. cinco armas de daño a
+ * elegir) y aun así una party de tamaño fijo: para eso está `partySize`.
+ */
 import type { ActivePing, RoleTemplate } from '../types/ping';
 
-/**
- * Tamaño de la party y cupos. Una compo puede tener roles "sin límite" (p. ej. cinco armas de
- * daño a elegir) y aun así una party de tamaño fijo: para eso está `partySize`.
- */
-
+/** Tamaño máximo de party que se puede configurar. */
 export const MAX_PARTY_SIZE = 100;
 
-/** Normaliza el tamaño de party guardado (undefined = sin tamaño fijo). */
+/** Normaliza el tamaño de party guardado. undefined significa sin tamaño fijo. */
 export function cleanPartySize(n: unknown): number | undefined {
   return typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= MAX_PARTY_SIZE ? n : undefined;
 }
@@ -40,7 +40,7 @@ export function joinGoesToBench(ping: Pick<ActivePing, 'roster' | 'partySize'>, 
   return (role.maxSlots > 0 && inRole >= role.maxSlots) || isPartyFull(ping);
 }
 
-/** "1/7", "3/12" o "5" si no hay máximo. */
+/** Recuento para mostrar: "1/7", "3/12", o solo "5" si no hay máximo. */
 export function partyCountLabel(ping: Pick<ActivePing, 'roster' | 'roles' | 'partySize'>, sep = '/'): string {
   const max = partyMax(ping.roles, ping.partySize);
   const joined = partyJoined(ping);

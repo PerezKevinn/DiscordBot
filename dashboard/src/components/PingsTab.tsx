@@ -1,3 +1,4 @@
+/** Pestaña "Pings activos": lista de pings abiertos con opción de cerrarlos o cancelarlos. */
 import { api } from '../api';
 import type { GuildData } from '../types';
 import type { Save } from './GuildPanel';
@@ -10,6 +11,7 @@ function relative(unix: number) {
   return diff > 0 ? `en ${text}` : `hace ${text}`;
 }
 
+/** Pings abiertos o en ruta del servidor. */
 export function PingsTab({ data, save }: { data: GuildData; save: Save }) {
   const channelName = (id: string) => data.discord.channels.find((c) => c.id === id)?.name ?? 'canal';
 

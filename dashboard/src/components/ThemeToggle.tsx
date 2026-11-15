@@ -1,15 +1,16 @@
+/** Botón para cambiar entre tema claro y oscuro. */
 import { useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
 const current = (): Theme => (document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
-/** Botón luna/sol: cambia el tema y lo recuerda (public/theme.js lo aplica al cargar). */
+/** Botón luna/sol: cambia el tema y lo recuerda en localStorage; public/theme.js lo aplica al cargar. */
 export function ThemeToggle({ className = '' }: { className?: string }) {
   const [theme, setTheme] = useState<Theme>(current);
 
   useEffect(() => {
-    // Si el sistema cambia de tema y el usuario no eligió uno, theme.js lo aplica: lo reflejamos aquí
+    // Si el sistema cambia de tema y el usuario no eligió uno, lo aplica theme.js; aquí solo se refleja.
     const obs = new MutationObserver(() => setTheme(current()));
     obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     return () => obs.disconnect();
@@ -22,7 +23,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
     try {
       localStorage.setItem('massup-theme', next);
     } catch {
-      // sin almacenamiento: solo dura esta visita
+      // Sin almacenamiento: la elección solo dura esta visita.
     }
     setTheme(next);
   };

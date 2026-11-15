@@ -1,3 +1,11 @@
+/**
+ * Editor de compos (roles y cupos) en Discord, con menús y formularios. Sirve para dos destinos:
+ * el borrador del ping que el Caller está armando (solo ese ping) o una plantilla de contenido.
+ * Las plantillas con sus builds se editan normalmente en el panel web.
+ *
+ * Incluye también el formato de texto "Editar como texto", para pegar varios roles de golpe, y
+ * sanitizeEmoji, que usa la validación del panel.
+ */
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -22,19 +30,12 @@ import { cleanUserText } from '../utils/security';
 import { componentEmoji, isDiscordSupportedEmoji } from '../utils/emoji';
 import { baseEmbed, composeRoleLabel, fitEmbed, hexToInt, splitRoleLabel, totalSlots, UI_COLORS } from '../utils/ui';
 
-/**
- * Editor visual de la compo (roles y cupos) del ping que el Caller está armando (solo ese ping).
- * Las plantillas permanentes, con sus builds, se editan en el panel web.
- *
- * Sustituye al formulario de texto "Emoji | Rol | Cupos | Descripción", que sigue
- * disponible como "Editar como texto" para quien quiera pegar varios roles de golpe.
- */
-
 const MAX_ROLES = 20;
 const MAX_SLOTS = 100;
 
 type CompoTarget = { kind: 'draft' } | { kind: 'template'; contentId: string };
 
+// Estado del editor de un usuario: la compo en edición, la original (para cancelar) y el rol seleccionado.
 interface CompoSession {
   target: CompoTarget;
   title: string;
@@ -48,7 +49,7 @@ const sessions = new Map<string, CompoSession>();
 const SESSION_TTL_MS = 30 * 60 * 1000;
 const sessionTouched = new Map<string, number>();
 
-/** Las sesiones del editor caducan a los 30 min para no acumular memoria. */
+// Las sesiones del editor caducan a los 30 min sin uso.
 function pruneSessions() {
   const now = Date.now();
   for (const [k, at] of sessionTouched) {
@@ -69,7 +70,10 @@ type AnyInteraction = ButtonInteraction | StringSelectMenuInteraction | ModalSub
 const EMOJI_RE = /^(\p{Extended_Pictographic}|\p{Regional_Indicator}{2})(️|‍|\p{Extended_Pictographic}|\p{Emoji_Modifier})*$/u;
 const CUSTOM_EMOJI_RE = /^<a?:\w{2,32}:\d{15,25}>$/;
 
-/** Devuelve un emoji válido para Discord o el de respaldo (un emoji inválido rompe los menús). */
+/**
+ * Devuelve el emoji si Discord lo acepta en componentes (Unicode o emoji propio <:nombre:id>) y,
+ * si no, el de respaldo. Un emoji inválido hace que Discord rechace el mensaje entero.
+ */
 export function sanitizeEmoji(raw: string, fallback = '⚔️'): string {
   const e = raw.trim();
   if (CUSTOM_EMOJI_RE.test(e)) return e;
@@ -89,10 +93,10 @@ const clampSlots = (n: number) => (Number.isNaN(n) || n < 0 ? 0 : Math.min(n, MA
 const normName = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
 /**
- * Formato de texto amigable, una línea por rol:
+ * Convierte una compo al formato de texto, una línea por rol:
  *   🛡️ Tanque x1: Maza íncubo / Maza
- * - El emoji es opcional (sin emoji = ⚔️).
- * - "x2" son los cupos; sin "x" o con "x∞" = sin límite.
+ * - El emoji es opcional; sin emoji se usa ⚔️.
+ * - "x2" son los cupos; sin "x", o con "x∞", el rol no tiene límite.
  * - Después de ":" van las armas sugeridas (opcional).
  */
 export function serializeRolesText(roles: RoleTemplate[]): string {
@@ -105,9 +109,9 @@ export function serializeRolesText(roles: RoleTemplate[]): string {
 }
 
 /**
- * Lee el formato amigable y también el antiguo "Emoji | Rol (armas) | Cupos | Descripción".
- * Si un rol ya existía con el mismo nombre, conserva su id (la gente anotada no se pierde)
- * y su descripción.
+ * Lee el formato de texto de serializeRolesText y también el antiguo
+ * "Emoji | Rol (armas) | Cupos | Descripción". Si un rol ya existía con el mismo nombre, conserva
+ * su id, para no perder a la gente anotada, y su descripción.
  */
 export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): RoleTemplate[] {
   const byName = new Map(existing.map((r) => [normName(splitRoleLabel(r.label).name), r]));
@@ -125,7 +129,7 @@ export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): 
       let description: string | undefined;
 
       if (line.includes('|')) {
-        // Formato antiguo
+        // Formato antiguo, con barras.
         const parts = line.split('|').map((p) => p.trim());
         if (parts.length < 2) return [];
         emoji = sanitizeEmoji(parts[0] || '');
@@ -133,7 +137,7 @@ export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): 
         slots = clampSlots(parseInt(parts[2] || '0', 10));
         description = parts[3] || undefined;
       } else {
-        // Formato amigable
+        // Formato actual.
         let rest = line;
         const first = rest.split(/\s+/)[0];
         if (first && sanitizeEmoji(first, '') !== '') {
@@ -171,7 +175,7 @@ export function parseRolesText(rawText: string, existing: RoleTemplate[] = []): 
     });
 }
 
-/** Formulario "Editar como texto": instrucciones dentro del propio formulario. */
+/** Formulario "Editar como texto", con las instrucciones del formato dentro del propio formulario. */
 export function buildCompoTextModal(title: string, roles: RoleTemplate[]): ModalBuilder {
   return new ModalBuilder()
     .setCustomId('compo_modal_text')
@@ -292,7 +296,7 @@ function buildEditorView(config: GuildConfig, s: CompoSession) {
   };
 }
 
-/** Emojis típicos de roles de Albion para elegir sin teclear. */
+// Emojis típicos de roles de Albion, para elegir sin teclear.
 const ROLE_EMOJIS: Array<[string, string]> = [
   ['🛡️', 'Tanque'],
   ['⚔️', 'Tanque secundario / genérico'],
@@ -318,6 +322,7 @@ const ROLE_EMOJIS: Array<[string, string]> = [
 
 const SLOT_CHOICES = ['0', ...Array.from({ length: 20 }, (_, i) => String(i + 1)), '25', '30', '40', '50'];
 
+/** Formulario para crear (index 'new') o editar un rol: nombre, armas, cupos y emoji. */
 export function buildRoleModal(index: number | 'new', role?: RoleTemplate): ModalBuilder {
   const { name, weapons } = role ? splitRoleLabel(role.label) : { name: '', weapons: '' };
   const currentEmoji = role?.emoji || '🛡️';
@@ -347,7 +352,7 @@ export function buildRoleModal(index: number | 'new', role?: RoleTemplate): Moda
     .setRequired(false);
   if (role?.description) descInput.setValue(role.description.slice(0, 100));
 
-  // Cupos: si el valor actual no está en la lista (p. ej. 35), se añade para no perderlo
+  // Cupos: si el valor actual no está en la lista (p. ej. 35), se añade para no perderlo.
   const slotValues = SLOT_CHOICES.includes(String(currentSlots))
     ? SLOT_CHOICES
     : [...SLOT_CHOICES, String(currentSlots)].sort((a, b) => Number(a) - Number(b));
@@ -363,7 +368,7 @@ export function buildRoleModal(index: number | 'new', role?: RoleTemplate): Moda
       )
     );
 
-  // Emoji: lista típica + el emoji actual si es otro (p. ej. un emoji propio del servidor)
+  // Emoji: la lista típica más el emoji actual si es otro (p. ej. un emoji propio del servidor).
   const emojiChoices = ROLE_EMOJIS.some(([e]) => e === currentEmoji)
     ? ROLE_EMOJIS
     : [[currentEmoji, 'Emoji actual'] as [string, string], ...ROLE_EMOJIS];
@@ -423,10 +428,12 @@ export async function openDraftCompoEditor(interaction: ButtonInteraction, confi
 
 // ---------- Interacciones dentro del editor ----------
 
+// Las plantillas solo las editan los admins; el borrador, quien pueda crear pings.
 function allowed(interaction: AnyInteraction, config: GuildConfig, s: CompoSession) {
   return s.target.kind === 'template' ? isGuildManager(interaction) : canCreatePings(interaction, config);
 }
 
+/** Atiende los botones, menús y formularios del editor (customId compo_*). */
 export async function handleCompoInteraction(interaction: AnyInteraction, config: GuildConfig) {
   const s = sessions.get(key(config.guildId, interaction.user.id));
   if (s) sessionTouched.set(key(config.guildId, interaction.user.id), Date.now());
@@ -491,7 +498,7 @@ export async function handleCompoInteraction(interaction: AnyInteraction, config
         const idx = parseInt(which, 10);
         const role = s.roles[idx];
         if (role) {
-          // Se conserva el id para no perder a la gente ya anotada en ese rol
+          // Se conserva el id para no perder a la gente ya anotada en ese rol.
           s.roles[idx] = { ...role, label: joinLabel(name, weapons), emoji, maxSlots: slots, description };
           s.selected = idx;
         }
@@ -539,6 +546,7 @@ export async function handleCompoInteraction(interaction: AnyInteraction, config
   }
 }
 
+// Cierra el editor. Con save, guarda la compo en el borrador o en la plantilla según el destino.
 async function finish(interaction: ButtonInteraction, config: GuildConfig, s: CompoSession, save: boolean) {
   sessions.delete(key(config.guildId, interaction.user.id));
 

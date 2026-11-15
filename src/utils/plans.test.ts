@@ -1,3 +1,4 @@
+/** Tests del plan efectivo combinando suscripción y Premium por tiempo, y de los precios de los paquetes. */
 import { afterEach, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getEffectiveTier, hasActiveSubscription, hasTimedPremium, premiumEndsAt, premiumPackages } from './plans';

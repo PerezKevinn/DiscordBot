@@ -1,3 +1,7 @@
+/**
+ * Administración, solo para el dueño del bot (#/admin): servidores y su Premium, códigos, pagos e
+ * historial. El servidor comprueba BOT_OWNER_ID en cada llamada; ocultar la ruta no es la protección.
+ */
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import { cop, EVENT_LABELS, fmtDate, type AdminGuild, type AdminOverview, type PaymentOrder, type RedeemCode } from '../types';

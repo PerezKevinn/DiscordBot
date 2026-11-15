@@ -1,4 +1,6 @@
 /**
+ * Filtro de emojis para componentes de Discord (menús y botones).
+ *
  * Discord va por detrás de Unicode: los emojis más nuevos (Emoji 16.0 en adelante) se ven en el
  * texto, pero si se mandan en un menú o botón la API responde COMPONENT_INVALID_EMOJI y rechaza
  * el mensaje entero. Casi todos los emojis nuevos caen en el bloque U+1FA70–U+1FAFF, así que aquí
@@ -16,7 +18,7 @@ const EXT_A_SUPPORTED: Array<[number, number]> = [
   [0x1faf0, 0x1faf8],
 ];
 
-/** true si Discord puede mostrar este emoji en menús y botones. */
+/** Indica si Discord acepta este emoji en menús y botones. */
 export function isDiscordSupportedEmoji(emoji: string): boolean {
   for (const ch of emoji) {
     const cp = ch.codePointAt(0)!;

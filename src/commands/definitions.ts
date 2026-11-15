@@ -1,6 +1,11 @@
+/**
+ * Definición de los comandos de barra. Se registran en src/index.ts y se atienden en
+ * src/handlers/interactionHandler.ts. setDefaultMemberPermissions es solo el valor por defecto:
+ * los administradores de cada servidor pueden cambiarlo en Ajustes > Integraciones.
+ */
 import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 
-/** Comandos públicos (se registran globalmente, en todos los servidores). */
+/** Comandos públicos; se registran globalmente, en todos los servidores. */
 export const publicCommands = [
   new SlashCommandBuilder()
     .setName('ping')
@@ -60,7 +65,7 @@ export const publicCommands = [
     ),
 ].map((c) => c.toJSON());
 
-/** Comandos del dueño del bot: solo se registran en el servidor de desarrollo (OWNER_GUILD_ID). */
+/** Comandos del dueño del bot; solo se registran en su servidor (GUILD_ID). */
 export const ownerCommands = [
   new SlashCommandBuilder()
     .setName('plan-admin')

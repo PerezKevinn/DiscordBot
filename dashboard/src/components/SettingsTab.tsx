@@ -1,3 +1,4 @@
+/** Pestaña "Ajustes": rol de Caller, roles de aviso, canal de publicación y categoría de voz. */
 import { useState } from 'react';
 import { api } from '../api';
 import type { GuildData } from '../types';
@@ -24,6 +25,7 @@ function RoleSelect({ value, onChange, roles, emptyLabel }: {
   );
 }
 
+/** Formulario de ajustes del servidor; guarda todo de una vez. */
 export function SettingsTab({ data, save }: { data: GuildData; save: Save }) {
   const [s, setS] = useState<Settings>(data.settings);
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) => setS((prev) => ({ ...prev, [k]: v }));
@@ -31,7 +33,7 @@ export function SettingsTab({ data, save }: { data: GuildData; save: Save }) {
   const { roles, channels, categories } = data.discord;
 
   const submit = async () => {
-    // Para quitar un rol de aviso hay que enviarlo como null
+    // Para quitar un rol de aviso hay que enviarlo como null: el servidor ignora las claves ausentes.
     const pingRoles: Record<string, string | null> = { ...s.pingRoles };
     for (const id of Object.keys(data.settings.pingRoles)) if (!(id in s.pingRoles)) pingRoles[id] = null;
     await save(() => api.saveSettings(data.guild.id, { ...s, pingRoles: pingRoles as Record<string, string> }));

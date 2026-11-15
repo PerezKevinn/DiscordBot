@@ -1,3 +1,12 @@
+/**
+ * Punto de entrada de todas las interacciones de Discord: comandos, botones, menús y formularios.
+ * Enruta por tipo y customId a los handlers de cada módulo y contiene el flujo principal de los
+ * pings: asistente de creación, publicación, roster y Mando del Caller.
+ *
+ * Prefijos de customId: ping_* (mensaje público del ping), wizard_* (asistente), caller_action:* (Mando),
+ * compo_* (editor de compos), pts_* (puntos). Los de versiones anteriores (tpl_*, config…) se
+ * siguen atendiendo para redirigir al panel web cuando alguien pulsa un mensaje antiguo.
+ */
 import {
   ActionRowBuilder,
   AttachmentBuilder,
@@ -47,9 +56,7 @@ function defaultMentionFor(config: GuildConfig, contentTypeId: string): MentionT
   return resolvePingRoleId(config, contentTypeId) ? 'ROLE' : 'NONE';
 }
 
-/**
- * Inicializa o recupera el borrador de un Caller en un servidor
- */
+// Devuelve el borrador del Caller en este servidor o crea uno con el primer contenido.
 function getOrInitDraft(
   config: GuildConfig,
   userId: string,
@@ -99,14 +106,13 @@ function fallbackContentConfig(ping: ActivePing): ContentTypeConfig {
   };
 }
 
-/**
- * Actualiza el mensaje original de un Ping activo en Discord tras un cambio de Roster o Estado
- */
+// Redibuja el mensaje público del ping tras un cambio de roster o de estado.
 async function refreshActivePingMessage(interaction: Interaction, config: GuildConfig, ping: ActivePing) {
   if (ping.messageDeleted) return;
 
-  // Si la interacción viene del propio mensaje del ping, avisamos a Discord YA: generar el banner
-  // puede pasar de los 3 s que da Discord y la interacción caducaría ("Unknown interaction").
+  // Si la interacción viene del propio mensaje del ping, se confirma a Discord antes de nada:
+  // generar el banner puede pasar de los 3 s que da Discord y la interacción caducaría
+  // ("Unknown interaction").
   const fromPingMessage = interaction.isMessageComponent() && interaction.message.id === ping.messageId;
   let deferredHere = false;
   if (fromPingMessage && !interaction.deferred && !interaction.replied) {
@@ -115,7 +121,7 @@ async function refreshActivePingMessage(interaction: Interaction, config: GuildC
   }
 
   const contentConfig = ConfigManager.getContentType(config.guildId, ping.contentTypeId) || fallbackContentConfig(ping);
-  // Si alguien borró a mano la voz temporal, no la seguimos enlazando
+  // Si alguien borró a mano la voz temporal, se deja de enlazar.
   if (ping.voiceChannelId && interaction.guild && !interaction.guild.channels.cache.has(ping.voiceChannelId)) {
     ping.voiceChannelId = undefined;
     ConfigManager.savePing(config.guildId, ping);
@@ -139,9 +145,7 @@ async function refreshActivePingMessage(interaction: Interaction, config: GuildC
   }
 }
 
-/**
- * Remueve a un jugador de todos los slots del Roster, Banca y Ausentes de un Ping
- */
+// Quita a un jugador de todos los roles, la banca y los ausentes. Devuelve el arma o IP que había indicado, para conservarla si cambia de rol.
 function removeUserFromPing(ping: ActivePing, userId: string): string | undefined {
   let previousWeapon: string | undefined;
 
@@ -163,10 +167,14 @@ function isPingFinished(ping: ActivePing) {
   return ping.status === 'CLOSED' || ping.status === 'CANCELLED';
 }
 
+/**
+ * Atiende cualquier interacción. Nunca lanza: los errores se registran con reportError y, si se
+ * puede, se responde al usuario con un mensaje genérico.
+ */
 export async function handleInteraction(interaction: Interaction) {
   try {
     if (interaction.isAutocomplete()) {
-      // Ningún comando usa autocompletado desde que la configuración pasó al panel web
+      // Ningún comando usa autocompletado desde que la configuración pasó al panel web.
       await interaction.respond([]);
       return;
     }
@@ -180,16 +188,16 @@ export async function handleInteraction(interaction: Interaction) {
 
     const config = ConfigManager.getConfig(interaction.guildId, interaction.guild?.name);
     if (interaction.guild) ConfigManager.syncGuildIcon(config, interaction.guild);
-    // Cada interacción trae las suscripciones vigentes: así un pago recién hecho se nota al instante
+    // Cada interacción trae las suscripciones vigentes: así un pago recién hecho se nota al instante.
     for (const e of interaction.entitlements.values()) applyEntitlement(interaction.client, e);
     const displayName = displayNameOf(interaction);
 
-    // 1. Slash Commands
+    // 1. Comandos de barra.
     if (interaction.isChatInputCommand()) {
       const { commandName } = interaction;
 
       if (commandName === 'panel') return handlePanelCommand(interaction);
-      // /config ya no existe (se configura en el panel); por si Discord aún lo muestra en caché:
+      // /config ya no existe (se configura en el panel), pero Discord puede seguir mostrándolo en caché.
       if (commandName === 'config') {
         await interaction.reply({ ...movedToPanelReply(config.guildId, 'ajustes'), flags: MessageFlags.Ephemeral });
         return;
@@ -224,11 +232,11 @@ export async function handleInteraction(interaction: Interaction) {
       }
     }
 
-    // 2. Botones
+    // 2. Botones.
     if (interaction.isButton()) {
       const { customId } = interaction;
 
-      // --- Botones de un Ping Publicado (los usa cualquier jugador) ---
+      // --- Botones del ping publicado; los usa cualquier jugador ---
       if (customId.startsWith('ping_btn_')) {
         await handlePingActionButtons(interaction, config, displayName);
         return;
@@ -242,13 +250,13 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Editor visual de compo (permisos según lo que se edite) ---
+      // --- Editor de compos; los permisos dependen de lo que se edite ---
       if (customId.startsWith('compo_')) {
         await handleCompoInteraction(interaction, config);
         return;
       }
 
-      // --- Panel: Recargar (inofensivo, cualquiera) ---
+      // --- Recargar el panel de Callers; no cambia nada, así que puede cualquiera ---
       if (customId === 'panel_refresh') {
         await interaction.update(buildFixedCallerPanel(config));
         return;
@@ -260,7 +268,7 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Todo lo demás es del asistente de creación: requiere ser Caller ---
+      // --- Todo lo demás es del asistente de creación y requiere ser Caller ---
       if (customId.startsWith('wizard_') || customId === 'panel_start_ping_wizard') {
         if (!canCreatePings(interaction, config)) {
           await interaction.reply({ content: NO_CALLER_PERMS, flags: MessageFlags.Ephemeral });
@@ -276,8 +284,8 @@ export async function handleInteraction(interaction: Interaction) {
       }
 
       const draft = getOrInitDraft(config, interaction.user.id, displayName);
-      // Detalles, compo, aviso y voz/hilo ya no se ajustan por ping: salen del panel web.
-      // Si alguien pulsa uno de esos botones en un mensaje antiguo, se le muestra el asistente nuevo.
+      // Detalles, compo, aviso, voz e hilo ya no se ajustan por ping: salen del panel web. Si alguien
+      // pulsa uno de esos botones en un mensaje antiguo, se le muestra el asistente actual.
       if (['wizard_btn_edit_details', 'wizard_btn_edit_roles', 'wizard_btn_cycle_mention', 'wizard_btn_toggle_extras'].includes(customId)) {
         await interaction.update(buildWizardStepMessage(draft, config));
         return;
@@ -295,7 +303,7 @@ export async function handleInteraction(interaction: Interaction) {
       }
     }
 
-    // 3. Menús desplegables
+    // 3. Menús desplegables.
     if (interaction.isStringSelectMenu()) {
       const { customId, values } = interaction;
 
@@ -319,7 +327,7 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Ping Publicado: Jugador elige su Rol ---
+      // --- Ping publicado: el jugador elige su rol ---
       if (customId.startsWith('ping_role_select:')) {
         if (takeCooldown(`roster:${interaction.user.id}`, COOLDOWNS.rosterAction) > 0) {
           await interaction.reply({ content: '⏳ Despacio, vuelve a intentarlo en un segundo.', flags: MessageFlags.Ephemeral });
@@ -350,7 +358,7 @@ export async function handleInteraction(interaction: Interaction) {
         };
 
         if (isFull) {
-          // Rol lleno: va a Banca con nota del rol que quería
+          // Rol lleno o party completa: va a la banca, con el rol que quería como nota.
           ping.bench.push({
             ...entry,
             customWeapon: prevWeapon ? `${prevWeapon} (Cola: ${roleObj.label})` : `Cola: ${roleObj.label}`,
@@ -364,13 +372,13 @@ export async function handleInteraction(interaction: Interaction) {
         return;
       }
 
-      // --- Menús de plantillas de versiones anteriores: ahora se gestiona en el panel web ---
+      // --- Menús de plantillas de versiones anteriores: ahora se gestionan en el panel web ---
       if (customId.startsWith('tpl_')) {
         await interaction.reply({ ...movedToPanelReply(config.guildId), flags: MessageFlags.Ephemeral });
         return;
       }
 
-      // --- Asistente (solo Callers) ---
+      // --- Asistente, solo para Callers ---
       if (customId.startsWith('wizard_')) {
         if (!canCreatePings(interaction, config)) {
           await interaction.reply({ content: NO_CALLER_PERMS, flags: MessageFlags.Ephemeral });
@@ -408,13 +416,13 @@ export async function handleInteraction(interaction: Interaction) {
       }
     }
 
-    // Añadir jugadores al reparto de puntos
+    // Añadir jugadores al reparto de puntos.
     if (interaction.isUserSelectMenu() && interaction.customId.startsWith('pts_')) {
       await handlePointsInteraction(interaction, config);
       return;
     }
 
-    // 4. Selector de canal destino en el asistente
+    // 4. Selector del canal de destino en el asistente.
     if (interaction.isChannelSelectMenu() && interaction.customId === 'wizard_select_channel') {
       if (!canCreatePings(interaction, config)) {
         await interaction.reply({ content: NO_CALLER_PERMS, flags: MessageFlags.Ephemeral });
@@ -427,7 +435,7 @@ export async function handleInteraction(interaction: Interaction) {
       return;
     }
 
-    // 5. Formularios (Modals)
+    // 5. Formularios.
     if (interaction.isModalSubmit()) {
       if (interaction.customId.startsWith('pts_')) {
         await handlePointsInteraction(interaction, config);
@@ -451,9 +459,7 @@ export async function handleInteraction(interaction: Interaction) {
   }
 }
 
-/**
- * Arma el texto de mención y qué menciones permite Discord (para no taggear de más).
- */
+// Texto de la mención y allowedMentions correspondiente, para que Discord no notifique a nadie más.
 function buildMention(
   draft: DraftPingSession,
   config: GuildConfig,
@@ -484,9 +490,7 @@ function buildMention(
   return { content: `⚔️ **¡ARMANDO PARTY: ${upperTitle}!** ⚔️`, allowedMentions: { parse: [] } };
 }
 
-/**
- * Publica el Ping con banner, embed, hilo y voz temporal
- */
+// Publica el ping: mensaje con banner y embed, voz temporal, hilo de builds y Mando del Caller.
 async function launchOfficialPing(interaction: ButtonInteraction, config: GuildConfig, callerDisplayName: string) {
   const limits = getLimits(config);
   if (ConfigManager.countOpenPings(config.guildId) >= limits.maxActivePings) {
@@ -508,7 +512,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   const draft = getOrInitDraft(config, interaction.user.id, callerDisplayName);
   const contentConfig = ConfigManager.getContentType(config.guildId, draft.contentTypeId) || config.contentTypes[0];
 
-  // El ping usa siempre lo configurado en el panel para ese contenido
+  // El ping usa siempre lo configurado en el panel para ese contenido.
   draft.title = contentConfig.name;
   draft.departureLocation = contentConfig.defaultZone;
   draft.gearTier = contentConfig.defaultGearTier;
@@ -524,7 +528,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   const initialRoster: ActivePing['roster'] = {};
   for (const r of rolesToUse) initialRoster[r.id] = [];
 
-  // Se recalcula al publicar: si la hora elegida ya pasó, sale al día siguiente
+  // Se recalcula al publicar: si la hora elegida ya pasó, sale al día siguiente.
   const slot = draftSlot(draft);
   const startTimeUnix = nextUtcStartUnix(slot);
 
@@ -554,7 +558,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     createdAt: Date.now(),
   };
 
-  // 1. Canal de texto destino
+  // 1. Canal de texto de destino.
   let targetChannel: TextChannel | null = null;
   if (interaction.guild) {
     const ch = await interaction.guild.channels.fetch(newPing.channelId).catch(() => null);
@@ -563,7 +567,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     }
   }
   const fail = async (content: string) => {
-    // No consumir el cooldown si no se llegó a publicar
+    // No se consume el cooldown si no se llegó a publicar.
     clearCooldown(`publish:${config.guildId}:${interaction.user.id}`);
     await interaction.editReply({ content, embeds: [], components: [] });
   };
@@ -572,8 +576,8 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     return;
   }
 
-  // Seguridad: el Caller debe poder escribir en ese canal. Si no, el bot publicaría por él
-  // en canales donde no tiene permiso (p. ej. #anuncios).
+  // El Caller tiene que poder escribir en ese canal; si no, el bot publicaría por él en canales
+  // donde no tiene permiso (p. ej. #anuncios).
   const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
   const callerPerms = member ? targetChannel.permissionsFor(member) : null;
   if (!callerPerms?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages])) {
@@ -593,7 +597,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     return;
   }
 
-  // 2. Canal de voz temporal
+  // 2. Canal de voz temporal.
   if (draft.createVoice && interaction.guild) {
     try {
       const voiceChannel = await interaction.guild.channels.create({
@@ -608,7 +612,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     }
   }
 
-  // 3. Mensaje del ping
+  // 3. Mensaje del ping.
   const messagePayload = await buildPingMessagePayload(newPing, contentConfig, config);
   const mention = buildMention(draft, config, newPing.title, canMentionEveryone(interaction));
 
@@ -619,7 +623,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   });
   newPing.messageId = sentMsg.id;
 
-  // 4. Hilo de builds/swaps
+  // 4. Hilo de builds y swaps.
   if (draft.createThread) {
     try {
       const thread = await sentMsg.startThread({
@@ -662,7 +666,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
   ConfigManager.savePing(config.guildId, newPing);
   ConfigManager.clearDraft(config.guildId, interaction.user.id);
 
-  // El Mando del Caller llega aquí, en privado (en el ping público lo verían todos)
+  // El Mando del Caller se envía en privado: en el ping público lo verían todos.
   const panel = callerPanel(config, newPing);
   await interaction.editReply({
     content: '',
@@ -679,7 +683,7 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
 
 // ---------- Mando del Caller (privado: al publicar y con /mando) ----------
 
-/** El Caller del ping o un oficial (Gestionar canales). */
+// Puede usar el Mando el Caller del ping o un oficial con Gestionar canales.
 function canCommandPing(
   interaction: { user: { id: string }; memberPermissions: Readonly<{ has(p: bigint): boolean }> | null },
   ping: ActivePing
@@ -687,12 +691,12 @@ function canCommandPing(
   return interaction.user.id === ping.callerId || Boolean(interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels));
 }
 
-/** Controles del Caller para un ping (mensaje efímero). `notice` = resultado de la última acción. */
+// Controles del Caller para un ping (mensaje efímero). `notice` es el resultado de la última acción.
 function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
   const joined = partyJoined(ping);
   const max = partyMax(ping.roles, ping.partySize);
 
-  // Salida terminada: lo único que queda por hacer es repartir los puntos
+  // Salida terminada: lo único que queda por hacer es repartir los puntos.
   if (isPingFinished(ping)) {
     const btn = pointsButton(config, ping);
     const head = notice ? `${notice}\n` : '';
@@ -734,10 +738,8 @@ function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
   return { content: notice ?? '', embeds: [fitEmbed(embed)], components: [row] };
 }
 
-/**
- * Pings que creó este usuario: abiertos, o terminados con puntos por repartir.
- * Solo los suyos, aunque sea oficial (los oficiales gestionan los de otros desde el panel web).
- */
+// Pings que creó este usuario: abiertos, o terminados con puntos por repartir. Solo los suyos,
+// aunque sea oficial: los oficiales gestionan los de otros desde el panel web.
 function commandablePings(interaction: ChatInputCommandInteraction, config: GuildConfig): ActivePing[] {
   return Object.values(ConfigManager.getActivePings(config.guildId))
     .filter((p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS' || (p.status === 'CLOSED' && pointsButton(config, p)))
@@ -746,7 +748,7 @@ function commandablePings(interaction: ChatInputCommandInteraction, config: Guil
     .slice(0, 25);
 }
 
-/** /mando: abre el Mando del Caller (o un selector si tiene varios pings). */
+// /mando: abre el Mando del Caller, o un selector si tiene varios pings.
 async function handleMandoCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   const pings = commandablePings(interaction, config);
   if (pings.length === 0) {
@@ -775,9 +777,7 @@ async function handleMandoCommand(interaction: ChatInputCommandInteraction, conf
   });
 }
 
-/**
- * Botones bajo un Ping activo: Arma/IP, Bajarme, Builds (y Mando Caller en pings antiguos)
- */
+// Botones del ping publicado: Arma/IP, Bajarme, Builds y, en pings antiguos, el Mando.
 async function handlePingActionButtons(interaction: ButtonInteraction, config: GuildConfig, displayName: string) {
   const [action, pingId] = interaction.customId.split(':');
   const ping = ConfigManager.getPing(config.guildId, pingId);
@@ -802,7 +802,7 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
     return;
   }
 
-  // Botón de pings publicados antes de que el Mando pasara a ser privado
+  // Botón de los pings publicados antes de que el Mando pasara a ser privado.
   if (action === 'ping_btn_caller') {
     if (!canCommandPing(interaction, ping)) {
       await interaction.reply({
@@ -870,9 +870,7 @@ async function handlePingActionButtons(interaction: ButtonInteraction, config: G
   }
 }
 
-/**
- * Acciones del Caller sobre un Ping: En Ruta, Llamar a Voz, Terminar, Cancelar
- */
+// Acciones del Mando: En ruta, ¡A voz!, GG y Cancelar.
 async function handleCallerStatusAction(interaction: ButtonInteraction, config: GuildConfig) {
   const [, subAction, pingId] = interaction.customId.split(':');
   const ping = ConfigManager.getPing(config.guildId, pingId);
@@ -882,7 +880,7 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
     return;
   }
 
-  // Re-chequeo de permisos (el mensaje efímero podría reenviarse)
+  // Se vuelven a comprobar los permisos: el customId del Mando no es secreto.
   const isCaller = interaction.user.id === ping.callerId;
   const isOfficer = interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels);
   if (!isCaller && !isOfficer) {
@@ -909,7 +907,7 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
       return;
     }
 
-    // En el hilo del ping para no saturar el canal (si no hay hilo o falla, en el canal del ping).
+    // En el hilo del ping para no saturar el canal; si no hay hilo o falla, en el canal del ping.
     // Nunca en interaction.channel: el Mando es privado y puede estar abierto en otro canal (/mando).
     const ids = Array.from(allUserIds);
     const voiceText = ping.voiceChannelId ? ` al canal de voz <#${ping.voiceChannelId}>` : ' a voz';
@@ -921,7 +919,7 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
       if (!channelId) return false;
       const ch = await interaction.guild?.channels.fetch(channelId).catch(() => null);
       if (!ch || !ch.isTextBased() || !('send' in ch)) return false;
-      // Un hilo archivado se reabre al escribir, salvo que esté bloqueado
+      // Un hilo archivado se reabre al escribir, salvo que esté bloqueado.
       if (ch.isThread() && ch.archived) await ch.setArchived(false).catch(() => null);
       return ch
         .send(message)
@@ -951,14 +949,14 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
   }
 
   if (subAction === 'close' || subAction === 'cancel') {
-    // Panel privado viejo pulsado otra vez: la salida ya se cerró
+    // Se pulsó un Mando antiguo y la salida ya está cerrada.
     if (isPingFinished(ping)) {
       await interaction.update({ ...callerPanel(config, ping), allowedMentions: { parse: [] } });
       return;
     }
     ping.status = subAction === 'close' ? 'CLOSED' : 'CANCELLED';
     ping.closedAt = Date.now();
-    // Quién lo cerró: queda en el ping, en el registro de auditoría de Discord y en los logs
+    // Quién lo cerró queda en el ping, en el registro de auditoría de Discord y en los logs.
     const who = displayNameOf(interaction);
     const role = interaction.user.id === ping.callerId ? 'Caller' : 'oficial';
     ping.closedBy = interaction.user.id;
@@ -980,15 +978,13 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
       embeds: [],
       components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
     });
-    // Cancelada: no hay puntos ni nada que guardar, el mensaje se borra ya
+    // Cancelada: no hay puntos que repartir y el mensaje se borra ya.
     if (subAction === 'cancel' && interaction.guild) await deletePingMessage(interaction.guild, ping);
     else await refreshActivePingMessage(interaction, config, ping);
   }
 }
 
-/**
- * Formularios: Detalles del Ping, Roles, Arma/IP, Nueva Plantilla
- */
+// Formularios: detalles del asistente, roles personalizados, Arma/IP y los de versiones anteriores.
 async function handleModalSubmissions(interaction: ModalSubmitInteraction, config: GuildConfig, displayName: string) {
   const { customId } = interaction;
 
@@ -1002,7 +998,7 @@ async function handleModalSubmissions(interaction: ModalSubmitInteraction, confi
     else await interaction.reply({ ...buildWizardStepMessage(draft, config), flags: MessageFlags.Ephemeral });
   };
 
-  // 1. Detalles del asistente
+  // 1. Detalles del asistente.
   if (customId === 'wizard_modal_details') {
     if (!canCreatePings(interaction, config)) {
       await interaction.reply({ content: NO_CALLER_PERMS, flags: MessageFlags.Ephemeral });
@@ -1019,7 +1015,7 @@ async function handleModalSubmissions(interaction: ModalSubmitInteraction, confi
     return;
   }
 
-  // 2. Roles personalizados para este ping
+  // 2. Roles personalizados para este ping.
   if (customId === 'wizard_modal_custom_roles') {
     if (!canCreatePings(interaction, config)) {
       await interaction.reply({ content: NO_CALLER_PERMS, flags: MessageFlags.Ephemeral });
@@ -1037,13 +1033,13 @@ async function handleModalSubmissions(interaction: ModalSubmitInteraction, confi
     return;
   }
 
-  // 3. Formularios de plantillas de versiones anteriores: ahora se gestiona en el panel web
+  // 3. Formularios de plantillas de versiones anteriores: ahora se gestionan en el panel web.
   if (customId.startsWith('tpl_modal_')) {
     await interaction.reply({ ...movedToPanelReply(config.guildId), flags: MessageFlags.Ephemeral });
     return;
   }
 
-  // 4. Arma/IP del jugador
+  // 4. Arma o IP que indica el jugador.
   if (customId.startsWith('ping_modal_weapon:')) {
     const pingId = customId.split(':')[1];
     const weaponNote = cleanPlayerText(interaction.fields.getTextInputValue('input_weapon_note'), 45);

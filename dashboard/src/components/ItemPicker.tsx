@@ -1,9 +1,12 @@
+/** Buscador de ítems del catálogo para un hueco de la build. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api';
 import { BUILD_SLOTS, iconUrl, type CatalogItem, type ItemSlot } from '../types';
 
-// El catálogo (≈450 ítems) se carga una vez y se busca en el navegador
+// El catálogo (unos 450 ítems) se descarga una vez y se busca en el navegador.
 let catalogPromise: Promise<CatalogItem[]> | null = null;
+
+/** Catálogo de ítems, o null mientras carga. Si la descarga falla, el siguiente uso lo reintenta. */
 export function useCatalog() {
   const [items, setItems] = useState<CatalogItem[] | null>(null);
   useEffect(() => {
@@ -17,6 +20,7 @@ export function useCatalog() {
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
+/** Diálogo para elegir un ítem de un hueco; onPick(null) vacía el hueco. Se cierra con Escape. */
 export function ItemPicker({ slot, selected, onPick, onClose }: {
   slot: ItemSlot;
   selected?: string;

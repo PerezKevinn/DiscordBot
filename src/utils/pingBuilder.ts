@@ -1,3 +1,7 @@
+/**
+ * Mensaje público de un ping: banner, embed con los datos y el roster, menú de roles y botones.
+ * Se regenera entero en cada cambio del roster.
+ */
 import {
   ActionRowBuilder,
   AttachmentBuilder,
@@ -16,7 +20,7 @@ import { componentEmoji } from './emoji';
 import { getItem, isTwoHanded } from '../data/items';
 import { hasAnyBuild } from './buildCard';
 
-/** Barra de progreso de la party con caracteres finos (se ve bien en modo claro y oscuro). */
+// Barra de progreso de la party con caracteres finos, que se ven bien en tema claro y oscuro.
 function buildProgressBar(current: number, max: number, length = 10): string {
   if (max <= 0) return '';
   const filled = Math.round(Math.min(1, Math.max(0, current / max)) * length);
@@ -29,7 +33,7 @@ function formatPlayer(u: RosterSlotUser, idx: number): string {
 
 function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[], partyFull = false) {
   const { name, weapons: labelWeapons } = splitRoleLabel(role.label);
-  // Si el rol tiene build, se muestra su arma (nombre oficial) cuando el nombre no trae armas
+  // Si el nombre del rol no trae armas pero el rol tiene build, se muestra el arma de la build.
   const buildWeapon = getItem(role.build?.weapon)?.name;
   const buildOff = isTwoHanded(role.build?.weapon) ? undefined : getItem(role.build?.offhand)?.name;
   const weapons = labelWeapons || (buildWeapon ? (buildOff ? `${buildWeapon} + ${buildOff}` : buildWeapon) : undefined);
@@ -41,7 +45,7 @@ function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[], partyFull 
   if (weapons) lines.push(`-# ${weapons}`);
   lines.push(...signed.map(formatPlayer));
   if (partyFull) {
-    if (signed.length === 0) lines.push('*—*'); // la party ya está completa: nadie más entra aquí
+    if (signed.length === 0) lines.push('*—*'); // La party ya está completa: nadie más entra en este rol.
   } else if (signed.length === 0) lines.push(role.maxSlots > 0 ? `*${role.maxSlots} libre${role.maxSlots > 1 ? 's' : ''}*` : '*Libre*');
   else if (free > 0) lines.push(`*+${free} libre${free > 1 ? 's' : ''}*`);
 
@@ -53,10 +57,12 @@ function buildRoleField(role: RoleTemplate, signed: RosterSlotUser[], partyFull 
 }
 
 /**
- * Mensaje completo del Ping:
- * - Cabecera gráfica (banner) con el título y el contador de la party
- * - Embed con los datos en vivo (hora relativa, masa, IP, voz, hilo) y el roster por rol
- * - Menú para elegir rol y botones
+ * Construye el mensaje completo del ping:
+ * - Banner con el título y el contador de la party.
+ * - Embed con los datos (hora relativa, masa, IP, voz, hilo) y el roster por rol.
+ * - Menú para elegir rol y botones, desactivados si el ping está cerrado.
+ *
+ * @param rawConfig Config sin filtrar; aquí se aplica brandForRender según el plan.
  */
 export async function buildPingMessagePayload(
   ping: ActivePing,
@@ -81,7 +87,7 @@ export async function buildPingMessagePayload(
     CLOSED: '🔒 **GG** — contenido terminado',
     CANCELLED: '🔴 **Cancelado**',
   };
-  // Quién lo cerró (las menciones dentro de un embed no notifican a nadie)
+  // Quién lo cerró. Las menciones dentro de un embed no notifican a nadie.
   const closedByText = !isClosed
     ? ''
     : ping.closedBy
@@ -108,7 +114,7 @@ export async function buildPingMessagePayload(
     '',
     `👥 **Party:** ${totalJoined}${totalMax > 0 ? `/${totalMax}` : ''}  ${buildProgressBar(totalJoined, totalMax)}${partyFull ? '  · completa 🔒' : ''}`,
   ]
-    .filter((l, i, arr) => l !== '' || (arr[i - 1] !== '' && i > 0))
+    .filter((l, i, arr) => l !== '' || (arr[i - 1] !== '' && i > 0)) // Sin líneas vacías seguidas ni al principio.
     .join('\n');
 
   const embed = new EmbedBuilder()
@@ -124,6 +130,7 @@ export async function buildPingMessagePayload(
     })
     .setTimestamp(new Date(ping.createdAt));
 
+  // 22 campos de rol como mucho: Discord admite 25 y quedan los de banca y ausentes.
   for (const role of ping.roles.slice(0, 22)) {
     embed.addFields(buildRoleField(role, ping.roster[role.id] || [], partyFull));
   }
@@ -144,9 +151,7 @@ export async function buildPingMessagePayload(
     });
   }
 
-  // Componentes interactivos (Desactivados si ya cerró o canceló)
-
-  // Fila 1: Select Menu con todos los roles configurados para este contenido
+  // Fila 1: menú con los roles del ping.
   const roleSelect = new StringSelectMenuBuilder()
     .setCustomId(`ping_role_select:${ping.id}`)
     .setPlaceholder(
@@ -173,7 +178,7 @@ export async function buildPingMessagePayload(
 
   const rowSelect = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(roleSelect);
 
-  // Fila 2: Botones de Acción Rápida para Jugadores y Gestión para el Caller
+  // Fila 2: botones para los jugadores.
   const btnNote = new ButtonBuilder()
     .setCustomId(`ping_btn_weapon:${ping.id}`)
     .setLabel('Poner mi Arma / IP')
@@ -194,8 +199,8 @@ export async function buildPingMessagePayload(
     .setEmoji('📋')
     .setStyle(ButtonStyle.Secondary);
 
-  // Los controles del Caller no van aquí (todos verían el botón): le llegan en privado al
-  // publicar y con /mando
+  // Los controles del Caller no van aquí porque todos verían los botones: le llegan en privado
+  // al publicar y con /mando.
   const rowButtons = new ActionRowBuilder<ButtonBuilder>().addComponents(btnNote, btnLeave);
   if (hasAnyBuild(ping.roles)) rowButtons.addComponents(btnBuilds);
 

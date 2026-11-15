@@ -1,3 +1,8 @@
+/**
+ * Limpieza automática de pings, cada 2 minutos: detecta el fin de la actividad por la voz vacía,
+ * cierra los pings olvidados, borra las voces sin usar y los mensajes de pings terminados.
+ * También tiene las funciones de cierre que usan el panel y los botones de Discord.
+ */
 import { ChannelType, Client, Guild, TextChannel, VoiceState } from 'discord.js';
 import { ActivePing, ContentTypeConfig } from '../types/ping';
 import { CLOSED_PING_TTL_MS, ConfigManager } from './configManager';
@@ -5,20 +10,21 @@ import { buildPingMessagePayload } from './pingBuilder';
 
 /** Tras repartir los puntos, el mensaje del ping se borra pasado este tiempo (margen para corregir). */
 export const DELETE_AFTER_POINTS_MS = 10 * 60 * 1000;
-/** Pings terminados sin reparto: el mensaje se borra un poco antes de que se borren sus datos (3 días). */
+// Pings terminados sin reparto: el mensaje se borra un poco antes que sus datos (CLOSED_PING_TTL_MS).
 const DELETE_UNAWARDED_AFTER_CLOSE_MS = CLOSED_PING_TTL_MS - 30 * 60 * 1000;
 
-/** Ping abierto se cierra solo pasado este tiempo desde la hora de salida (red de seguridad). */
+// Un ping abierto se cierra solo pasado este tiempo desde la hora de salida (red de seguridad).
 const STALE_AFTER_START_MS = 6 * 60 * 60 * 1000;
-/** Si la voz se usó y queda vacía este tiempo, la actividad se da por terminada. */
+// Si la voz se usó y queda vacía este tiempo, la actividad se da por terminada.
 const EMPTY_VOICE_END_MS = 10 * 60 * 1000;
-/** Si nadie entró nunca a la voz, se borra (solo la voz) pasado este tiempo desde la salida. */
+// Si nadie entró nunca a la voz, se borra la voz (no el ping) pasado este tiempo desde la salida.
 const UNUSED_VOICE_AFTER_START_MS = 30 * 60 * 1000;
 const SWEEP_EVERY_MS = 2 * 60 * 1000;
 
-// voiceChannelId -> momento en que quedó vacía (en memoria; se reinicia con el bot)
+// voiceChannelId -> momento en que quedó vacía. Solo en memoria: tras un reinicio la cuenta empieza de nuevo.
 const emptySince = new Map<string, number>();
 
+// Plantilla mínima para redibujar un ping cuyo contenido ya se borró de la config.
 function fallbackContent(ping: ActivePing): ContentTypeConfig {
   return {
     id: ping.contentTypeId,
@@ -82,7 +88,7 @@ export async function deletePingMessage(guild: Guild, ping: ActivePing) {
           console.warn(`[${guild.id}] No se pudo borrar el mensaje del ping ${ping.id}:`, (err as Error).message);
           return false;
         });
-      if (!ok) return; // se reintenta en la próxima limpieza
+      if (!ok) return; // Se reintenta en la próxima limpieza.
     }
   }
   ping.messageDeleted = true;
@@ -97,6 +103,7 @@ export function schedulePingMessageDelete(guildId: string, ping: ActivePing, del
   ConfigManager.savePing(guildId, ping);
 }
 
+// Redibuja el mensaje del ping con su estado actual. Los fallos solo se registran en el log.
 async function editPingMessage(guild: Guild, ping: ActivePing) {
   if (ping.messageDeleted) return;
   try {
@@ -129,11 +136,11 @@ export async function closePingExternally(
   ConfigManager.savePing(guild.id, ping);
   console.log(`🔒 [${guild.id}] Ping ${ping.id} "${ping.title}": ${reason}`);
   await editPingMessage(guild, ping);
-  // Una salida cancelada no tiene nada que guardar: fuera el mensaje
+  // Una salida cancelada no tiene puntos que repartir: el mensaje se borra ya.
   if (status === 'CANCELLED') await deletePingMessage(guild, ping);
 }
 
-/** Cierra un ping desde fuera de una interacción (auto-cierre). */
+// Cierre automático, sin usuario que lo haga.
 async function autoClose(guild: Guild, ping: ActivePing, why: string) {
   ping.status = 'CLOSED';
   ping.closedAt = Date.now();
@@ -146,6 +153,7 @@ async function autoClose(guild: Guild, ping: ActivePing, why: string) {
   console.log(`🧹 [${guild.id}] Ping ${ping.id} cerrado: ${why}`);
 }
 
+/** Pasada de limpieza de un servidor. */
 export async function sweepGuild(guild: Guild) {
   const now = Date.now();
   let pings: Record<string, ActivePing>;
@@ -155,7 +163,7 @@ export async function sweepGuild(guild: Guild) {
     return;
   }
 
-  // Mensajes de pings terminados: tras repartir puntos, al cancelar, o antes de borrar sus datos
+  // Mensajes de pings terminados: tras repartir puntos, al cancelar o antes de borrar sus datos.
   for (const ping of Object.values(pings)) {
     if (isOpen(ping) || ping.messageDeleted) continue;
     const deleteAt =
@@ -165,14 +173,14 @@ export async function sweepGuild(guild: Guild) {
     if (now >= deleteAt) await deletePingMessage(guild, ping);
   }
 
-  // Privacidad: los pings cerrados (con los nombres de los jugadores) no duran más de 3 días
+  // Privacidad: los pings cerrados, que llevan los nombres de los jugadores, no duran más de 3 días.
   ConfigManager.pruneClosedPings(guild.id, now);
 
   for (const ping of Object.values(pings)) {
     if (!isOpen(ping)) continue;
     const startMs = ping.startTimeUnix * 1000;
 
-    // 1. Red de seguridad: ping olvidado
+    // 1. Red de seguridad: ping olvidado.
     if (now >= startMs + STALE_AFTER_START_MS) {
       await autoClose(guild, ping, 'ping olvidado (6 h después de la salida)');
       continue;
@@ -181,7 +189,7 @@ export async function sweepGuild(guild: Guild) {
     if (!ping.voiceChannelId || now < startMs) continue;
     const vc = guild.channels.cache.get(ping.voiceChannelId);
     if (!vc || vc.type !== ChannelType.GuildVoice) {
-      // Alguien borró la voz a mano
+      // Alguien borró la voz a mano.
       ping.voiceChannelId = undefined;
       ConfigManager.savePing(guild.id, ping);
       await editPingMessage(guild, ping);
@@ -197,7 +205,7 @@ export async function sweepGuild(guild: Guild) {
       continue;
     }
 
-    // 2. La party usó la voz y se fue: la actividad terminó
+    // 2. La party usó la voz y se fue: la actividad terminó.
     if (ping.voiceUsed) {
       const since = emptySince.get(vc.id) ?? now;
       emptySince.set(vc.id, since);
@@ -207,7 +215,7 @@ export async function sweepGuild(guild: Guild) {
       continue;
     }
 
-    // 3. Nadie entró nunca a la voz: se borra solo el canal, el ping sigue
+    // 3. Nadie entró nunca a la voz: se borra solo el canal y el ping sigue abierto.
     if (now >= startMs + UNUSED_VOICE_AFTER_START_MS) {
       await vc.delete('Voz temporal sin usar').catch(() => null);
       ping.voiceChannelId = undefined;
@@ -217,7 +225,7 @@ export async function sweepGuild(guild: Guild) {
   }
 }
 
-/** Marca que la voz de un ping se usó, para saber cuándo la party terminó. */
+// Marca que la voz de un ping se usó, para saber después cuándo terminó la party.
 function onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
   const joined = newState.channelId;
   if (!joined || joined === oldState.channelId) return;
@@ -230,7 +238,7 @@ function onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
       ConfigManager.savePing(newState.guild.id, ping);
     }
   } catch {
-    /* servidor sin datos */
+    // Servidor sin datos guardados: no hay ping que marcar.
   }
 }
 

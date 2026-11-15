@@ -1,3 +1,7 @@
+/**
+ * Utilidades de presentación en Discord: colores, embed base con la marca del servidor y formato
+ * de las compos de roles.
+ */
 import { EmbedBuilder } from 'discord.js';
 import { GuildConfig, RoleTemplate } from '../types/ping';
 import { botBrandName, brandForRender } from './plans';
@@ -36,13 +40,13 @@ export function splitRoleLabel(label: string): { name: string; weapons?: string 
   return { name: match[1], weapons: match[2] };
 }
 
-/** Total de cupos de una compo (null si algún rol no tiene límite). */
+/** Total de cupos de una compo, o null si algún rol no tiene límite. A diferencia de partyMax, ignora partySize. */
 export function totalSlots(roles: RoleTemplate[]): number | null {
   if (roles.some((r) => r.maxSlots <= 0)) return null;
   return roles.reduce((acc, r) => acc + r.maxSlots, 0);
 }
 
-/** Compo en una línea por rol: "⛓️ **Catch** ×3  -# Patas de Oso / Doble Filo" */
+/** Compo con una línea por rol y las armas debajo, p. ej. "⛓️ **Catch** ×3" y "-# Patas de Oso / Doble Filo". */
 export function formatCompo(roles: RoleTemplate[]): string {
   return roles
     .map((r) => {
@@ -53,14 +57,15 @@ export function formatCompo(roles: RoleTemplate[]): string {
     .join('\n');
 }
 
-/** Compo resumida en una sola línea: "⛓️3 · 🔮2 · 🗡️5" */
+/** Compo resumida en una sola línea, p. ej. "⛓️3 · 🔮2 · 🗡️5". */
 export function formatCompoInline(roles: RoleTemplate[]): string {
   return roles.map((r) => `${r.emoji}${r.maxSlots > 0 ? r.maxSlots : '∞'}`).join(' · ');
 }
 
 /**
- * Discord rechaza embeds de más de 6000 caracteres en total. Si nos pasamos (muchos
- * contenidos o roles con nombres largos), se quitan campos del final y se avisa.
+ * Discord rechaza los embeds de más de 6000 caracteres en total. Si se pasa (muchos contenidos o
+ * roles con nombres largos), se quitan campos del final y se añade uno que lo indica. El margen
+ * por debajo de 6000 deja sitio para ese último campo.
  */
 export function fitEmbed(embed: EmbedBuilder, limit = 5900): EmbedBuilder {
   const size = () => {
@@ -81,11 +86,15 @@ export function fitEmbed(embed: EmbedBuilder, limit = 5900): EmbedBuilder {
     removed++;
     embed.setFields(fields);
   }
+  // El nombre es un espacio de ancho cero: Discord no admite nombres de campo vacíos.
   if (removed > 0) embed.addFields({ name: '​', value: `-# …y ${removed} más (no caben en un mensaje)` });
   return embed;
 }
 
-/** Une nombre y armas sugeridas en la etiqueta de un rol: "Tanque (Maza / Martillo)". */
+/**
+ * Une nombre y armas sugeridas en la etiqueta de un rol: "Tanque (Maza / Martillo)". Quita los
+ * paréntesis que escriba el usuario para que splitRoleLabel pueda separarlos después.
+ */
 export function composeRoleLabel(name: string, weapons?: string): string {
   const n = name.replace(/[()]/g, '').trim().slice(0, 60) || 'Rol';
   const w = (weapons ?? '').replace(/[()]/g, '').trim().slice(0, 80);

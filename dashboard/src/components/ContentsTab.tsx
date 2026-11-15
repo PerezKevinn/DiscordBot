@@ -1,3 +1,8 @@
+/**
+ * Pestaña "Contenidos y builds": lista de plantillas de contenido y su editor (datos por defecto,
+ * compo de roles, builds y swaps). Lo que se está editando se guarda como borrador en el
+ * navegador para no perderlo si caduca la sesión.
+ */
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { MAX_SWAPS_PER_ROLE, type BuildSwap, type Content, type GuildData, type Role } from '../types';
@@ -7,7 +12,7 @@ import { ago, clearDraft, readDraft, setReopen, takeReopen, writeDraft, type Con
 
 const COMMON_EMOJIS = ['🛡️', '⚔️', '⛓️', '💚', '✨', '🌿', '🍃', '🔮', '⚡', '🗡️', '🔥', '💥', '🏹', '❄️', '👁️', '🔍', '⛏️', '🐎', '💰', '🚩'];
 
-/** Tamaño de la party: el fijo si lo hay; si no, la suma de cupos (null si algún rol no tiene límite). */
+// Tamaño de la party: el fijo si lo hay; si no, la suma de cupos (null si algún rol no tiene límite).
 const partyOf = (c: Content): number | null =>
   c.partySize ? c.partySize : c.roles.some((r) => r.maxSlots === 0) ? null : c.roles.reduce((a, r) => a + r.maxSlots, 0);
 
@@ -30,7 +35,7 @@ const blankContent = (): Content => ({
   ],
 });
 
-/** Copia de un contenido como contenido nuevo: misma compo y builds, sin ids. */
+// Copia de un contenido como contenido nuevo: misma compo y builds, sin ids.
 const duplicateContent = (c: Content): Content => {
   const copy = structuredClone(c);
   const suffix = ' (copia)';
@@ -44,7 +49,7 @@ const duplicateContent = (c: Content): Content => {
 
 const SWAP_SUGGESTIONS = ['Boss', 'Clear', 'Falce'];
 
-/** Swaps de un rol: cada uno con nombre y solo los huecos que cambian respecto a la build. */
+// Swaps de un rol: cada uno con nombre y solo los huecos que cambian respecto a la build.
 function SwapsEditor({ role, onChange }: { role: Role; onChange: (swaps: BuildSwap[]) => void }) {
   const swaps = role.swaps ?? [];
   const setSwap = (i: number, patch: Partial<BuildSwap>) => onChange(swaps.map((s, j) => (j === i ? { ...s, ...patch } : s)));
@@ -86,8 +91,9 @@ function SwapsEditor({ role, onChange }: { role: Role; onChange: (swaps: BuildSw
   );
 }
 
+/** Lista de contenidos y editor del que se haya abierto. */
 export function ContentsTab({ data, save }: { data: GuildData; save: Save }) {
-  // Si se estaba editando algo antes de iniciar sesión o recargar, se vuelve a abrir
+  // Si se estaba editando algo antes de iniciar sesión o recargar, se vuelve a abrir.
   const [editing, setEditing] = useState<Content | null>(() => {
     const reopen = takeReopen(data.guild.id);
     if (reopen === null) return null;
@@ -187,7 +193,7 @@ function ContentEditor({
   initial: Content;
   save: Save;
   onDone: () => void;
-  /** Sin valor = no se puede duplicar (límite del plan) */
+  /** Sin valor no se ofrece duplicar (se llegó al límite del plan). */
   onDuplicate?: (c: Content) => void;
 }) {
   const [c, setC] = useState<Content>(initial);
@@ -195,26 +201,26 @@ function ContentEditor({
   const guildId = data.guild.id;
   const same = (a: Content, b: Content) => JSON.stringify(a) === JSON.stringify(b);
 
-  // Borrador de una visita anterior (sesión caducada, recarga, pestaña cerrada…)
+  // Borrador de una visita anterior (sesión caducada, recarga, pestaña cerrada…).
   const [offer, setOffer] = useState<ContentDraft | null>(() => {
     const d = readDraft(guildId, initial.id);
     return d && !same(d.content, initial) ? d : null;
   });
   const dirty = !same(c, initial);
 
-  // Recordar qué se está editando, para reabrirlo tras iniciar sesión o recargar
+  // Recuerda qué se está editando, para reabrirlo tras iniciar sesión o recargar.
   useEffect(() => {
     setReopen(guildId, initial.id);
   }, [guildId, initial.id]);
 
-  // Guardar el borrador en el navegador mientras se edita (no pisa uno pendiente de recuperar)
+  // Guarda el borrador mientras se edita, con 400 ms de espera. No pisa uno pendiente de recuperar.
   useEffect(() => {
     if (offer || !dirty) return;
     const t = setTimeout(() => writeDraft(guildId, initial.id, c), 400);
     return () => clearTimeout(t);
   }, [c, dirty, offer, guildId, initial.id]);
 
-  // Avisar antes de cerrar o recargar la pestaña con cambios sin guardar
+  // Avisa antes de cerrar o recargar la pestaña con cambios sin guardar.
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -224,7 +230,7 @@ function ContentEditor({
 
   const recover = () => {
     if (!offer) return;
-    // Los ids de roles del borrador valen si el contenido sigue existiendo; en uno nuevo no hay ids
+    // Los ids de roles del borrador valen si el contenido sigue existiendo; en uno nuevo no hay ids.
     setC({ ...offer.content, id: initial.id });
     setOffer(null);
   };

@@ -1,3 +1,8 @@
+/**
+ * Tarjeta de builds de una party: una imagen con una fila por rol y los iconos oficiales de cada
+ * hueco, y debajo de cada rol sus swaps. Se publica en el hilo del ping y con el botón Builds.
+ * Los iconos se descargan del servicio oficial de Albion y se guardan en data/cache/icons.
+ */
 import fs from 'fs';
 import { FONT_STACK } from './fonts';
 import path from 'path';
@@ -6,22 +11,19 @@ import { BUILD_SLOTS, getItem, isTwoHanded, itemIconUrl } from '../data/items';
 import { RoleBuild, RoleTemplate } from '../types/ping';
 import { splitRoleLabel } from './ui';
 
-/**
- * Tarjeta de builds de una party: una fila por rol con los iconos oficiales de cada hueco.
- * Los iconos se descargan del servicio oficial de Albion y se guardan en data/cache/icons.
- */
-
 const ICON_DIR = path.join(process.cwd(), 'data', 'cache', 'icons');
 const ICON_HOST = 'render.albiononline.com';
 const memory = new Map<string, Image>();
 
+// Icono de un ítem: memoria, luego disco, luego descarga. Devuelve null ante cualquier fallo y la
+// casilla queda vacía; una imagen sin un icono es mejor que no poder publicar la tarjeta.
 async function getIcon(itemId: string): Promise<Image | null> {
   const item = getItem(itemId);
   if (!item) return null;
   const hit = memory.get(item.icon);
   if (hit) return hit;
 
-  const safe = item.icon.replace(/[^A-Z0-9_@]/gi, '_');
+  const safe = item.icon.replace(/[^A-Z0-9_@]/gi, '_'); // El id acaba en un nombre de archivo.
   const file = path.join(ICON_DIR, `${safe}.png`);
   try {
     let buf: Buffer;
@@ -48,11 +50,12 @@ async function getIcon(itemId: string): Promise<Image | null> {
 
 const hasItems = (b?: RoleBuild) => Boolean(b && Object.values(b).some(Boolean));
 
+/** Indica si algún rol tiene build o swaps con ítems, es decir, si hay tarjeta que mostrar. */
 export function hasAnyBuild(roles: RoleTemplate[]): boolean {
   return roles.some((r) => hasItems(r.build) || (r.swaps ?? []).some((s) => hasItems(s.build)));
 }
 
-/** Filas de la tarjeta: la build de cada rol y, debajo, sus swaps. */
+// Filas de la tarjeta: la build de cada rol y, debajo, sus swaps.
 type CardRow =
   | { kind: 'main'; role: RoleTemplate; build: RoleBuild }
   | { kind: 'swap'; label: string; build: RoleBuild; base: RoleBuild };
@@ -66,7 +69,7 @@ function truncate(ctx: SKRSContext2D, text: string, max: number) {
   return `${t}…`;
 }
 
-/** Genera la tarjeta PNG o null si ningún rol tiene build. */
+/** Genera la tarjeta en PNG, o null si ningún rol tiene build. Muestra como mucho 24 filas. */
 export async function generateBuildCard(title: string, roles: RoleTemplate[]): Promise<Buffer | null> {
   const rows: CardRow[] = [];
   for (const role of roles) {
@@ -76,7 +79,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
     for (const s of swaps) rows.push({ kind: 'swap', label: s.label, build: s.build, base: role.build ?? {} });
   }
   if (rows.length === 0) return null;
-  // No partir un rol de sus swaps al recortar
+  // Al recortar se quita el último rol entero, para no separar un rol de sus swaps.
   while (rows.length > MAX_ROWS) {
     const lastMain = rows.map((r) => r.kind).lastIndexOf('main');
     rows.splice(lastMain > 0 ? lastMain : MAX_ROWS);
@@ -89,7 +92,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   const HEADER = 64;
   const ROW = ICON + 30;
   const SWAP_ROW = ICON + 12;
-  // Un rol seguido de sus swaps va más pegado a ellos; entre roles queda el espacio normal
+  // Un rol seguido de sus swaps va más pegado a ellos; entre roles queda el espacio normal.
   const rowHeight = (i: number) =>
     rows[i].kind === 'swap' ? (rows[i + 1]?.kind === 'swap' ? SWAP_ROW : ROW - 8) : rows[i + 1]?.kind === 'swap' ? SWAP_ROW : ROW;
   const width = PAD * 2 + NAME_W + BUILD_SLOTS.length * (ICON + GAP);
@@ -98,7 +101,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
 
-  // Fondo y marco en el estilo de MassUp
+  // Fondo y marco con los colores de la marca.
   const bg = ctx.createLinearGradient(0, 0, width, height);
   bg.addColorStop(0, '#08080b');
   bg.addColorStop(1, '#14141a');
@@ -113,7 +116,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   ctx.textBaseline = 'middle';
   ctx.fillText(truncate(ctx, `BUILDS · ${title.toUpperCase()}`, width - PAD * 2), PAD, 36);
 
-  // Cabecera de huecos
+  // Cabecera de los huecos.
   ctx.font = `11px ${FONT_STACK}`;
   ctx.fillStyle = '#8f8a7e';
   ctx.textAlign = 'center';
@@ -123,7 +126,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   });
   ctx.textAlign = 'left';
 
-  // Precarga de iconos en paralelo
+  // Precarga de iconos en paralelo; el arma base se incluye porque los swaps la dibujan en gris.
   const ids = new Set<string>();
   for (const r of rows) {
     for (const id of Object.values(r.build)) if (id) ids.add(id);
@@ -137,7 +140,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   for (const [index, row] of rows.entries()) {
     const rowH = rowHeight(index);
     if (row.kind === 'main') band++;
-    // Mismo fondo para un rol y sus swaps, alternando entre roles
+    // Mismo fondo para un rol y sus swaps, alternando entre roles.
     if (band % 2 === 1) {
       ctx.fillStyle = 'rgba(255,255,255,0.025)';
       ctx.fillRect(PAD - 8, y - 6, width - PAD * 2 + 16, rowH);
@@ -160,7 +163,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
       ctx.fillText(truncate(ctx, row.label.toUpperCase(), NAME_W - 28), PAD + 12, y + ICON / 2 + 10);
     }
 
-    // En un swap, el arma que manda es la del swap si la cambia; si no, la de la build
+    // En un swap, el arma que cuenta es la del swap si la cambia; si no, la de la build.
     const weapon = row.build.weapon ?? (row.kind === 'swap' ? row.base.weapon : undefined);
     BUILD_SLOTS.forEach((s, i) => {
       const x = PAD + NAME_W + i * (ICON + GAP);
@@ -173,7 +176,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
       ctx.strokeRect(x + 0.5, y + 0.5, ICON - 1, ICON - 1);
 
       if (s.slot === 'offhand' && isTwoHanded(weapon) && (row.kind === 'main' || row.build.weapon)) {
-        // Arma a dos manos: se muestra en gris como en el juego
+        // Arma a dos manos: ocupa la mano secundaria en gris, como en el juego.
         const img = icons.get(weapon ?? '');
         if (img) {
           ctx.globalAlpha = 0.25;
@@ -182,7 +185,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
         }
         return;
       }
-      // En un swap solo se dibuja lo que cambia: lo demás se queda como en la build de arriba
+      // En un swap solo se dibuja lo que cambia; lo demás es como en la build de arriba.
       const img = id ? icons.get(id) : null;
       if (img) ctx.drawImage(img, x, y, ICON, ICON);
     });
@@ -193,7 +196,7 @@ export async function generateBuildCard(title: string, roles: RoleTemplate[]): P
   return canvas.toBuffer('image/png');
 }
 
-/** Resumen en texto de una build (para embeds): "Maza íncubo + Escudo · Casco de guardián · …" */
+/** Resumen en texto de una build para embeds, p. ej. "Maza íncubo + Escudo · Casco de guardián · …". */
 export function buildSummary(role: RoleTemplate, max = 200): string {
   const b = role.build ?? {};
   const parts: string[] = [];

@@ -1,24 +1,27 @@
-import type { Content } from './types';
-
 /**
  * Borradores de contenidos en el navegador (localStorage): si la sesión caduca, se recarga la
  * página o se cierra la pestaña, los cambios sin guardar se pueden recuperar. Nunca salen del
  * navegador. Todo va en try/catch: en modo privado o sin almacenamiento simplemente no hay borrador.
  */
+import type { Content } from './types';
 
+/** Borrador guardado de un contenido. */
 export interface ContentDraft {
   savedAt: number;
   content: Content;
 }
 
 const PREFIX = 'massup:draft:';
-/** Un borrador viejo ya no sirve para nada */
+// Pasadas dos semanas el borrador se descarta.
 const MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
-/** Contenido que se estaba editando, para reabrirlo al volver de iniciar sesión o recargar */
+// Contenido que se estaba editando, para reabrirlo al volver de iniciar sesión o recargar.
+// Va en sessionStorage: solo tiene sentido en la misma pestaña.
 const REOPEN_KEY = 'massup_reopen_content';
 
+// Un contenido nuevo todavía no tiene id: se guarda como 'nuevo'.
 const key = (guildId: string, contentId: string) => `${PREFIX}${guildId}:${contentId || 'nuevo'}`;
 
+/** Borrador de un contenido, o null si no hay, está dañado o caducó (en esos casos se borra). */
 export function readDraft(guildId: string, contentId: string): ContentDraft | null {
   try {
     const raw = localStorage.getItem(key(guildId, contentId));
@@ -34,32 +37,35 @@ export function readDraft(guildId: string, contentId: string): ContentDraft | nu
   }
 }
 
+/** Guarda el borrador de un contenido con la fecha actual. */
 export function writeDraft(guildId: string, contentId: string, content: Content) {
   try {
     localStorage.setItem(key(guildId, contentId), JSON.stringify({ savedAt: Date.now(), content } satisfies ContentDraft));
   } catch {
-    /* sin almacenamiento: no hay borrador */
+    // Sin almacenamiento: no hay borrador.
   }
 }
 
+/** Borra el borrador de un contenido, p. ej. tras guardarlo. */
 export function clearDraft(guildId: string, contentId: string) {
   try {
     localStorage.removeItem(key(guildId, contentId));
   } catch {
-    /* nada */
+    // Sin almacenamiento: no hay nada que borrar.
   }
 }
 
+/** Recuerda qué contenido se está editando (null lo olvida), para reabrirlo con takeReopen. */
 export function setReopen(guildId: string, contentId: string | null) {
   try {
     if (contentId === null) sessionStorage.removeItem(REOPEN_KEY);
     else sessionStorage.setItem(REOPEN_KEY, JSON.stringify({ guildId, contentId }));
   } catch {
-    /* nada */
+    // Sin almacenamiento: no se reabrirá nada.
   }
 }
 
-/** Devuelve (y olvida) el contenido que se estaba editando en este servidor, si lo hay. */
+/** Devuelve, y olvida, el contenido que se estaba editando en este servidor, si lo hay. */
 export function takeReopen(guildId: string): string | null {
   try {
     const raw = sessionStorage.getItem(REOPEN_KEY);
@@ -72,7 +78,7 @@ export function takeReopen(guildId: string): string | null {
   }
 }
 
-/** "hace 20 min", "hace 3 h", "hace 2 días" */
+/** Tiempo transcurrido en texto: "hace 20 min", "hace 3 h", "hace 2 días". */
 export function ago(ms: number): string {
   const min = Math.max(1, Math.round((Date.now() - ms) / 60000));
   if (min < 60) return `hace ${min} min`;

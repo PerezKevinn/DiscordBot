@@ -1,16 +1,14 @@
+/**
+ * Utilidades de seguridad para un bot público: limpieza del texto que escriben los usuarios antes
+ * de mostrarlo en embeds y límites de frecuencia (cooldowns) contra el spam.
+ */
 import { escapeMarkdown } from 'discord.js';
 
 /**
- * Utilidades de seguridad para un bot público:
- * - limpiar texto escrito por usuarios antes de mostrarlo en embeds
- * - límites de frecuencia (cooldowns) contra spam
- */
-
-/**
- * Texto libre de Callers/admins (título, lugar de masa, notas...):
- * - Desactiva los enlaces enmascarados [texto](url), que en un embed esconden la URL real
- *   (típico de phishing): se muestran como "texto (url)".
- * - Quita caracteres invisibles que se usan para camuflar texto.
+ * Limpia texto libre de Callers y admins (título, lugar de masa, notas…):
+ * - Desactiva los enlaces enmascarados [texto](url), que en un embed esconden la URL real (típico
+ *   del phishing): se muestran como "texto (url)".
+ * - Quita los caracteres invisibles que se usan para camuflar texto.
  * - Recorta al largo máximo.
  */
 export function cleanUserText(raw: string, max: number): string {
@@ -21,7 +19,7 @@ export function cleanUserText(raw: string, max: number): string {
     .slice(0, max);
 }
 
-/** Texto corto de cualquier jugador (arma/IP): además se escapa el formato de Discord. */
+/** Limpia texto corto de cualquier jugador (arma, IP); además escapa el formato de Discord. */
 export function cleanPlayerText(raw: string, max: number): string {
   return escapeMarkdown(cleanUserText(raw, max));
 }
@@ -31,8 +29,8 @@ export function cleanPlayerText(raw: string, max: number): string {
 const cooldowns = new Map<string, number>();
 
 /**
- * Devuelve los segundos que faltan si la acción está en enfriamiento, o 0 si puede hacerse
- * (y en ese caso la registra).
+ * Devuelve los segundos que faltan si la acción está en enfriamiento, o 0 si puede hacerse; en ese
+ * caso la registra. Las entradas vencidas se purgan cuando el mapa pasa de 20 000.
  */
 export function takeCooldown(key: string, ms: number): number {
   const now = Date.now();
@@ -45,16 +43,17 @@ export function takeCooldown(key: string, ms: number): number {
   return 0;
 }
 
+/** Enfriamiento de cada acción, en ms. */
 export const COOLDOWNS = {
-  /** Publicar un ping (cada uno puede mencionar a un rol entero) */
+  /** Publicar un ping: cada uno puede mencionar a un rol entero. */
   publishPing: 60_000,
-  /** Anotarse / cambiar de rol / bajarse (cada clic regenera la imagen del ping) */
+  /** Anotarse, cambiar de rol o bajarse: cada clic regenera la imagen del ping. */
   rosterAction: 1_500,
-  /** "¡A voz!" menciona a toda la party */
+  /** "¡A voz!" menciona a toda la party. */
   notifyVoice: 60_000,
 };
 
-/** Libera un enfriamiento (p. ej. si la acción falló y no llegó a hacerse). */
+/** Libera un enfriamiento, p. ej. si la acción falló y no llegó a hacerse. */
 export function clearCooldown(key: string): void {
   cooldowns.delete(key);
 }

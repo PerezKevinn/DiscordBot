@@ -1,17 +1,20 @@
+/**
+ * Enlaces al panel web desde Discord. Toda la configuración del bot se hace en el panel; en
+ * Discord solo se usa.
+ */
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 
-/**
- * Enlaces al panel web. Toda la configuración del bot se hace allí; en Discord solo se usa.
- */
+/** Pestañas del panel; coinciden con las rutas #/g/<guildId>/<pestaña> de dashboard/. */
 export type PanelTab = 'pings' | 'contenidos' | 'ajustes' | 'puntos' | 'marca' | 'plan';
 
+/** URL del panel, de un servidor y pestaña si se indica. null si PANEL_URL no está configurada. */
 export function panelUrl(guildId?: string, tab: PanelTab = 'contenidos'): string | null {
   const base = process.env.PANEL_URL?.replace(/\/$/, '');
   if (!base) return null;
   return guildId ? `${base}/#/g/${guildId}/${tab}` : base;
 }
 
-/** Botón de enlace "Abrir panel" (o nada si el panel no está configurado). */
+/** Fila con el botón de enlace al panel, o una lista vacía si el panel no está configurado. */
 export function panelButtonRow(guildId: string, tab: PanelTab = 'contenidos', label = 'Abrir el panel web') {
   const url = panelUrl(guildId, tab);
   if (!url) return [];
@@ -22,7 +25,7 @@ export function panelButtonRow(guildId: string, tab: PanelTab = 'contenidos', la
   ];
 }
 
-/** Respuesta estándar para lo que antes se configuraba desde Discord. */
+/** Respuesta estándar para los comandos de configuración que se movieron de Discord al panel. */
 export function movedToPanelReply(guildId: string, tab: PanelTab = 'contenidos') {
   const url = panelUrl(guildId, tab);
   const embed = new EmbedBuilder()
