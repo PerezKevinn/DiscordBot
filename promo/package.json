@@ -1,0 +1,24 @@
+{
+  "name": "massup-promo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Videos promocionales de MassUp (Remotion)",
+  "scripts": {
+    "studio": "remotion studio",
+    "render:video": "remotion render PartyEn15s out/massup-party-15s-9x16-sin-audio.mp4 && remotion render PartyEn15sHorizontal out/massup-party-15s-16x9-sin-audio.mp4",
+    "audio": "node scripts/synthAudio.js",
+    "mux": "remotion ffmpeg -v error -i out/massup-party-15s-9x16-sin-audio.mp4 -i public/audio.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart -y out/massup-party-15s-9x16-con-audio.mp4 && remotion ffmpeg -v error -i out/massup-party-15s-16x9-sin-audio.mp4 -i public/audio.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart -y out/massup-party-15s-16x9-con-audio.mp4",
+    "render:all": "npm run render:video && npm run audio && npm run mux"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.543",
+    "@remotion/google-fonts": "4.0.543",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.543"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}
