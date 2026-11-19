@@ -1010,11 +1010,11 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
     const action = subAction === 'close' ? 'GG' : 'Salida cancelada';
     const reason = `${action} por ${who} (${role}, ${interaction.user.id})`.slice(0, 500);
 
-    if (interaction.guild) await cleanupPingChannels(interaction.guild, ping, reason);
-
     ConfigManager.savePing(config.guildId, ping);
     console.log(`🔒 [${config.guildId}] Ping ${ping.id} "${ping.title}": ${reason}`);
     const btn = pointsButton(config, ping);
+    // Se responde antes de borrar la voz y el hilo: si el Mando se abrió dentro de alguno de los
+    // dos, su mensaje desaparece con él y editarlo después daría "Unknown Message".
     await interaction.update({
       content:
         subAction === 'close'
@@ -1023,6 +1023,9 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
       embeds: [],
       components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
     });
+    if (interaction.guild) await cleanupPingChannels(interaction.guild, ping, reason);
+    // cleanupPingChannels puede cambiar el ping (p. ej. quitar los ids borrados): se guarda otra vez.
+    ConfigManager.savePing(config.guildId, ping);
     // Cancelada: no hay puntos que repartir y el mensaje se borra ya.
     if (subAction === 'cancel' && interaction.guild) await deletePingMessage(interaction.guild, ping);
     else await refreshActivePingMessage(interaction, config, ping);
