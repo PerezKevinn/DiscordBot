@@ -113,6 +113,7 @@ export async function handlePlanCommand(interaction: ChatInputCommandInteraction
           '✓ Roster, banca, voz e hilo',
           '✓ Aviso por rol en cada contenido',
           `✓ Puntos y ranking (top ${free.pointsRankingSize})`,
+          `✓ Tickets: ${free.maxTicketTypes} tipos y ficha de Albion`,
         ].join('\n'),
         inline: true,
       },
@@ -124,6 +125,7 @@ export async function handlePlanCommand(interaction: ChatInputCommandInteraction
           '✓ Marca propia: nombre, siglas, lema y color',
           `✓ Sin "Creado con ${botBrandName()}"`,
           '✓ Ranking semanal/mensual, temporadas y ajustes',
+          `✓ ${premium.maxTicketTypes} tipos de ticket, gremios anteriores y transcripción HTML`,
         ].join('\n'),
         inline: true,
       }

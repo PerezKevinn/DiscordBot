@@ -71,7 +71,16 @@ export interface GuildData {
   guild: { id: string; name: string; icon: string | null };
   plan: {
     tier: 'free' | 'premium';
-    limits: { maxActivePings: number; maxContentTypes: number; customBranding: boolean; hideBotFooter: boolean };
+    limits: {
+      maxActivePings: number;
+      maxContentTypes: number;
+      customBranding: boolean;
+      hideBotFooter: boolean;
+      maxTicketPanels: number;
+      maxTicketTypes: number;
+      albionGuildHistory: boolean;
+      htmlTranscripts: boolean;
+    };
     premiumUntil: number | null;
     /** Fin del Premium. null si no vence o si es gratis; se distingue con tier. */
     endsAt: number | null;
@@ -107,6 +116,67 @@ export interface GuildData {
     joined: number;
     max: number;
   }>;
+  tickets: TicketsData;
+}
+
+/** Pregunta del formulario de un ticket. */
+export interface TicketQuestion {
+  id: string;
+  label: string;
+  placeholder: string;
+  style: 'short' | 'paragraph';
+  required: boolean;
+}
+
+/** Tipo de ticket (un botón del panel). */
+export interface TicketType {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  buttonStyle: 'primary' | 'secondary' | 'success' | 'danger';
+  mode: 'channel' | 'thread';
+  categoryId: string | null;
+  threadChannelId: string | null;
+  staffRoleIds: string[];
+  pingStaff: boolean;
+  welcome: string;
+  questions: TicketQuestion[];
+  recruitment: boolean;
+  acceptRoleIds: string[];
+  removeRoleIds: string[];
+  setNickname: boolean;
+}
+
+/** Panel de tickets; url es el mensaje publicado, si lo hay. */
+export interface TicketPanel {
+  id: string;
+  channelId: string;
+  title: string;
+  description: string;
+  typeIds: string[];
+  url?: string | null;
+}
+
+/** Configuración y estado de los tickets de un servidor. */
+export interface TicketsData {
+  logChannelId: string | null;
+  albionServer: 'americas' | 'europe' | 'asia' | 'ask';
+  dmUser: boolean;
+  types: TicketType[];
+  panels: TicketPanel[];
+  open: Array<{
+    id: string;
+    number: string;
+    typeName: string;
+    userName: string;
+    createdAt: number;
+    claimed: boolean;
+    character: string | null;
+    url: string;
+  }>;
+  /** Permisos que le faltan al bot para los tickets configurados. */
+  issues: string[];
 }
 
 /** Paquete de Premium a la venta. */

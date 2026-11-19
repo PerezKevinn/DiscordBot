@@ -18,6 +18,14 @@ export interface PlanLimits {
   pointsRankingSize: number;
   /** Ranking por semana y mes, temporadas, ajustes manuales e historial completo. */
   pointsPro: boolean;
+  /** Paneles de tickets por servidor. */
+  maxTicketPanels: number;
+  /** Tipos de ticket por servidor. */
+  maxTicketTypes: number;
+  /** Gremios anteriores en la ficha de Albion. */
+  albionGuildHistory: boolean;
+  /** Transcripción de los tickets en HTML con formato (en gratis, texto plano). */
+  htmlTranscripts: boolean;
 }
 
 /** Límites de cada plan. */
@@ -29,6 +37,10 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     hideBotFooter: false,
     pointsRankingSize: 10,
     pointsPro: false,
+    maxTicketPanels: 1,
+    maxTicketTypes: 3,
+    albionGuildHistory: false,
+    htmlTranscripts: false,
   },
   premium: {
     maxActivePings: 25,
@@ -37,6 +49,10 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     hideBotFooter: true,
     pointsRankingSize: 25,
     pointsPro: true,
+    maxTicketPanels: 5,
+    maxTicketTypes: 10,
+    albionGuildHistory: true,
+    htmlTranscripts: true,
   },
 };
 

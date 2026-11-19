@@ -10,12 +10,14 @@ import { ContentsTab } from './ContentsTab';
 import { BrandingTab } from './BrandingTab';
 import { PlanTab } from './PlanTab';
 import { PointsTab } from './PointsTab';
+import { TicketsTab } from './TicketsTab';
 
 const TABS = [
   { id: 'pings', label: 'Pings activos' },
   { id: 'contenidos', label: 'Contenidos y builds' },
   { id: 'ajustes', label: 'Ajustes' },
   { id: 'puntos', label: 'Puntos' },
+  { id: 'tickets', label: 'Tickets' },
   { id: 'marca', label: 'Marca' },
   { id: 'plan', label: 'Plan' },
 ];
@@ -124,6 +126,7 @@ export function GuildPanel({ guildId, tab }: { guildId: string; tab: string }) {
       {current === 'contenidos' && <ContentsTab data={data} save={save} />}
       {current === 'ajustes' && <SettingsTab data={data} save={save} />}
       {current === 'puntos' && <PointsTab data={data} />}
+      {current === 'tickets' && <TicketsTab data={data} save={save} />}
       {current === 'marca' && <BrandingTab data={data} save={save} />}
       {current === 'plan' && <PlanTab data={data} save={save} />}
     </div>

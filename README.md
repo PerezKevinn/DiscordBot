@@ -2,8 +2,11 @@
 
 MassUp es el centro de mando de tu gremio en Discord. Organiza, convoca y conquista.
 
-**Módulo actual: Pings de contenido.** Pings con roster por roles para
-**Gankeo, Grupales, Azules, Dorados, Ava, Facciones, ZvZ/CTA, Hellgate, Rastreo, Escolta** y los que cada servidor cree.
+**Módulos:**
+- **Pings de contenido**, con roster por roles para **Gankeo, Grupales, Azules, Dorados, Ava, Facciones, ZvZ/CTA, Hellgate, Rastreo, Escolta** y los que cada servidor cree.
+- **Puntos de actividad** con ranking.
+- **Tickets** (reclutamiento, soporte…) con la **ficha de Albion** del aspirante: PvP, PvE, recolección y gremios anteriores.
+
 Más módulos de gestión de gremio irán sumándose.
 
 ## Cómo funciona
@@ -13,6 +16,12 @@ Más módulos de gestión de gremio irán sumándose.
 - El Caller tiene el **Mando Caller** en privado (al publicar y con `/mando`): *En ruta*, *¡Todos a voz!*, *GG* y *Cancelar*. GG y Cancelar borran la voz y el hilo.
 - Limpieza automática: si la party usó la voz y la deja vacía 10 min, el ping se cierra y se borran voz e hilo.
   Si nadie entró nunca a la voz, se borra 30 min después de la salida. Cualquier ping abierto se cierra a las 6 h.
+- **Tickets:** el panel de tickets (se publica desde el panel web) tiene un botón por tipo. Cada ticket abre un canal o hilo
+  privado con el autor y el staff, con *Atender*, *Cerrar* (transcripción al canal de registro), *Reabrir* y *Borrar*.
+  En los de reclutamiento el bot pide el personaje y el servidor de Albion, publica su ficha y el staff puede
+  *Aceptar* (roles y apodo automáticos) o *Rechazar*.
+- **Ficha de Albion:** sale de la API pública del juego (gameinfo). Los gremios anteriores se sacan de los últimos
+  kills y muertes del jugador y de lo que el bot ha visto en consultas anteriores (`data/albion/players.json`).
 
 ## Comandos
 
@@ -27,6 +36,9 @@ Discord es para **usar** el bot (tirar pings, anotarse, mandar la party). Toda l
 | `/plan` | Todos | Plan del servidor y qué incluye |
 | `/ranking [periodo]` | Todos | Ranking de puntos de actividad (semana y mes: Premium) |
 | `/puntos [jugador]` | Todos | Puntos y puesto de un jugador |
+| `/stats personaje [servidor]` | Todos | Ficha de Albion de un jugador |
+| `/ticket añadir\|quitar\|renombrar\|cerrar` | Staff del ticket (cerrar: también el autor) | Gestiona el ticket del canal |
+| `/canjear` | Gestionar servidor | Canjea un código de Premium |
 | `/plan-admin` | Solo `BOT_OWNER_ID`, solo en tu servidor | Da o quita Premium a un servidor |
 
 `@here` / `@everyone` solo aparecen en el asistente para quien ya tiene ese permiso en Discord.
@@ -42,6 +54,10 @@ Los límites están en `src/utils/plans.ts` (`PLAN_LIMITS`). Ahora mismo:
 | Logo en el banner | Icono del servidor | Logo propio |
 | Marca propia (nombre/siglas/lema/color) | — | ✅ |
 | Pie "Creado con MassUp" | Sí | No |
+| Ranking de puntos | Temporada, top 10 | Semana, mes, temporadas y ajustes; top 25 |
+| Paneles / tipos de ticket | 1 / 3 | 5 / 10 |
+| Gremios anteriores en la ficha de Albion | — | ✅ |
+| Transcripción de tickets | Texto (.txt) | HTML con formato |
 
 Hoy el Premium se activa a mano con `/plan-admin`. Para cobrar, el siguiente paso es usar
 **Discord App Subscriptions** (SKUs del Developer Portal): en cada interacción `interaction.entitlements`
@@ -62,6 +78,12 @@ Los comandos globales pueden tardar un rato en aparecer la primera vez.
 - `data/guilds/<id>.json`: config de cada servidor (se crea sola al entrar el bot).
 - `data/pings/<id>.json`: pings de cada servidor. Los cerrados se limpian a los 3 días.
 - `data/logos/<id>.png`: logo propio del servidor (Premium).
+- `data/points/<id>.json`: puntos de actividad de cada servidor.
+- `data/tickets/<id>.json`: tickets de cada servidor. Los cerrados se borran a los 30 días; la transcripción queda en el canal de registro.
+- `data/albion/players.json`: gremios en los que el bot ha visto a cada jugador de Albion (como mucho 20 000 jugadores).
+
+La transcripción de los tickets necesita el **Message Content Intent** activado en el Developer Portal
+(Bot > Privileged Gateway Intents). Sin él, Discord devuelve vacío el texto de los mensajes de los usuarios.
 
 ### Retención de datos (para la política de privacidad)
 

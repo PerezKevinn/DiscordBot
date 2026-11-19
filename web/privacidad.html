@@ -29,7 +29,7 @@
 
   <main class="legal">
     <h1>Política de privacidad</h1>
-    <p class="updated">Última actualización: 14 de noviembre de 2026</p>
+    <p class="updated">Última actualización: 18 de noviembre de 2026</p>
 
     <p>Esta política explica qué datos trata <strong>MassUp</strong>, un bot de Discord para organizar actividades de gremios de Albion Online, para qué los usa y durante cuánto tiempo los guarda.</p>
     <p>El responsable del bot es Kevin Pérez. Puedes contactar en <a href="mailto:contacto@massup.shop">contacto@massup.shop</a> o en nuestro <a href="https://discord.gg/PwePmR8gak">servidor de soporte</a>.</p>
@@ -43,6 +43,8 @@
     </ul>
     <p><strong>Del plan Premium:</strong> un historial de altas, renovaciones y bajas de cada servidor, con el ID de usuario de quien canjea un código o paga la suscripción en Discord, para resolver dudas y reclamaciones.</p>
     <p><strong>De los puntos de actividad:</strong> cuando el Caller o un oficial reparte puntos al terminar una salida, guardamos por cada jugador su ID de usuario, su apodo en el servidor y los puntos que recibió, junto con el título y la fecha de la salida y el ID de quien los repartió. Lo mismo para los ajustes manuales, con su motivo si se escribe. Con esto se calcula el ranking del servidor.</p>
+    <p><strong>De los tickets:</strong> cuando alguien abre un ticket guardamos su ID y nombre de usuario, el tipo de ticket, las respuestas que escribe en el formulario, el canal o hilo que crea el bot, quién lo atiende y quién lo cierra, con el motivo si se escribe, y si fue aceptado o rechazado. Al cerrarlo, el bot lee los mensajes de ese canal o hilo (solo de ese) para hacer la transcripción y la envía al canal de registro que elija el servidor: la transcripción queda en Discord, no en nuestros servidores.</p>
+    <p><strong>De Albion Online:</strong> en los tickets de reclutamiento y con <code>/stats</code> se escribe el nombre de un personaje. Lo consultamos en la API pública de Albion Online y guardamos el ID y el nombre del personaje junto al ticket. Además, para mostrar los gremios anteriores, guardamos para cada personaje consultado los gremios públicos en los que lo hemos visto y las fechas. Son datos públicos del juego, no de tu cuenta.</p>
     <p><strong>De cada ping de contenido:</strong></p>
     <ul>
       <li>Los datos del ping que escribe el Caller (título, lugar de masa, equipo, montura, notas y hora de salida).</li>
@@ -56,9 +58,9 @@
 
     <h2>2. Qué datos NO guardamos</h2>
     <ul>
-      <li>El contenido de los mensajes del servidor: el bot no tiene permiso para leerlos.</li>
+      <li>El contenido de los mensajes del servidor. La única excepción son los canales e hilos de los tickets, que el bot lee al cerrarlos para hacer la transcripción, sin guardarla.</li>
       <li>Mensajes directos, audio de los canales de voz, correo electrónico ni datos de pago.</li>
-      <li>Datos de tu cuenta de Albion Online.</li>
+      <li>Datos de tu cuenta de Albion Online (correo, contraseña o compras). Solo usamos la información pública de los personajes que ofrece el juego.</li>
     </ul>
     <p>El bot solo detecta <em>si</em> hay alguien en el canal de voz que creó para un ping, para saber cuándo terminó la actividad y borrarlo. No graba ni guarda quién entra.</p>
 
@@ -69,6 +71,8 @@
       <li>Crear y borrar los canales de voz e hilos temporales.</li>
       <li>Aplicar los permisos y los límites de cada plan.</li>
       <li>Calcular y mostrar el ranking de puntos del servidor (con <code>/ranking</code>, <code>/puntos</code> y en el panel).</li>
+      <li>Gestionar los tickets: crear su canal o hilo, dar y quitar acceso, enviar la transcripción al registro y, si el staff acepta a un aspirante, darle los roles y el apodo configurados.</li>
+      <li>Mostrar la ficha pública de un personaje de Albion Online.</li>
     </ul>
     <p>No vendemos, alquilamos ni compartimos tus datos con terceros con fines comerciales, ni los usamos para publicidad.</p>
 
@@ -79,6 +83,8 @@
         <tr><td>Pings y la lista de jugadores anotados</td><td>Hasta 3 días después de que el ping se cierre (los pings abiertos se cierran solos 6 horas después de la hora de salida).</td></tr>
         <tr><td>Configuración, plantillas y logo de un servidor</td><td>Mientras el bot esté en ese servidor.</td></tr>
         <tr><td>Puntos de actividad y su historial</td><td>Mientras el bot esté en ese servidor. Cuando un servidor acumula más de 3000 registros, los más antiguos se resumen en un total por jugador y se borra el detalle.</td></tr>
+        <tr><td>Tickets (respuestas, autor, staff y decisión)</td><td>Mientras el ticket esté abierto y hasta 30 días después de cerrarlo. La transcripción queda en el canal de registro del servidor, que la gestionan sus administradores.</td></tr>
+        <tr><td>Gremios en los que hemos visto a cada personaje de Albion</td><td>Mientras sigan consultándose. Guardamos como mucho 20 000 personajes y, al pasarnos, se borran los consultados hace más tiempo.</td></tr>
         <tr><td>Todos los datos de un servidor que expulsa al bot</td><td>30 días. Si el bot vuelve antes, se conservan; si no, se borran automáticamente.</td></tr>
         <tr><td>Historial del plan Premium, códigos canjeados y registro de pagos</td><td>2 años desde cada movimiento. Los pagos que se inician y no se completan se borran a los 7 días.</td></tr>
         <tr><td>Borradores y contadores en memoria</td><td>De 30 a 45 minutos, o hasta que el bot se reinicia.</td></tr>
@@ -93,6 +99,7 @@
       <li><strong>Proveedor de alojamiento</strong>: los datos se guardan en un servidor de Hostinger ubicado en Estados Unidos (Boston).</li>
       <li><strong>Mercado Pago</strong> (Colombia): procesa los pagos de Premium. Los datos de pago (tarjeta, cuenta, documento, correo) los recibe y trata Mercado Pago según su propia <a href="https://www.mercadopago.com.co/privacidad" rel="noopener">política de privacidad</a>. MassUp solo guarda la referencia de la transacción, el importe, el estado del pago y el ID de Discord de quien lo inició; no guarda datos de tarjetas ni del pagador.</li>
       <li>Si un servidor se suscribe a Premium desde Discord, MassUp solo recibe de Discord que la suscripción está activa y quién la paga (su ID).</li>
+      <li><strong>API pública de Albion Online</strong> (Sandbox Interactive): le enviamos el nombre o el ID del personaje que se consulta, nada más.</li>
     </ul>
 
     <h2>6. Base legal</h2>
@@ -103,6 +110,7 @@
     <ul>
       <li>Como jugador, también puedes pulsar <strong>Bajarme</strong> en un ping; el ping completo se borra 3 días después de cerrarse.</li>
       <li>Los administradores del servidor pueden deshacer repartos y ajustes de puntos desde el panel. Si quieres que se borren tus puntos, pídeselo a ellos o escríbenos.</li>
+      <li>El staff puede borrar un ticket cerrado con el botón <strong>Borrar</strong>. Las transcripciones del canal de registro las borran los administradores del servidor.</li>
       <li>Como administrador, al expulsar el bot todos los datos del servidor se borran a los 30 días. Si quieres que se borren antes, escríbenos.</li>
     </ul>
     <p>Si vives en la Unión Europea, también puedes reclamar ante la autoridad de protección de datos de tu país.</p>

@@ -9,6 +9,7 @@ import { cloneDefaultContentTypes } from '../data/defaultTemplates';
 import { applyGameNames, NAMES_VERSION } from '../data/gameNames';
 import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, RoleTemplate } from '../types/ping';
 import { evictPoints, purgePoints } from './points';
+import { evictTickets, purgeTickets } from './tickets';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const GUILDS_DIR = path.join(DATA_DIR, 'guilds');
@@ -311,6 +312,7 @@ export class ConfigManager {
     configCache.delete(guildId);
     pingsCache.delete(guildId);
     evictPoints(guildId);
+    evictTickets(guildId);
   }
 
   // --- Retención de datos (ver utils/dataRetention.ts) ---
@@ -355,7 +357,7 @@ export class ConfigManager {
     }
   }
 
-  /** Borra todos los datos de un servidor: config, pings, logo, borradores y puntos. El historial de Premium se conserva. */
+  /** Borra todos los datos de un servidor: config, pings, logo, borradores, puntos y tickets. El historial de Premium se conserva. */
   public static purgeGuild(guildId: string): void {
     this.evictGuild(guildId);
     for (const file of [guildPath(guildId), pingsPath(guildId), path.join(DATA_DIR, 'logos', `${guildId}.png`)]) {
@@ -363,5 +365,6 @@ export class ConfigManager {
     }
     for (const key of [...draftSessions.keys()]) if (key.startsWith(`${guildId}:`)) draftSessions.delete(key);
     purgePoints(guildId);
+    purgeTickets(guildId);
   }
 }

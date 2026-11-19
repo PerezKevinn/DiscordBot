@@ -29,6 +29,9 @@ const BOT_PERMISSIONS = [
   PermissionFlagsBits.ManageThreads, // Borrar el hilo del ping al terminar.
   PermissionFlagsBits.ManageChannels, // Crear y borrar las voces temporales.
   PermissionFlagsBits.MentionEveryone, // Mencionar roles no mencionables y @here si el Caller puede.
+  PermissionFlagsBits.ManageRoles, // Permisos de los canales de ticket y roles al aceptar a un aspirante.
+  PermissionFlagsBits.ManageNicknames, // Poner el nombre del personaje como apodo al aceptar.
+  PermissionFlagsBits.CreatePrivateThreads, // Tickets en hilo privado.
 ];
 
 // Registra los comandos de barra.

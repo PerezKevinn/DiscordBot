@@ -89,9 +89,12 @@ import {
   logoSchema,
   settingsSchema,
   snowflake,
+  ticketsSchema,
   toContentType,
 } from './validation';
-import { GuildConfig } from '../types/ping';
+import { GuildConfig, TicketSettings } from '../types/ping';
+import { publishTicketPanel, TicketError, ticketPermissionIssues, ticketSettings } from '../handlers/ticketHandler';
+import { openTickets, ticketNumber } from '../utils/tickets';
 import { z } from 'zod';
 
 const STATE_COOKIE = 'massup_oauth_state';
@@ -301,7 +304,7 @@ export async function startPanel(client: Client) {
       }
     }
     // El número de permisos es la suma de BOT_PERMISSIONS de src/index.ts: si cambia allí, hay que actualizarlo aquí.
-    const invite = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=326417763344&integration_type=0&scope=bot+applications.commands`;
+    const invite = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=395539893264&integration_type=0&scope=bot+applications.commands`;
     return {
       user: {
         id: session.userId,
@@ -404,6 +407,37 @@ export async function startPanel(client: Client) {
       })),
       discord: { roles, channels, categories },
       pings,
+      tickets: serializeTickets(guild, config),
+    };
+  };
+
+  // Tickets: ajustes, tipos, paneles, tickets abiertos y avisos de permisos del bot.
+  const serializeTickets = (guild: Guild, config: GuildConfig) => {
+    const t = ticketSettings(config);
+    return {
+      logChannelId: t.logChannelId ?? null,
+      albionServer: t.albionServer,
+      dmUser: t.dmUser,
+      types: t.types.map((x) => ({ ...x, categoryId: x.categoryId ?? null, threadChannelId: x.threadChannelId ?? null })),
+      panels: t.panels.map((p) => ({
+        id: p.id,
+        channelId: p.channelId,
+        title: p.title,
+        description: p.description,
+        typeIds: p.typeIds,
+        url: p.messageId ? `https://discord.com/channels/${guild.id}/${p.channelId}/${p.messageId}` : null,
+      })),
+      open: openTickets(guild.id).map((x) => ({
+        id: x.id,
+        number: ticketNumber(x.number),
+        typeName: x.typeName,
+        userName: x.userName,
+        createdAt: x.createdAt,
+        claimed: Boolean(x.claimedBy),
+        character: x.albion?.name ?? null,
+        url: `https://discord.com/channels/${guild.id}/${x.channelId}`,
+      })),
+      issues: ticketPermissionIssues(guild, t),
     };
   };
 
@@ -441,6 +475,62 @@ export async function startPanel(client: Client) {
       }
     }
     ConfigManager.saveConfig(config);
+    return serializeGuild(guild, config);
+  });
+
+  // ---------- Tickets ----------
+
+  app.put('/api/guilds/:guildId/tickets', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const body = parse(ticketsSchema, req.body);
+    const limits = getLimits(config);
+    if (body.types.length > limits.maxTicketTypes) throw new HttpError(403, `Tu plan permite ${limits.maxTicketTypes} tipos de ticket`);
+    if (body.panels.length > limits.maxTicketPanels) {
+      throw new HttpError(403, `Tu plan permite ${limits.maxTicketPanels} panel${limits.maxTicketPanels === 1 ? '' : 'es'} de tickets`);
+    }
+
+    const roleOk = (id: string) => guild.roles.cache.has(id) && id !== guild.id;
+    const isText = (id: string | null | undefined) => !id || guild.channels.cache.get(id)?.type === ChannelType.GuildText;
+    const isCategory = (id: string | null | undefined) => !id || guild.channels.cache.get(id)?.type === ChannelType.GuildCategory;
+    const unique = (ids: string[]) => new Set(ids).size === ids.length;
+    if (!unique(body.types.map((t) => t.id)) || !unique(body.panels.map((p) => p.id))) throw new HttpError(400, 'Hay ids repetidos');
+    if (!isText(body.logChannelId)) throw new HttpError(400, 'Canal de registro no válido');
+    for (const t of body.types) {
+      if (![...t.staffRoleIds, ...t.acceptRoleIds, ...t.removeRoleIds].every(roleOk)) throw new HttpError(400, `Rol no válido en «${t.name}»`);
+      if (!isCategory(t.categoryId)) throw new HttpError(400, `Categoría no válida en «${t.name}»`);
+      if (!isText(t.threadChannelId)) throw new HttpError(400, `Canal de hilos no válido en «${t.name}»`);
+      if (!unique(t.questions.map((q) => q.id))) throw new HttpError(400, `Preguntas repetidas en «${t.name}»`);
+    }
+    for (const p of body.panels) if (!isText(p.channelId)) throw new HttpError(400, `Canal no válido en el panel «${p.title}»`);
+
+    const typeIds = new Set(body.types.map((t) => t.id));
+    const prev = ticketSettings(config);
+    const next: TicketSettings = {
+      logChannelId: body.logChannelId ?? undefined,
+      albionServer: body.albionServer,
+      dmUser: body.dmUser,
+      types: body.types.map((t) => ({ ...t, categoryId: t.categoryId ?? undefined, threadChannelId: t.threadChannelId ?? undefined })),
+      panels: body.panels.map((p) => {
+        // Se conserva el mensaje publicado para editarlo al volver a publicar en el mismo canal.
+        const old = prev.panels.find((o) => o.id === p.id && o.channelId === p.channelId);
+        return { ...p, typeIds: p.typeIds.filter((id) => typeIds.has(id)), ...(old?.messageId ? { messageId: old.messageId } : {}) };
+      }),
+    };
+    if (next.panels.some((p) => p.typeIds.length === 0)) throw new HttpError(400, 'Cada panel necesita al menos un tipo de ticket');
+    config.tickets = next;
+    ConfigManager.saveConfig(config);
+    return serializeGuild(guild, config);
+  });
+
+  app.post('/api/guilds/:guildId/tickets/panels/:panelId/publish', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const { panelId } = req.params as { panelId: string };
+    try {
+      await publishTicketPanel(client, config, panelId);
+    } catch (err) {
+      if (err instanceof TicketError) throw new HttpError(400, err.message);
+      throw err;
+    }
     return serializeGuild(guild, config);
   });
 

@@ -15,6 +15,7 @@ import type {
   PointsEditor,
   RankingPeriod,
   RedeemCode,
+  TicketsData,
 } from './types';
 
 /** Error de la API con su código HTTP; el mensaje es el que devuelve el servidor, apto para mostrar. */
@@ -66,6 +67,11 @@ export const api = {
     request<{ url: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
   order: (id: string, invoice: string) =>
     request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
+
+  // Tickets.
+  saveTickets: (id: string, body: Omit<TicketsData, 'open' | 'issues'>) => request<GuildData>('PUT', `/api/guilds/${id}/tickets`, body),
+  publishTicketPanel: (id: string, panelId: string) =>
+    request<GuildData>('POST', `/api/guilds/${id}/tickets/panels/${encodeURIComponent(panelId)}/publish`, {}),
 
   // Puntos de actividad. El periodo va en todas las llamadas porque la respuesta trae el ranking.
   points: (id: string, period: RankingPeriod) => request<PointsData>('GET', `/api/guilds/${id}/points?period=${period}`),

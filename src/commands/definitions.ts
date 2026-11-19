@@ -56,6 +56,49 @@ export const publicCommands = [
     .addUserOption((o) => o.setName('jugador').setDescription('Jugador a consultar (vacío = tú)')),
 
   new SlashCommandBuilder()
+    .setName('stats')
+    .setDescription('Ficha de un jugador de Albion: PvP, PvE, recolección y gremios')
+    .setDMPermission(false)
+    .addStringOption((o) =>
+      o.setName('personaje').setDescription('Nombre del personaje, tal cual sale en el juego').setRequired(true).setMinLength(3).setMaxLength(16)
+    )
+    .addStringOption((o) =>
+      o
+        .setName('servidor')
+        .setDescription('Servidor de Albion (vacío = el del gremio)')
+        .addChoices({ name: 'América', value: 'americas' }, { name: 'Europa', value: 'europe' }, { name: 'Asia', value: 'asia' })
+    ),
+
+  new SlashCommandBuilder()
+    .setName('ticket')
+    .setDescription('Gestiona el ticket de este canal')
+    .setDMPermission(false)
+    .addSubcommand((s) =>
+      s
+        .setName('añadir')
+        .setDescription('Da acceso a este ticket a otro miembro (staff)')
+        .addUserOption((o) => o.setName('usuario').setDescription('Miembro a añadir').setRequired(true))
+    )
+    .addSubcommand((s) =>
+      s
+        .setName('quitar')
+        .setDescription('Quita a un miembro de este ticket (staff)')
+        .addUserOption((o) => o.setName('usuario').setDescription('Miembro a quitar').setRequired(true))
+    )
+    .addSubcommand((s) =>
+      s
+        .setName('renombrar')
+        .setDescription('Cambia el nombre del canal del ticket (staff)')
+        .addStringOption((o) => o.setName('nombre').setDescription('Nuevo nombre').setRequired(true).setMaxLength(90))
+    )
+    .addSubcommand((s) =>
+      s
+        .setName('cerrar')
+        .setDescription('Cierra este ticket y guarda la transcripción')
+        .addStringOption((o) => o.setName('motivo').setDescription('Motivo del cierre').setMaxLength(500))
+    ),
+
+  new SlashCommandBuilder()
     .setName('canjear')
     .setDescription('Canjea un código de Premium para este servidor')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)

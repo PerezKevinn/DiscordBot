@@ -221,3 +221,55 @@ export const pointsAdjustSchema = z.object({
 
 /** Periodo del ranking en la query; cualquier valor desconocido se trata como 'total'. */
 export const rankingPeriodSchema = z.enum(['total', 'month', 'week']).catch('total');
+
+// ---------- Tickets ----------
+
+const localId = z.string().regex(/^[a-zA-Z0-9_-]{1,40}$/);
+
+const ticketQuestionSchema = z.object({
+  id: localId,
+  label: text(45).refine((s) => s.length > 0, 'La pregunta necesita título'),
+  placeholder: text(100).optional().default(''),
+  style: z.enum(['short', 'paragraph']),
+  required: z.boolean(),
+});
+
+const ticketTypeSchema = z
+  .object({
+    id: localId,
+    name: text(40).refine((s) => s.length > 0, 'El ticket necesita nombre'),
+    emoji: z.string().max(64).transform((e) => sanitizeEmoji(e, '🎫')),
+    description: text(100).optional().default(''),
+    buttonStyle: z.enum(['primary', 'secondary', 'success', 'danger']),
+    mode: z.enum(['channel', 'thread']),
+    categoryId: optionalSnowflake,
+    threadChannelId: optionalSnowflake,
+    staffRoleIds: z.array(snowflake).max(10),
+    pingStaff: z.boolean(),
+    welcome: text(1500).optional().default(''),
+    // Discord admite 5 campos por formulario; el reclutamiento usa uno para el personaje y otro
+    // para el servidor. Los mismos límites están en handlers/ticketHandler.ts.
+    questions: z.array(ticketQuestionSchema).max(5),
+    recruitment: z.boolean(),
+    acceptRoleIds: z.array(snowflake).max(10),
+    removeRoleIds: z.array(snowflake).max(10),
+    setNickname: z.boolean(),
+  })
+  .refine((t) => !t.recruitment || t.questions.length <= 3, 'Un ticket de reclutamiento admite 3 preguntas como máximo');
+
+const ticketPanelSchema = z.object({
+  id: localId,
+  channelId: snowflake,
+  title: text(100).refine((s) => s.length > 0, 'El panel necesita título'),
+  description: text(1500).optional().default(''),
+  typeIds: z.array(localId).min(1, 'El panel necesita al menos un tipo de ticket').max(10),
+});
+
+/** Configuración completa de los tickets (PUT /tickets). Los límites del plan se comprueban en el servidor. */
+export const ticketsSchema = z.object({
+  logChannelId: optionalSnowflake,
+  albionServer: z.enum(['americas', 'europe', 'asia', 'ask']),
+  dmUser: z.boolean(),
+  types: z.array(ticketTypeSchema).max(10),
+  panels: z.array(ticketPanelSchema).max(5),
+});

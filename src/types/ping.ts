@@ -125,6 +125,8 @@ export interface GuildConfig {
   notices?: { warnedFor?: number; expiredFor?: number };
   /** Puntos de actividad (ver utils/points.ts). Sin valor se usan los valores por defecto. */
   points?: PointsSettings;
+  /** Sistema de tickets. Sin valor, no está configurado. */
+  tickets?: TicketSettings;
   contentTypes: ContentTypeConfig[];
   /** Versión de la corrección a nombres oficiales del juego ya aplicada (ver data/gameNames.ts). */
   namesVersion?: number;
@@ -212,4 +214,69 @@ export interface DraftPingSession {
   createThread: boolean;
   createVoice: boolean;
   customRoles?: RoleTemplate[];
+}
+
+// ---------- Tickets (ver handlers/ticketHandler.ts) ----------
+
+/** Pregunta del formulario que se rellena al abrir un ticket. */
+export interface TicketQuestion {
+  id: string;
+  /** Título del campo; Discord admite 45 caracteres. */
+  label: string;
+  placeholder: string;
+  style: 'short' | 'paragraph';
+  required: boolean;
+}
+
+/** Tipo de ticket: un botón del panel (Aplicar al gremio, Soporte…). */
+export interface TicketType {
+  id: string;
+  name: string;
+  emoji: string;
+  /** Texto corto bajo el nombre en el panel. */
+  description: string;
+  buttonStyle: 'primary' | 'secondary' | 'success' | 'danger';
+  /** Canal privado en una categoría o hilo privado en un canal de texto. */
+  mode: 'channel' | 'thread';
+  /** Categoría de los canales (modo canal). Sin valor, la del canal del panel. */
+  categoryId?: string;
+  /** Canal donde se crean los hilos (modo hilo). Sin valor, el del panel. */
+  threadChannelId?: string;
+  staffRoleIds: string[];
+  /** Mencionar a los roles de staff al abrir. En modo hilo es lo que los añade al hilo. */
+  pingStaff: boolean;
+  /** Mensaje de bienvenida dentro del ticket. */
+  welcome: string;
+  questions: TicketQuestion[];
+  /** Ticket de reclutamiento: pide el personaje de Albion y publica su ficha. */
+  recruitment: boolean;
+  /** Roles que se dan al aceptar (reclutamiento). */
+  acceptRoleIds: string[];
+  /** Roles que se quitan al aceptar (p. ej. Invitado). */
+  removeRoleIds: string[];
+  /** Poner el nombre del personaje como apodo al aceptar. */
+  setNickname: boolean;
+}
+
+/** Mensaje con los botones para abrir tickets. */
+export interface TicketPanel {
+  id: string;
+  channelId: string;
+  title: string;
+  description: string;
+  typeIds: string[];
+  /** Mensaje publicado; se edita al volver a publicar. */
+  messageId?: string;
+}
+
+/** Ajustes de tickets de un servidor. */
+export interface TicketSettings {
+  /** Canal donde se registran aperturas y cierres con su transcripción. */
+  logChannelId?: string;
+  /** Servidor de Albion del gremio, o 'ask' para que el aspirante lo elija. */
+  albionServer: 'americas' | 'europe' | 'asia' | 'ask';
+  /** Avisar por mensaje privado al aspirante al cerrar y al aceptar o rechazar. */
+  dmUser: boolean;
+  types: TicketType[];
+  panels: TicketPanel[];
 }

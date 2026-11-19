@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MassUp · El centro de mando de tu gremio</title>
-  <meta name="description" content="Bot de Discord para gremios de Albion Online: pings de contenido con roster por roles, aviso al rol de cada actividad, voz temporal e hilo de builds." />
+  <meta name="description" content="Bot de Discord para gremios de Albion Online: pings de contenido con roster por roles, aviso al rol de cada actividad, voz temporal, hilo de builds y tickets de reclutamiento con la ficha de Albion." />
   <meta property="og:title" content="MassUp · El centro de mando de tu gremio" />
   <meta property="og:description" content="Pings de Gankeo, Grupales, Azules, Facciones, ZvZ y más, con roster por roles, para tu servidor de Discord." />
   <meta property="og:image" content="https://www.massup.shop/img/og.png" />
@@ -37,7 +37,7 @@
         <a class="nav-sec" href="#faq">Preguntas</a>
         <a class="nav-sec" href="https://panel.massup.shop">Panel</a>
         <button class="theme-toggle" type="button" aria-label="Cambiar tema"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
-        <a class="btn btn-primary btn-sm" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
+        <a class="btn btn-primary btn-sm" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=395539893264&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
       </nav>
     </div>
   </header>
@@ -50,7 +50,7 @@
           <h1>El centro de mando de <span>tu gremio</span></h1>
           <p class="lead">Tira pings de contenido en segundos. Tu gente se anota en su rol, el bot avisa al rol de cada actividad, abre voz e hilo de builds y lo limpia todo al terminar.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">
+            <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=395539893264&amp;integration_type=0&amp;scope=bot+applications.commands">
               Añadir a Discord
             </a>
             <a class="btn btn-ghost" href="https://panel.massup.shop">Abrir el panel</a>
@@ -126,6 +126,8 @@
           <div class="card"><div class="icon">🔊</div><h3>Voz e hilo temporales</h3><p>Crea un canal de voz y un hilo de builds para cada salida y los borra solos cuando la party termina.</p></div>
           <div class="card"><div class="icon">🛠️</div><h3>Compos a tu medida</h3><p>Editor visual: añade roles, ajusta cupos con un clic y guarda la compo para los próximos pings.</p></div>
           <div class="card"><div class="icon">👑</div><h3>Mando del Caller</h3><p>Marca la salida en ruta, llama a todos a voz y cierra con GG. Solo el Caller o los oficiales pueden tocarlo.</p></div>
+          <div class="card"><div class="icon">📬</div><h3>Tickets de reclutamiento</h3><p>Un panel con botones abre un canal privado con el aspirante y tus reclutadores. Aceptar le da los roles y le pone el nombre de su personaje.</p></div>
+          <div class="card"><div class="icon">📜</div><h3>Ficha de Albion</h3><p>Al aplicar, MassUp publica sus stats: PvP, PvE por zona, recolección y gremios anteriores. También con <code>/stats</code>.</p></div>
         </div>
       </div>
     </section>
@@ -163,8 +165,9 @@
               <li>Roster, banca, voz e hilo</li>
               <li>Aviso por rol en cada contenido</li>
               <li>Icono de tu servidor en el banner</li>
+              <li>Tickets con ficha de Albion (3 tipos)</li>
             </ul>
-            <a class="btn btn-ghost" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
+            <a class="btn btn-ghost" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=395539893264&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
           </div>
           <div class="plan featured">
             <span class="badge">Más elegido</span>
@@ -177,6 +180,7 @@
               <li>Logo propio en el banner</li>
               <li>Nombre, siglas, lema y color de tu gremio</li>
               <li>Ranking de puntos por semana, mes y temporadas</li>
+              <li>10 tipos de ticket, gremios anteriores en la ficha y transcripción con formato</li>
               <li>Sin “Creado con MassUp”</li>
             </ul>
             <a class="btn btn-primary" href="https://panel.massup.shop">Activar Premium</a>
@@ -219,7 +223,7 @@
         <h2>Organiza. Convoca. Conquista.</h2>
         <p class="muted">Añade MassUp a tu servidor y tira tu primer ping hoy.</p>
         <div class="actions">
-          <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=326417763344&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
+          <a class="btn btn-primary" href="https://discord.com/oauth2/authorize?client_id=1567335010954907720&amp;permissions=395539893264&amp;integration_type=0&amp;scope=bot+applications.commands">Añadir a Discord</a>
           <a class="btn btn-ghost" href="https://discord.gg/PwePmR8gak">Servidor de soporte</a>
         </div>
       </div>

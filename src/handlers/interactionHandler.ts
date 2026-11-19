@@ -4,7 +4,7 @@
  * pings: asistente de creación, publicación, roster y Mando del Caller.
  *
  * Prefijos de customId: ping_* (mensaje público del ping), wizard_* (asistente), caller_action:* (Mando),
- * compo_* (editor de compos), pts_* (puntos). Los de versiones anteriores (tpl_*, config…) se
+ * compo_* (editor de compos), pts_* (puntos), tk_* (tickets). Los de versiones anteriores (tpl_*, config…) se
  * siguen atendiendo para redirigir al panel web cuando alguien pulsa un mensaje antiguo.
  */
 import {
@@ -14,6 +14,7 @@ import {
   ButtonInteraction,
   ButtonStyle,
   ChannelType,
+  Guild,
   ChatInputCommandInteraction,
   Interaction,
   MessageMentionOptions,
@@ -46,6 +47,7 @@ import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
 import { defaultUtcSlot, draftSlot, formatUtc, nextUtcStartUnix } from '../utils/pingTime';
 import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
+import { handleStatsCommand, handleTicketCommand, handleTicketInteraction } from './ticketHandler';
 import { reportError } from '../utils/alerts';
 import { cleanPartySize, joinGoesToBench, partyJoined, partyMax } from '../utils/party';
 
@@ -192,6 +194,12 @@ export async function handleInteraction(interaction: Interaction) {
     for (const e of interaction.entitlements.values()) applyEntitlement(interaction.client, e);
     const displayName = displayNameOf(interaction);
 
+    // Tickets: botones, menús y formularios con prefijo tk_.
+    if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && interaction.customId.startsWith('tk_')) {
+      await handleTicketInteraction(interaction, config);
+      return;
+    }
+
     // 1. Comandos de barra.
     if (interaction.isChatInputCommand()) {
       const { commandName } = interaction;
@@ -208,6 +216,8 @@ export async function handleInteraction(interaction: Interaction) {
       if (commandName === 'ranking') return handleRankingCommand(interaction, config);
       if (commandName === 'puntos') return handlePointsCommand(interaction, config);
       if (commandName === 'mando') return handleMandoCommand(interaction, config);
+      if (commandName === 'ticket') return handleTicketCommand(interaction, config);
+      if (commandName === 'stats') return handleStatsCommand(interaction, config);
 
       if (commandName === 'panel-ping') {
         if (!isGuildManager(interaction) && !interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
@@ -491,6 +501,29 @@ function buildMention(
 }
 
 // Publica el ping: mensaje con banner y embed, voz temporal, hilo de builds y Mando del Caller.
+/**
+ * Dónde crear la voz temporal: la categoría del panel; si no hay, la del canal del ping; si
+ * tampoco, la raíz del servidor. Solo vale un sitio donde el bot tenga Gestionar canales (así no
+ * hace falta dárselo en todo el servidor). Devuelve el id de la categoría, null para la raíz, o
+ * undefined si no tiene permiso en ninguno de los sitios posibles.
+ */
+async function pickVoiceParent(
+  guild: Guild,
+  configuredCategoryId: string | undefined,
+  pingCategoryId: string | null
+): Promise<string | null | undefined> {
+  const me = guild.members.me ?? (await guild.members.fetchMe().catch(() => null));
+  if (!me) return undefined;
+  const canCreateIn = async (categoryId: string) => {
+    const cat = await guild.channels.fetch(categoryId).catch(() => null);
+    return cat?.type === ChannelType.GuildCategory && cat.permissionsFor(me).has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ManageChannels]);
+  };
+  // Si hay categoría configurada, se respeta: no se crea en otro sitio a espaldas del admin.
+  if (configuredCategoryId) return (await canCreateIn(configuredCategoryId)) ? configuredCategoryId : undefined;
+  if (pingCategoryId && (await canCreateIn(pingCategoryId))) return pingCategoryId;
+  return me.permissions.has(PermissionFlagsBits.ManageChannels) ? null : undefined;
+}
+
 async function launchOfficialPing(interaction: ButtonInteraction, config: GuildConfig, callerDisplayName: string) {
   const limits = getLimits(config);
   if (ConfigManager.countOpenPings(config.guildId) >= limits.maxActivePings) {
@@ -597,18 +630,27 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
     return;
   }
 
-  // 2. Canal de voz temporal.
+  // 2. Canal de voz temporal. Si no se puede crear, el ping sale igual y se avisa al Caller.
+  let voiceWarning = '';
   if (draft.createVoice && interaction.guild) {
-    try {
-      const voiceChannel = await interaction.guild.channels.create({
-        name: `${contentConfig.emoji}︱${newPing.title.slice(0, 22)} (${callerDisplayName.slice(0, 12)})`,
-        type: ChannelType.GuildVoice,
-        parent: config.voiceCategoryId || undefined,
-        reason: `Voz temporal para el ping ${newPing.title} de ${callerDisplayName}`,
-      });
-      newPing.voiceChannelId = voiceChannel.id;
-    } catch (err) {
-      console.warn(`[${config.guildId}] No se pudo crear la voz temporal (¿falta Gestionar canales?):`, (err as Error).message);
+    const parentId = await pickVoiceParent(interaction.guild, config.voiceCategoryId, targetChannel.parentId);
+    if (parentId === undefined) {
+      voiceWarning = config.voiceCategoryId
+        ? '⚠️ No pude crear la voz temporal: me falta **Gestionar canales** en la categoría de voz elegida en el panel.'
+        : '⚠️ No pude crear la voz temporal: elige en el panel una **categoría de voz** donde tenga **Gestionar canales**.';
+    } else {
+      try {
+        const voiceChannel = await interaction.guild.channels.create({
+          name: `${contentConfig.emoji}︱${newPing.title.slice(0, 22)} (${callerDisplayName.slice(0, 12)})`,
+          type: ChannelType.GuildVoice,
+          parent: parentId ?? undefined,
+          reason: `Voz temporal para el ping ${newPing.title} de ${callerDisplayName}`,
+        });
+        newPing.voiceChannelId = voiceChannel.id;
+      } catch (err) {
+        voiceWarning = '⚠️ No pude crear la voz temporal. Revisa mis permisos en la categoría de voz del panel.';
+        console.warn(`[${config.guildId}] No se pudo crear la voz temporal:`, (err as Error).message);
+      }
     }
   }
 
@@ -674,7 +716,10 @@ async function launchOfficialPing(interaction: ButtonInteraction, config: GuildC
       baseEmbed(config, 'Nuevo ping')
         .setColor(UI_COLORS.success)
         .setTitle('✅ Ping publicado')
-        .setDescription(`${contentConfig.emoji} **${newPing.title}** en <#${newPing.channelId}>\n[Ir al ping](${sentMsg.url})`),
+        .setDescription(
+          `${contentConfig.emoji} **${newPing.title}** en <#${newPing.channelId}>\n[Ir al ping](${sentMsg.url})` +
+            (voiceWarning ? `\n\n${voiceWarning}` : '')
+        ),
       ...panel.embeds,
     ],
     components: panel.components,
