@@ -27,6 +27,36 @@ const HOUR_OPTIONS = Array.from({ length: 24 }, (_, h) => h);
 const MINUTE_OPTIONS = Array.from({ length: 60 / MINUTE_STEP }, (_, i) => i * MINUTE_STEP);
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
+/**
+ * Menús de hora y minuto (UTC) con `slot` preseleccionado. Los usa el Mando del Caller
+ * para cambiar la hora de un ping ya publicado; los ids los pone quien llama.
+ */
+export function utcTimeSelects(hourCustomId: string, minuteCustomId: string, slot: { hour: number; minute: number }) {
+  const hour = new StringSelectMenuBuilder()
+    .setCustomId(hourCustomId)
+    .setPlaceholder('Hora de salida (UTC)')
+    .addOptions(
+      HOUR_OPTIONS.map((h) =>
+        new StringSelectMenuOptionBuilder().setLabel(`${pad2(h)}:xx UTC`).setValue(String(h)).setDefault(h === slot.hour)
+      )
+    );
+  const minute = new StringSelectMenuBuilder()
+    .setCustomId(minuteCustomId)
+    .setPlaceholder('Minuto')
+    .addOptions(
+      MINUTE_OPTIONS.map((m) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(`${pad2(slot.hour)}:${pad2(m)} UTC`)
+          .setValue(String(m))
+          .setDefault(m === slot.minute)
+      )
+    );
+  return [
+    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(hour),
+    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(minute),
+  ];
+}
+
 /** Panel fijo de Callers que se deja en un canal con /panel-ping. */
 export function buildFixedCallerPanel(config: GuildConfig) {
   const embed = baseEmbed(config, 'Mesa de Callers')

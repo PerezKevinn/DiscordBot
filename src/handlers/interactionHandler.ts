@@ -26,12 +26,14 @@ import {
   TextInputStyle,
   MessageFlags,
   StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from 'discord.js';
 import { ActivePing, ContentTypeConfig, DraftPingSession, GuildConfig, MentionType, RoleTemplate } from '../types/ping';
 import { ConfigManager } from '../utils/configManager';
 import {
   buildFixedCallerPanel,
   buildWizardStepMessage,
+  utcTimeSelects,
   resolvePingRoleId,
 } from '../utils/panelBuilder';
 import { buildPingMessagePayload } from '../utils/pingBuilder';
@@ -255,6 +257,10 @@ export async function handleInteraction(interaction: Interaction) {
         await handleCallerStatusAction(interaction, config);
         return;
       }
+      if (customId.startsWith('caller_time:')) {
+        await handleCallerTime(interaction, config);
+        return;
+      }
       if (customId.startsWith('pts_')) {
         await handlePointsInteraction(interaction, config);
         return;
@@ -323,6 +329,12 @@ export async function handleInteraction(interaction: Interaction) {
       }
 
       // --- /mando con varios pings: el Caller elige cuál ---
+      // --- Mando: cambiar la hora de un ping publicado ---
+      if (customId.startsWith('caller_time:')) {
+        await handleCallerTime(interaction, config);
+        return;
+      }
+
       if (customId === 'mando_select') {
         const ping = ConfigManager.getPing(config.guildId, values[0]);
         if (!ping) {
@@ -764,6 +776,7 @@ function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
         '',
         '**En ruta:** marca que ya salieron',
         '**¡A voz!:** menciona a todos los anotados en el hilo del ping',
+        '**Cambiar hora:** mueve la salida sin cerrar el ping',
         '**GG / Cancelar:** cierra el ping y borra voz e hilo',
         '',
         '-# Solo tú ves esto. Si lo cierras, vuelve a abrirlo con `/mando`.',
@@ -780,7 +793,126 @@ function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
     new ButtonBuilder().setCustomId(`caller_action:close:${ping.id}`).setLabel('GG').setEmoji('🔒').setStyle(ButtonStyle.Success),
     new ButtonBuilder().setCustomId(`caller_action:cancel:${ping.id}`).setLabel('Cancelar').setEmoji('🗑️').setStyle(ButtonStyle.Danger)
   );
-  return { content: notice ?? '', embeds: [fitEmbed(embed)], components: [row] };
+  // Fila aparte: Discord admite como máximo 5 botones por fila
+  const timeRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`caller_time:open:${ping.id}`)
+      .setLabel('Cambiar hora')
+      .setEmoji('⏰')
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(ping.status !== 'OPEN')
+  );
+  return { content: notice ?? '', embeds: [fitEmbed(embed)], components: [row, timeRow] };
+}
+
+/**
+ * Cambio de hora de un ping publicado. La hora elegida viaja en los customId de los menús y
+ * del botón de guardar, así que no hace falta guardar estado mientras el Caller decide.
+ *   caller_time:open:<ping>              abre el selector con la hora actual
+ *   caller_time:h:<ping>:<minuto>        menú de hora (conserva el minuto elegido)
+ *   caller_time:m:<ping>:<hora>          menú de minuto (conserva la hora elegida)
+ *   caller_time:ok:<ping>:<hora>:<min>   guarda
+ *   caller_time:back:<ping>              vuelve al Mando sin cambiar nada
+ */
+function callerTimePanel(config: GuildConfig, ping: ActivePing, slot: { hour: number; minute: number }) {
+  const start = nextUtcStartUnix(slot);
+  const embed = baseEmbed(config, 'Mando del Caller')
+    .setTitle(`⏰ Cambiar hora · ${ping.title}`.slice(0, 256))
+    .setDescription(
+      [
+        `Ahora: **${ping.timeLabel || formatUtc(draftSlotFromUnix(ping.startTimeUnix))}** · <t:${ping.startTimeUnix}:t> (<t:${ping.startTimeUnix}:R>)`,
+        `Nueva: **${formatUtc(slot)}** · <t:${start}:t> (<t:${start}:R>)`,
+        '',
+        '-# Si la hora elegida ya pasó hoy, la salida queda para mañana. Los anotados se mantienen y se avisa en el hilo.',
+      ].join('\n')
+    );
+  const [hourRow, minuteRow] = utcTimeSelects(`caller_time:h:${ping.id}:${slot.minute}`, `caller_time:m:${ping.id}:${slot.hour}`, slot);
+  const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`caller_time:ok:${ping.id}:${slot.hour}:${slot.minute}`)
+      .setLabel(`Guardar ${formatUtc(slot)}`)
+      .setEmoji('✅')
+      .setStyle(ButtonStyle.Success)
+      .setDisabled(start === ping.startTimeUnix),
+    new ButtonBuilder().setCustomId(`caller_time:back:${ping.id}`).setLabel('Volver').setStyle(ButtonStyle.Secondary)
+  );
+  return { content: '', embeds: [fitEmbed(embed)], components: [hourRow, minuteRow, buttons] };
+}
+
+/** Hora y minuto UTC de un instante (para preseleccionar la hora actual del ping). */
+function draftSlotFromUnix(unix: number) {
+  const d = new Date(unix * 1000);
+  return { hour: d.getUTCHours(), minute: d.getUTCMinutes() };
+}
+
+/** Menús y botones de caller_time:* */
+async function handleCallerTime(interaction: ButtonInteraction | StringSelectMenuInteraction, config: GuildConfig) {
+  const [, step, pingId, a, b] = interaction.customId.split(':');
+  const ping = ConfigManager.getPing(config.guildId, pingId);
+  if (!ping) {
+    await interaction.update({ content: '⚠️ Esa salida ya no está guardada.', embeds: [], components: [] });
+    return;
+  }
+  if (!canCommandPing(interaction, ping)) {
+    await interaction.reply({ content: '⛔ No eres el Caller de esta salida.', flags: MessageFlags.Ephemeral });
+    return;
+  }
+  if (step === 'back') {
+    await interaction.update({ ...callerPanel(config, ping), allowedMentions: { parse: [] } });
+    return;
+  }
+  // Solo antes de salir: en ruta o terminada ya no tiene sentido mover la hora
+  if (ping.status !== 'OPEN') {
+    await interaction.update({ ...callerPanel(config, ping, '⚠️ La hora solo se puede cambiar mientras el ping está abierto.'), allowedMentions: { parse: [] } });
+    return;
+  }
+
+  const num = (v: string | undefined, max: number) => {
+    const n = Number(v);
+    return Number.isInteger(n) && n >= 0 && n <= max ? n : null;
+  };
+  const current = draftSlotFromUnix(ping.startTimeUnix);
+  let slot = current;
+  if (step === 'h' && interaction.isStringSelectMenu()) slot = { hour: num(interaction.values[0], 23) ?? current.hour, minute: num(a, 59) ?? current.minute };
+  if (step === 'm' && interaction.isStringSelectMenu()) slot = { hour: num(a, 23) ?? current.hour, minute: num(interaction.values[0], 59) ?? current.minute };
+
+  if (step !== 'ok') {
+    await interaction.update({ ...callerTimePanel(config, ping, slot), allowedMentions: { parse: [] } });
+    return;
+  }
+
+  const hour = num(a, 23);
+  const minute = num(b, 59);
+  if (hour === null || minute === null) {
+    await interaction.update({ ...callerTimePanel(config, ping, current), allowedMentions: { parse: [] } });
+    return;
+  }
+  const before = ping.startTimeUnix;
+  ping.startTimeUnix = nextUtcStartUnix({ hour, minute });
+  ping.timeLabel = formatUtc({ hour, minute });
+  ConfigManager.savePing(config.guildId, ping);
+  console.log(`⏰ [${config.guildId}] Ping ${ping.id} "${ping.title}": hora cambiada a ${ping.timeLabel} por ${displayNameOf(interaction)}`);
+
+  // Primero se responde (Discord da 3 s) y después se rehace el mensaje del ping, que tarda más
+  await interaction.update({
+    ...callerPanel(config, ping, `✅ Salida movida a **${ping.timeLabel}** (<t:${ping.startTimeUnix}:R>).`),
+    allowedMentions: { parse: [] },
+  });
+  await refreshActivePingMessage(interaction, config, ping);
+
+  // Aviso en el hilo, sin mencionar a nadie: quien sigue el hilo ya recibe la notificación
+  if (ping.threadId) {
+    const thread = await interaction.guild?.channels.fetch(ping.threadId).catch(() => null);
+    if (thread?.isThread()) {
+      if (thread.archived) await thread.setArchived(false).catch(() => null);
+      await thread
+        .send({
+          content: `⏰ El Caller cambió la hora de salida: **${ping.timeLabel}** · <t:${ping.startTimeUnix}:t> (<t:${ping.startTimeUnix}:R>). Antes era <t:${before}:t>.`,
+          allowedMentions: { parse: [] },
+        })
+        .catch(() => null);
+    }
+  }
 }
 
 // Pings que creó este usuario: abiertos, o terminados con puntos por repartir. Solo los suyos,
