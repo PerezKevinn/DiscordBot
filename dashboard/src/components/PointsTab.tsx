@@ -55,7 +55,7 @@ export function PointsTab({ data }: { data: GuildData }) {
           <div className="card stack">
             <div className="card-head">
               <h2 style={{ margin: 0 }}>Salidas por puntuar{pendingCount ? ` (${pendingCount})` : ''}</h2>
-              <span className="muted small">Salidas terminadas con GG en los últimos 3 días</span>
+              <span className="muted small">Sin puntos: 3 días tras el GG · ya puntuadas: 24 h</span>
             </div>
             {points.pending.length === 0 ? (
               <p className="empty">No hay salidas terminadas recientes. Al dar GG a una salida aparecerá aquí.</p>

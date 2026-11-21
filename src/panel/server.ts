@@ -643,6 +643,9 @@ export async function startPanel(client: Client) {
 
   // ---------- Puntos de actividad ----------
 
+  /** Tiempo que una salida ya puntuada sigue en "Salidas por puntuar" después del GG. */
+  const AWARDED_VISIBLE_MS = 24 * 60 * 60 * 1000;
+
   // Convierte los PointsError en 400 con su mensaje; cualquier otro error sigue siendo un 500.
   const pointsCall = <T>(fn: () => T): T => {
     try {
@@ -658,11 +661,15 @@ export async function startPanel(client: Client) {
     const pro = limits.pointsPro;
     const p = pro ? period : 'total'; // Semana y mes son Premium.
     const nameOf = (id: string) => guild.members.cache.get(id)?.displayName ?? null;
+    // Las salidas sin puntos se ven mientras el ping siga guardado (3 días); las ya puntuadas solo
+    // las primeras 24 h tras el GG, por si hay que corregir. Después se corrigen desde el historial.
+    const now = Date.now();
     const pending = Object.values(ConfigManager.getActivePings(guild.id))
       .filter((ping) => ping.status === 'CLOSED')
-      .sort((a, b) => (b.closedAt ?? 0) - (a.closedAt ?? 0))
-      .map((ping) => {
-        const award = getActivityAward(guild.id, ping.id);
+      .map((ping) => ({ ping, award: getActivityAward(guild.id, ping.id) }))
+      .filter(({ ping, award }) => !award || now - (ping.closedAt ?? ping.createdAt) < AWARDED_VISIBLE_MS)
+      .sort((a, b) => (b.ping.closedAt ?? 0) - (a.ping.closedAt ?? 0))
+      .map(({ ping, award }) => {
         return {
           pingId: ping.id,
           title: ping.title,
