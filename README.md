@@ -36,6 +36,10 @@ Discord es para **usar** el bot (tirar pings, anotarse, mandar la party). Toda l
 | `/plan` | Todos | Plan del servidor y qué incluye |
 | `/ranking [periodo]` | Todos | Ranking de puntos de actividad (semana y mes: Premium) |
 | `/puntos [jugador]` | Todos | Puntos y puesto de un jugador |
+| `/loot repartir salida` | Caller, tesorería u oficial | Reparte el loot de una salida terminada a partes iguales (importar el log del loot logger: Premium) |
+| `/loot pendientes [jugador]` | Todos | Plata de loot que te deben |
+| `/loot historial` | Todos | Últimos repartos de loot (Premium: todo el historial) |
+| `/loot guia [publicar]` | Todos | Cómo instalar y usar AO Loot Logger |
 | `/stats personaje [servidor]` | Todos | Ficha de Albion de un jugador |
 | `/ticket añadir\|quitar\|renombrar\|cerrar` | Staff del ticket (cerrar: también el autor) | Gestiona el ticket del canal |
 | `/canjear` | Gestionar servidor | Canjea un código de Premium |

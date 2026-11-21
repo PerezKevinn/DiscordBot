@@ -11,6 +11,8 @@ import type {
   Me,
   MembershipEvent,
   PaymentOrder,
+  LootData,
+  LootSettings,
   PointsData,
   PointsEditor,
   RankingPeriod,
@@ -67,6 +69,14 @@ export const api = {
     request<{ url: string; test: boolean; invoice: string }>('POST', `/api/guilds/${id}/checkout`, { packageId }),
   order: (id: string, invoice: string) =>
     request<{ status: PaymentOrder['status']; days: number; amount: number }>('GET', `/api/guilds/${id}/orders/${encodeURIComponent(invoice)}`),
+
+  // Reparto de loot.
+  loot: (id: string) => request<LootData>('GET', `/api/guilds/${id}/loot`),
+  saveLootSettings: (id: string, body: Partial<LootSettings>) => request<LootData>('PATCH', `/api/guilds/${id}/loot/settings`, body),
+  setLootPaid: (id: string, splitId: string, userId: string, paid: boolean) =>
+    request<LootData>('PUT', `/api/guilds/${id}/loot/splits/${encodeURIComponent(splitId)}/paid`, { userId, paid }),
+  deleteLootSplit: (id: string, splitId: string) => request<LootData>('DELETE', `/api/guilds/${id}/loot/splits/${encodeURIComponent(splitId)}`),
+  lootCsvUrl: (id: string) => `/api/guilds/${id}/loot/export.csv`,
 
   // Tickets.
   saveTickets: (id: string, body: Omit<TicketsData, 'open' | 'issues'>) => request<GuildData>('PUT', `/api/guilds/${id}/tickets`, body),

@@ -212,6 +212,20 @@ export const pointsAwardSchema = z.object({
     .max(300),
 });
 
+/** Ajustes del reparto de loot. Los límites coinciden con utils/loot.ts (MAX_DEDUCTION_PCT, ROUND_OPTIONS). */
+export const lootSettingsSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    guildTaxPct: z.number().min(0).max(90).optional(),
+    sellerPct: z.number().min(0).max(90).optional(),
+    roundTo: z.union([z.literal(1), z.literal(100), z.literal(1000), z.literal(10000), z.literal(100000)]).optional(),
+    managerRoleId: snowflake.nullable().optional(),
+  })
+  .strict();
+
+/** Marcar a un jugador como pagado (o no) en un reparto de loot. */
+export const lootPaidSchema = z.object({ userId: snowflake, paid: z.boolean() }).strict();
+
 /** Ajuste manual de puntos (Premium). Los límites coinciden con MAX_ADJUST de utils/points.ts. */
 export const pointsAdjustSchema = z.object({
   userId: snowflake,

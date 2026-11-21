@@ -114,7 +114,7 @@ export function PlanTab({ data, save }: { data: GuildData; save: Save }) {
           <p className="muted" style={{ margin: 0 }}>
             Ahora tienes {plan.limits.maxActivePings} pings abiertos a la vez y {plan.limits.maxContentTypes} contenidos. Con
             Premium tienes más de ambos, marca y logo propios, pings sin el pie del bot, más tipos de ticket, gremios anteriores en la
-            ficha de Albion y transcripciones con formato.
+            ficha de Albion, transcripciones con formato e importar el log del loot logger en el reparto de loot.
           </p>
         )}
 

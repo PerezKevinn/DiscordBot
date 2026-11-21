@@ -77,6 +77,8 @@ import {
   adminPlanSchema,
   checkoutSchema,
   closePingSchema,
+  lootPaidSchema,
+  lootSettingsSchema,
   pointsAdjustSchema,
   pointsAwardSchema,
   pointsSettingsSchema,
@@ -95,6 +97,8 @@ import {
 import { GuildConfig, TicketSettings } from '../types/ping';
 import { publishTicketPanel, TicketError, ticketPermissionIssues, ticketSettings } from '../handlers/ticketHandler';
 import { openTickets, ticketNumber } from '../utils/tickets';
+import { amountFor, computeSplit, deleteSplit, FREE_HISTORY_DAYS, getSplit, listSplits, LootError, lootSettings, setPaid, splitsCsv, updateLootSettings } from '../utils/loot';
+import { refreshLootMessage } from '../handlers/lootHandler';
 import { z } from 'zod';
 
 const STATE_COOKIE = 'massup_oauth_state';
@@ -758,6 +762,97 @@ export async function startPanel(client: Client) {
     const { guild, config } = await requireGuild(req);
     pointsCall(() => startSeason(config));
     return serializePoints(guild, config, periodOf(req));
+  });
+
+  // ---------- Reparto de loot ----------
+
+  // Convierte los LootError en 400 con su mensaje.
+  const lootCall = <T>(fn: () => T): T => {
+    try {
+      return fn();
+    } catch (err) {
+      if (err instanceof LootError) throw new HttpError(400, err.message);
+      throw err;
+    }
+  };
+
+  const serializeLoot = (guild: Guild, config: GuildConfig) => {
+    const pro = getLimits(config).lootPro;
+    const nameOf = (id: string | undefined) => (id ? guild.members.cache.get(id)?.displayName ?? null : null);
+    const splits = listSplits(guild.id, pro).slice(0, pro ? 500 : 100);
+    const done = new Set(splits.map((s) => s.id));
+    const pending = Object.values(ConfigManager.getActivePings(guild.id))
+      .filter((p) => p.status === 'CLOSED' && !done.has(p.id) && !getSplit(guild.id, p.id))
+      .sort((a, b) => (b.closedAt ?? 0) - (a.closedAt ?? 0))
+      .map((p) => ({ pingId: p.id, title: p.title, contentName: p.contentName, callerName: p.callerName, closedAt: p.closedAt ?? p.createdAt }));
+    return {
+      settings: { ...lootSettings(config), managerRoleId: lootSettings(config).managerRoleId ?? null },
+      pro,
+      historyDays: pro ? null : FREE_HISTORY_DAYS,
+      splits: splits.map((s) => {
+        const b = computeSplit(s, s.members.length);
+        return {
+          id: s.id,
+          title: s.title,
+          contentName: s.contentName ?? null,
+          at: s.at,
+          callerName: nameOf(s.callerId),
+          byName: nameOf(s.updatedBy ?? s.createdBy),
+          sellerName: nameOf(s.sellerId),
+          repairsName: nameOf(s.repairsUserId),
+          guildTaxPct: s.guildTaxPct,
+          sellerPct: s.sellerPct,
+          breakdown: b,
+          members: s.members.map((m) => ({ ...m, amount: amountFor(s, b, m.userId) })),
+          looters: s.log?.looters.map((l) => ({ name: l.name, count: l.count })) ?? [],
+          messageUrl: s.messageId && s.messageChannelId ? `https://discord.com/channels/${guild.id}/${s.messageChannelId}/${s.messageId}` : null,
+        };
+      }),
+      pending,
+    };
+  };
+
+  app.get('/api/guilds/:guildId/loot', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    return serializeLoot(guild, config);
+  });
+
+  app.patch('/api/guilds/:guildId/loot/settings', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const body = parse(lootSettingsSchema, req.body);
+    if (body.managerRoleId && !guild.roles.cache.has(body.managerRoleId)) throw new HttpError(400, 'Ese rol no existe');
+    lootCall(() => updateLootSettings(config, body));
+    ConfigManager.saveConfig(config);
+    return serializeLoot(guild, config);
+  });
+
+  app.put('/api/guilds/:guildId/loot/splits/:splitId/paid', async (req) => {
+    const { guild, config, session } = await requireGuild(req);
+    const { splitId } = req.params as { splitId: string };
+    const { userId, paid } = parse(lootPaidSchema, req.body);
+    const split = lootCall(() => setPaid(guild.id, splitId, { [userId]: paid }, session.userId));
+    await refreshLootMessage(client, config, split);
+    return serializeLoot(guild, config);
+  });
+
+  app.delete('/api/guilds/:guildId/loot/splits/:splitId', async (req) => {
+    const { guild, config } = await requireGuild(req);
+    const { splitId } = req.params as { splitId: string };
+    const removed = lootCall(() => deleteSplit(guild.id, splitId));
+    // El mensaje publicado se borra para que nadie lo tome por bueno.
+    if (removed.messageId && removed.messageChannelId) {
+      const channel = await client.channels.fetch(removed.messageChannelId).catch(() => null);
+      if (channel?.isTextBased()) await channel.messages.delete(removed.messageId).catch(() => null);
+    }
+    return serializeLoot(guild, config);
+  });
+
+  app.get('/api/guilds/:guildId/loot/export.csv', async (req, reply) => {
+    const { guild, config } = await requireGuild(req);
+    if (!getLimits(config).lootPro) throw new HttpError(403, 'Exportar el historial es Premium');
+    reply.header('Content-Type', 'text/csv; charset=utf-8').header('Content-Disposition', 'attachment; filename="loot.csv"');
+    // BOM para que Excel lea bien las tildes.
+    return '﻿' + splitsCsv(listSplits(guild.id, true));
   });
 
   // ---------- Plan y membresía del servidor ----------

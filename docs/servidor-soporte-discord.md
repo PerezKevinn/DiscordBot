@@ -288,11 +288,12 @@ Escribe `/panel` (necesitas *Gestionar servidor*) y entra en https://panel.massu
 
 **3. Comandos**
 `/ping`: el Caller arma un ping (contenido, hora, roster con roles y builds).
-`/mando`: Mando del Caller privado: En ruta, ¡A voz!, GG, Cancelar y puntos.
+`/mando`: Mando del Caller privado: En ruta, ¡A voz!, GG, Cancelar, puntos y loot.
 `/panel-ping`: deja en un canal un panel fijo para que los Callers abran pings con un botón.
 `/plan`: plan del servidor (Gratis o Premium) y qué incluye.
 `/ranking`: ranking de puntos de actividad.
 `/puntos`: tus puntos o los de otro jugador.
+`/loot`: reparte el loot de una salida a partes iguales, mira lo que te deben y la guía del loot logger.
 `/stats`: ficha de Albion de un jugador (PvP, PvE, recolección y gremios).
 `/ticket`: añade o quita gente, renombra o cierra el ticket del canal.
 `/canjear`: canjea un código de Premium (necesitas *Gestionar servidor*).

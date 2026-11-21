@@ -80,6 +80,7 @@ export interface GuildData {
       maxTicketTypes: number;
       albionGuildHistory: boolean;
       htmlTranscripts: boolean;
+      lootPro: boolean;
     };
     premiumUntil: number | null;
     /** Fin del Premium. null si no vence o si es gratis; se distingue con tier. */
@@ -373,4 +374,50 @@ export interface PointsEditor {
   /** Máximo por jugador (maxPerActivity del servidor). */
   max: number;
   entries: PointsEntry[];
+}
+
+/** Ajustes del reparto de loot; coinciden con LootSettings del bot. */
+export interface LootSettings {
+  enabled: boolean;
+  guildTaxPct: number;
+  sellerPct: number;
+  roundTo: number;
+  managerRoleId: string | null;
+}
+
+/** Respuesta de GET /api/guilds/:id/loot y de las escrituras de loot. */
+export interface LootData {
+  settings: LootSettings;
+  /** El servidor tiene las funciones de loot Premium. */
+  pro: boolean;
+  /** Días de historial que se muestran; null es todo (Premium). */
+  historyDays: number | null;
+  splits: Array<{
+    id: string;
+    title: string;
+    contentName: string | null;
+    at: number;
+    callerName: string | null;
+    byName: string | null;
+    sellerName: string | null;
+    repairsName: string | null;
+    guildTaxPct: number;
+    sellerPct: number;
+    breakdown: {
+      total: number;
+      repairs: number;
+      guildTax: number;
+      sellerFee: number;
+      net: number;
+      players: number;
+      perPlayer: number;
+      remainder: number;
+      guildTotal: number;
+    };
+    members: Array<{ userId: string; name: string; paid: boolean; amount: number }>;
+    looters: Array<{ name: string; count: number }>;
+    messageUrl: string | null;
+  }>;
+  /** Salidas terminadas que siguen guardadas y aún no tienen reparto. */
+  pending: Array<{ pingId: string; title: string; contentName: string; callerName: string; closedAt: number }>;
 }

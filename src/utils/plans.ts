@@ -26,6 +26,8 @@ export interface PlanLimits {
   albionGuildHistory: boolean;
   /** Transcripción de los tickets en HTML con formato (en gratis, texto plano). */
   htmlTranscripts: boolean;
+  /** Reparto de loot: importar el log del loot logger, historial completo y exportación a CSV. */
+  lootPro: boolean;
 }
 
 /** Límites de cada plan. */
@@ -41,6 +43,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     maxTicketTypes: 3,
     albionGuildHistory: false,
     htmlTranscripts: false,
+    lootPro: false,
   },
   premium: {
     maxActivePings: 25,
@@ -53,6 +56,7 @@ export const PLAN_LIMITS: Record<PlanTier, PlanLimits> = {
     maxTicketTypes: 10,
     albionGuildHistory: true,
     htmlTranscripts: true,
+    lootPro: true,
   },
 };
 

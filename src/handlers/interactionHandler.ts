@@ -4,7 +4,7 @@
  * pings: asistente de creación, publicación, roster y Mando del Caller.
  *
  * Prefijos de customId: ping_* (mensaje público del ping), wizard_* (asistente), caller_action:* (Mando),
- * compo_* (editor de compos), pts_* (puntos), tk_* (tickets). Los de versiones anteriores (tpl_*, config…) se
+ * compo_* (editor de compos), pts_* (puntos), loot_* (reparto de loot), tk_* (tickets). Los de versiones anteriores (tpl_*, config…) se
  * siguen atendiendo para redirigir al panel web cuando alguien pulsa un mensaje antiguo.
  */
 import {
@@ -49,6 +49,7 @@ import { applyEntitlement } from '../utils/memberships';
 import { movedToPanelReply } from '../utils/panelLink';
 import { defaultUtcSlot, draftSlot, formatUtc, nextUtcStartUnix } from '../utils/pingTime';
 import { handlePointsCommand, handlePointsInteraction, handleRankingCommand, pointsButton } from './pointsHandler';
+import { handleLootAutocomplete, handleLootCommand, handleLootInteraction, lootButton } from './lootHandler';
 import { handleStatsCommand, handleTicketCommand, handleTicketInteraction } from './ticketHandler';
 import { reportError } from '../utils/alerts';
 import { cleanPartySize, joinGoesToBench, partyJoined, partyMax } from '../utils/party';
@@ -178,8 +179,9 @@ function isPingFinished(ping: ActivePing) {
 export async function handleInteraction(interaction: Interaction) {
   try {
     if (interaction.isAutocomplete()) {
-      // Ningún comando usa autocompletado desde que la configuración pasó al panel web.
-      await interaction.respond([]);
+      // Solo /loot repartir usa autocompletado (elegir la salida).
+      if (interaction.commandName === 'loot' && interaction.inGuild()) await handleLootAutocomplete(interaction);
+      else await interaction.respond([]);
       return;
     }
 
@@ -195,6 +197,15 @@ export async function handleInteraction(interaction: Interaction) {
     // Cada interacción trae las suscripciones vigentes: así un pago recién hecho se nota al instante.
     for (const e of interaction.entitlements.values()) applyEntitlement(interaction.client, e);
     const displayName = displayNameOf(interaction);
+
+    // Reparto de loot: botones, menús y formularios con prefijo loot_.
+    if (
+      (interaction.isButton() || interaction.isStringSelectMenu() || interaction.isUserSelectMenu() || interaction.isModalSubmit()) &&
+      interaction.customId.startsWith('loot_')
+    ) {
+      await handleLootInteraction(interaction, config);
+      return;
+    }
 
     // Tickets: botones, menús y formularios con prefijo tk_.
     if ((interaction.isButton() || interaction.isStringSelectMenu() || interaction.isModalSubmit()) && interaction.customId.startsWith('tk_')) {
@@ -217,6 +228,7 @@ export async function handleInteraction(interaction: Interaction) {
       if (commandName === 'canjear') return handleRedeemCommand(interaction, config);
       if (commandName === 'ranking') return handleRankingCommand(interaction, config);
       if (commandName === 'puntos') return handlePointsCommand(interaction, config);
+      if (commandName === 'loot') return handleLootCommand(interaction, config);
       if (commandName === 'mando') return handleMandoCommand(interaction, config);
       if (commandName === 'ticket') return handleTicketCommand(interaction, config);
       if (commandName === 'stats') return handleStatsCommand(interaction, config);
@@ -748,21 +760,26 @@ function canCommandPing(
   return interaction.user.id === ping.callerId || Boolean(interaction.memberPermissions?.has(PermissionFlagsBits.ManageChannels));
 }
 
+// Botones de una salida terminada: repartir puntos y repartir loot (los que estén activados).
+function finishedButtons(config: GuildConfig, ping: ActivePing): ButtonBuilder[] {
+  return [pointsButton(config, ping), lootButton(config, ping)].filter((b): b is ButtonBuilder => b !== null);
+}
+
 // Controles del Caller para un ping (mensaje efímero). `notice` es el resultado de la última acción.
 function callerPanel(config: GuildConfig, ping: ActivePing, notice?: string) {
   const joined = partyJoined(ping);
   const max = partyMax(ping.roles, ping.partySize);
 
-  // Salida terminada: lo único que queda por hacer es repartir los puntos.
+  // Salida terminada: lo único que queda por hacer es repartir los puntos y el loot.
   if (isPingFinished(ping)) {
-    const btn = pointsButton(config, ping);
+    const btns = finishedButtons(config, ping);
     const head = notice ? `${notice}\n` : '';
     return {
-      content: btn
-        ? `${head}🔒 **${ping.title}** ya terminó (${joined} anotados · ${ping.bench.length} en banca). Reparte o corrige los puntos:`
+      content: btns.length
+        ? `${head}🔒 **${ping.title}** ya terminó (${joined} anotados · ${ping.bench.length} en banca). Reparte o corrige los puntos y el loot:`
         : `${head}🔒 **${ping.title}** ya terminó.`,
       embeds: [],
-      components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
+      components: btns.length ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btns)] : [],
     };
   }
 
@@ -919,7 +936,7 @@ async function handleCallerTime(interaction: ButtonInteraction | StringSelectMen
 // aunque sea oficial: los oficiales gestionan los de otros desde el panel web.
 function commandablePings(interaction: ChatInputCommandInteraction, config: GuildConfig): ActivePing[] {
   return Object.values(ConfigManager.getActivePings(config.guildId))
-    .filter((p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS' || (p.status === 'CLOSED' && pointsButton(config, p)))
+    .filter((p) => p.status === 'OPEN' || p.status === 'IN_PROGRESS' || (p.status === 'CLOSED' && finishedButtons(config, p).length > 0))
     .filter((p) => p.callerId === interaction.user.id)
     .sort((a, b) => Number(isPingFinished(a)) - Number(isPingFinished(b)) || b.createdAt - a.createdAt)
     .slice(0, 25);
@@ -929,7 +946,7 @@ function commandablePings(interaction: ChatInputCommandInteraction, config: Guil
 async function handleMandoCommand(interaction: ChatInputCommandInteraction, config: GuildConfig) {
   const pings = commandablePings(interaction, config);
   if (pings.length === 0) {
-    await interaction.reply({ content: 'No tienes pings abiertos ni puntos por repartir.', flags: MessageFlags.Ephemeral });
+    await interaction.reply({ content: 'No tienes pings abiertos ni puntos o loot por repartir.', flags: MessageFlags.Ephemeral });
     return;
   }
   if (pings.length === 1) {
@@ -1144,16 +1161,16 @@ async function handleCallerStatusAction(interaction: ButtonInteraction, config: 
 
     ConfigManager.savePing(config.guildId, ping);
     console.log(`🔒 [${config.guildId}] Ping ${ping.id} "${ping.title}": ${reason}`);
-    const btn = pointsButton(config, ping);
+    const btns = finishedButtons(config, ping);
     // Se responde antes de borrar la voz y el hilo: si el Mando se abrió dentro de alguno de los
     // dos, su mensaje desaparece con él y editarlo después daría "Unknown Message".
     await interaction.update({
       content:
         subAction === 'close'
-          ? `🔒 **¡GG!** Salida terminada; borré la voz y el hilo.${btn ? '\nAhora reparte los puntos a los que fueron:' : ''}`
+          ? `🔒 **¡GG!** Salida terminada; borré la voz y el hilo.${btns.length ? '\nAhora reparte los puntos y el loot de los que fueron:' : ''}`
           : '🔴 Salida cancelada (F); borré el ping, la voz y el hilo.',
       embeds: [],
-      components: btn ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btn)] : [],
+      components: btns.length ? [new ActionRowBuilder<ButtonBuilder>().addComponents(btns)] : [],
     });
     if (interaction.guild) await cleanupPingChannels(interaction.guild, ping, reason);
     // cleanupPingChannels puede cambiar el ping (p. ej. quitar los ids borrados): se guarda otra vez.

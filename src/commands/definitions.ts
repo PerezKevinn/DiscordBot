@@ -14,7 +14,7 @@ export const publicCommands = [
 
   new SlashCommandBuilder()
     .setName('mando')
-    .setDescription('Abre el Mando del Caller de tus pings (En ruta, ¡A voz!, GG, Cancelar, puntos)')
+    .setDescription('Abre el Mando del Caller de tus pings (En ruta, ¡A voz!, GG, Cancelar, puntos y loot)')
     .setDMPermission(false),
 
   new SlashCommandBuilder()
@@ -55,6 +55,28 @@ export const publicCommands = [
     .setDMPermission(false)
     .addUserOption((o) => o.setName('jugador').setDescription('Jugador a consultar (vacío = tú)')),
 
+  new SlashCommandBuilder()
+    .setName('loot')
+    .setDescription('Reparto de loot de las salidas: a partes iguales del total de plata')
+    .addSubcommand((s) =>
+      s
+        .setName('repartir')
+        .setDescription('Reparte (o corrige) el loot de una salida terminada')
+        .addStringOption((o) => o.setName('salida').setDescription('Salida terminada con GG').setRequired(true).setAutocomplete(true))
+    )
+    .addSubcommand((s) =>
+      s
+        .setName('pendientes')
+        .setDescription('Plata de loot que te deben (o que le deben a otro jugador)')
+        .addUserOption((o) => o.setName('jugador').setDescription('Jugador a consultar (vacío = tú)'))
+    )
+    .addSubcommand((s) => s.setName('historial').setDescription('Últimos repartos de loot del servidor'))
+    .addSubcommand((s) =>
+      s
+        .setName('guia')
+        .setDescription('Cómo instalar y usar AO Loot Logger para registrar el loot')
+        .addBooleanOption((o) => o.setName('publicar').setDescription('Publicarla en el canal para que la vean todos'))
+    ),
   new SlashCommandBuilder()
     .setName('stats')
     .setDescription('Ficha de un jugador de Albion: PvP, PvE, recolección y gremios')

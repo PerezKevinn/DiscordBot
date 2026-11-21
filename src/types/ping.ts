@@ -51,6 +51,19 @@ export interface ContentTypeConfig {
   createThread?: boolean;
 }
 
+/** Ajustes del reparto de loot de un servidor (ver utils/loot.ts). */
+export interface LootSettings {
+  enabled: boolean;
+  /** Recargo del gremio por defecto, en % (0 a 90; admite decimales). */
+  guildTaxPct: number;
+  /** Pago por defecto a quien vende el loot, en %. */
+  sellerPct: number;
+  /** Unidad a la que se redondea hacia abajo la parte de cada jugador (1, 100, 1000…). */
+  roundTo: number;
+  /** Rol de tesorería: puede crear, editar y marcar pagos en cualquier reparto. */
+  managerRoleId?: string;
+}
+
 /** Plan de un servidor. */
 export type PlanTier = 'free' | 'premium';
 
@@ -125,6 +138,8 @@ export interface GuildConfig {
   notices?: { warnedFor?: number; expiredFor?: number };
   /** Puntos de actividad (ver utils/points.ts). Sin valor se usan los valores por defecto. */
   points?: PointsSettings;
+  /** Reparto de loot (ver utils/loot.ts). Sin valor se usan los valores por defecto. */
+  loot?: LootSettings;
   /** Sistema de tickets. Sin valor, no está configurado. */
   tickets?: TicketSettings;
   contentTypes: ContentTypeConfig[];
