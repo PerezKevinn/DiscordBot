@@ -38,7 +38,7 @@
 
 Hay dos versiones de cada formato:
 
-- **Con audio:** lleva una pista original generada por código (`scripts/synthAudio.js`), sin samples ni música de terceros, así que no tiene problemas de derechos. Es una base épica en re menor a 120 bpm (bombo, bajo, pad y cuerno de guerra en el cierre) con efectos sincronizados según la tabla de abajo. Está mezclada a unos −13 dBFS RMS, cerca de los −14 LUFS habituales en redes. Úsala en YouTube, Discord o anuncios.
+- **Con audio:** lleva una pista original generada por código (`node scripts/synthAudio.js party`), sin samples ni música de terceros, así que no tiene problemas de derechos. Es una base épica en re menor a 120 bpm (bombo, bajo, pad y cuerno de guerra en el cierre) con efectos sincronizados según la tabla de abajo. Está mezclada a unos −13 dBFS RMS, cerca de los −14 LUFS habituales en redes. Úsala en YouTube, Discord o anuncios.
 - **Sin audio:** para ponerle un sonido en tendencia desde TikTok o Reels, que suele dar más alcance, o una locución.
 
 Golpes y efectos (los mismos de la versión con audio; sirven de guía si montas tu propio sonido):
@@ -87,11 +87,14 @@ Los textos y la acción importante quedan entre y = 170 y y ≈ 1590 px, y fuera
 cd promo
 npm install                # solo la primera vez
 npm run studio             # vista previa interactiva en el navegador
-npm run render:all         # video (2 formatos) + audio + versiones con audio en out/
+npm run render:all         # los 3 videos (2 formatos cada uno) + audio + versiones con audio en out/
+npm run render:party       # solo este video, sin audio (también render:novedades y render:loot)
 npm run audio && npm run mux   # solo rehacer el audio sin volver a renderizar el video
 ```
 
 - Los tiempos de las escenas están en `src/theme.ts` (`T`). Cada escena está en `src/scenes/`.
+- Videos cortos diarios para TikTok: `npm run daily` (ver [shorts/README.md](shorts/README.md)).
+- Hay dos videos más con sus guiones: [GUION-novedades.md](GUION-novedades.md) («MassUp ahora hace más») y [GUION-loot.md](GUION-loot.md) («Del GG a la plata»). Su código está en `src/videos/`.
 - Los nombres de los jugadores y los momentos en que se anotan están en `ROLES` (`src/scenes/PingRoster.tsx`).
 - Los banners `public/banner-4…7.png` salen del renderizador real del bot: `npx tsx promo/scripts/renderBanners.ts` (desde la raíz del repo).
 - Todo es fiel al bot: la compo por defecto de «Gankeo en Caminos de Avalon», los textos del aviso, el embed, la banca y los botones del Mando.

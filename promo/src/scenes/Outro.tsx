@@ -4,7 +4,11 @@ import { useVertical } from '../common';
 import { C, FONT_BODY, FONT_DISPLAY } from '../theme';
 
 /** 19,3–25 s · Cierre: logo, lema y llamada a la acción */
-export const Outro: React.FC = () => {
+export const Outro: React.FC<{ chips?: string[]; tagline?: React.ReactNode; footer?: React.ReactNode }> = ({
+  chips: chipList = ['Gratis', 'En español', 'Sin permisos de admin'],
+  tagline,
+  footer = 'Bot de Discord para gremios de Albion Online',
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const vertical = useVertical();
@@ -64,7 +68,9 @@ export const Outro: React.FC = () => {
           marginTop: 10,
         }}
       >
-        {words.map((w, i) => {
+        {tagline ? (
+          <span style={{ opacity: spring({ frame: frame - 26, fps, config: { damping: 200 } }) }}>{tagline}</span>
+        ) : words.map((w, i) => {
           const s = spring({ frame: frame - 26 - i * 10, fps, config: { damping: 200 } });
           return (
             <span key={w} style={{ opacity: s, transform: `translateY(${(1 - s) * 24}px)` }}>
@@ -87,7 +93,7 @@ export const Outro: React.FC = () => {
           maxWidth: vertical ? 900 : 1400,
         }}
       >
-        {['Gratis', 'En español', 'Sin permisos de admin'].map((t) => (
+        {chipList.map((t) => (
           <span key={t} style={{ border: `2px solid ${C.border}`, borderRadius: 999, padding: '10px 24px', background: C.surface }}>
             ✓ {t}
           </span>
@@ -109,7 +115,7 @@ export const Outro: React.FC = () => {
         massup.shop
       </div>
       <div style={{ marginTop: 22, fontSize: vertical ? 30 : 26, color: C.muted, opacity: cta }}>
-        Bot de Discord para gremios de Albion Online
+        {footer}
       </div>
     </AbsoluteFill>
   );

@@ -1,0 +1,556 @@
+[
+  {
+    "id": "caller-a-mano",
+    "cover": "POV: el Caller armando party a mano 💀",
+    "props": {
+      "hook": { "kicker": "POV", "title": "El Caller armando party *a mano*", "chat": [
+        { "who": "Caller", "text": "@everyone gank en 10 min, ¿quién va? 🙏" },
+        { "who": "Bruno", "text": "yo, ¿de qué voy?" },
+        { "who": "Nyx", "text": "yo healer… ¿o ya hay?" },
+        { "who": "Kael", "text": "¿a qué hora era? 😴" }
+      ] },
+      "turn": "Hasta que llegó *MassUp*",
+      "payoff": ["ping", "roster"],
+      "tagline": "Party armada en *15 segundos*.",
+      "chips": ["Gratis", "En español"]
+    },
+    "caption": "Armar party en Albion no debería tardar más que la salida 😅\n\nCon MassUp: /ping → cada uno se anota en su rol → si se llena, a la banca.\n\nBot de Discord gratis y en español. Pruébalo en tu gremio 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#Gankeo"],
+    "comment": "¿Cuánto tarda el Caller de tu gremio en armar party? 👇"
+  },
+  {
+    "id": "loot-peleas",
+    "cover": "Tu gremio después de cada salida 😤",
+    "props": {
+      "hook": { "title": "¿Otra vez peleando por el *loot*?", "chat": [
+        { "who": "Nyx", "text": "@Draven ¿y mi parte? 👀" },
+        { "who": "Bruno", "text": "¿cuánto le toca a cada uno?" },
+        { "who": "Vortex", "text": "yo pagué las repas, eh 😤" },
+        { "who": "Kael", "text": "a mí me pagaron menos 🤨" }
+      ] },
+      "turn": "Hasta que el gremio puso *MassUp*",
+      "payoff": ["gg", "reparto"],
+      "tagline": "Cada uno su parte, *sin discusiones*.",
+      "chips": ["Reparto gratis", "En español"]
+    },
+    "caption": "El drama de siempre después del gank 💀\n\nCon MassUp das GG → Repartir loot → pones el total. Reparaciones, recargo del gremio y vendedor incluidos, y cada uno cobra lo mismo.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Cuánto fue lo máximo que se repartió en tu gremio? 👇"
+  },
+  {
+    "id": "everyone-3am",
+    "cover": "El Caller tirando @everyone a las 3 am 💀",
+    "props": {
+      "hook": { "kicker": "Nadie:", "title": "El Caller tirando *everyone* a las 3 am", "chat": [
+        { "who": "Caller", "text": "@everyone gank YA 🔥" },
+        { "who": "Lyra", "text": "¿por qué me pingueas? yo ni hago gank 😡" },
+        { "who": "Bruno", "text": "server silenciado 🔇" },
+        { "who": "Nyx", "text": "me despertó el móvil…" }
+      ] },
+      "turn": "Avisa solo a *quien juega*",
+      "payoff": ["roster"],
+      "tagline": "Cada ping, al *rol que toca*.",
+      "chips": ["Gratis", "Sin everyone"]
+    },
+    "caption": "Si tu gremio tiene el server silenciado, es culpa del @everyone 😅\n\nCon MassUp cada contenido avisa solo a su rol: el gank a @Gankeo, el ZvZ a @ZvZ. Nadie más se entera.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordServer"],
+    "comment": "Sé sincero: ¿tienes silenciado el server de tu gremio? 🔇"
+  },
+  {
+    "id": "party-retrasada",
+    "cover": "Cuando la party se retrasa 15 minutos…",
+    "props": {
+      "hook": { "title": "Cuando la party se *retrasa* 15 min", "chat": [
+        { "who": "Kael", "text": "¿al final a qué hora? 🤔" },
+        { "who": "Lyra", "text": "yo me fui a cenar" },
+        { "who": "Bruno", "text": "¿cancelamos o qué?" },
+        { "who": "Nyx", "text": "me salgo del roster 🙄" }
+      ] },
+      "turn": "Ahora la hora *se cambia sola*",
+      "payoff": ["hora"],
+      "tagline": "Cambia la hora *sin perder a nadie*.",
+      "chips": ["Gratis", "Avisa en el hilo"]
+    },
+    "caption": "¿Se retrasa la salida? No hace falta cancelar el ping 🙌\n\nCon MassUp cambias la hora desde el Mando: los anotados, la voz y el hilo se mantienen, y el bot avisa a todos.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#Caller"],
+    "comment": "¿Cuál es el récord de retraso de tu Caller? ⏰👇"
+  },
+  {
+    "id": "server-basura",
+    "cover": "El server del gremio después de 10 salidas 🗑️",
+    "props": {
+      "hook": { "title": "El server del gremio tras *10 salidas*", "chat": [
+        { "who": "Lyra", "text": "¿alguien sabe qué es #gank-voz-7?" },
+        { "who": "Bruno", "text": "hay 14 hilos abiertos 💀" },
+        { "who": "Kael", "text": "¿quién borra esto?" },
+        { "who": "Nyx", "text": "yo no, yo solo juego 🤷" }
+      ] },
+      "turn": "Con *MassUp*: GG y listo",
+      "payoff": ["mando"],
+      "tagline": "GG y *se limpia solo*.",
+      "chips": ["Voz temporal", "Hilo de builds"]
+    },
+    "caption": "Canales de voz olvidados, hilos de hace un mes… 🗑️\n\nCon MassUp cada salida crea su voz y su hilo de builds, y al dar GG se borran solos.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordServer"],
+    "comment": "¿Cuántos canales muertos tiene el server de tu gremio? 💀"
+  },
+  {
+    "id": "reclutar-a-ciegas",
+    "cover": "Reclutando para el gremio a ciegas 🙈",
+    "props": {
+      "hook": { "title": "Reclutando *a ciegas*", "channel": "reclutamiento", "chat": [
+        { "who": "Zorak", "text": "hola quiero unirme" },
+        { "who": "Oficial", "text": "¿qué haces en el juego?" },
+        { "who": "Zorak", "text": "pvp creo 🤷" },
+        { "who": "Oficial", "text": "¿y tu fama? ¿gremio anterior? 🤨" }
+      ] },
+      "turn": "Ahora con su *ficha de Albion*",
+      "payoff": ["tickets"],
+      "tagline": "Mira su *ficha* antes de aceptar.",
+      "chips": ["PvP y PvE", "Roles al aceptar"]
+    },
+    "caption": "¿Cuántas veces aceptaste a alguien que «hacía PvP» y no había salido de la zona azul? 😂\n\nCon los tickets de MassUp ves su ficha de Albion: fama PvP, PvE, recolección, gremio y alianza. Aceptas y el bot le da roles y apodo.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Reclutamiento", "#Gremio"],
+    "comment": "¿Cuál es la peor excusa que te dio alguien para entrar al gremio? 👇"
+  },
+  {
+    "id": "build-de-clear",
+    "cover": "El tanque llegando al boss con la build de clear 💀",
+    "props": {
+      "hook": { "title": "El tanque llegando al boss con *la build de clear*", "chat": [
+        { "who": "Caller", "text": "¿no cambiaste el arma? 😐" },
+        { "who": "Vortex", "text": "nadie me dijo 😭" },
+        { "who": "Lyra", "text": "wipe 💀" }
+      ] },
+      "turn": "Para eso están los *swaps*",
+      "payoff": ["swaps"],
+      "tagline": "Swaps en las builds: *nadie se equivoca*.",
+      "chips": ["Hasta 3 por rol", "En el hilo"]
+    },
+    "caption": "El clásico wipe por no cambiar de build 💀\n\nCon MassUp cada rol tiene su build y sus swaps («Boss», «Falce 3»…) con solo lo que cambia, y salen en el hilo de la salida.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Builds", "#Gremio"],
+    "comment": "¿Cuál es el swap que tu gremio siempre olvida? 👇"
+  },
+  {
+    "id": "quien-tiene-el-loot",
+    "cover": "¿Quién se llevó el loot? 👀",
+    "props": {
+      "hook": { "title": "¿Quién se llevó *el loot*?", "chat": [
+        { "who": "Bruno", "text": "yo no tengo nada 🙄" },
+        { "who": "Nyx", "text": "Sylas lootó y se fue 👀" },
+        { "who": "Kael", "text": "¿y la bolsa del boss?" },
+        { "who": "Caller", "text": "nadie se va hasta que aparezca 😤" }
+      ] },
+      "turn": "El log *no miente*",
+      "payoff": ["log"],
+      "tagline": "Importa el log y *sal de dudas*.",
+      "chips": ["AO Loot Logger", "Premium"]
+    },
+    "caption": "Siempre hay uno que «no tiene nada» 👀\n\nCon MassUp Premium importas el archivo de AO Loot Logger y ves quién tiene cada ítem y quién falta en el reparto.\n\nEl reparto es gratis; el log es Premium 👉 link en el perfil",
+    "hashtags": ["#Loot", "#AOLootLogger"],
+    "comment": "Etiqueta al que siempre «no tiene nada» 👇😂"
+  },
+  {
+    "id": "repas-nunca-devueltas",
+    "cover": "El que paga las repas y nunca se las devuelven 🥲",
+    "props": {
+      "hook": { "title": "El que paga las *repas* y nunca se las devuelven", "chat": [
+        { "who": "Vortex", "text": "pagué 400k de repas 😐" },
+        { "who": "Bruno", "text": "luego lo vemos" },
+        { "who": "Vortex", "text": "eso dijiste la otra vez 🥲" }
+      ] },
+      "turn": "Con *MassUp*, a la primera",
+      "payoff": ["plata", "reparto"],
+      "tagline": "Las repas, *para quien las pagó*.",
+      "chips": ["Reparto gratis", "En español"]
+    },
+    "caption": "Justicia para el que siempre paga las reparaciones 🥲\n\nEn el reparto de MassUp pones las repas y quién las pagó: se descuentan del total y van directo a él. El resto, a partes iguales.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "Etiqueta al que siempre paga las repas 🛠️👇"
+  },
+  {
+    "id": "llegan-cinco-mas",
+    "cover": "Party llena… y llegan 5 más 😅",
+    "props": {
+      "hook": { "title": "Party llena… y llegan *5 más*", "channel": "pings", "chat": [
+        { "who": "Lyra", "text": "¿hay hueco?" },
+        { "who": "Sylas", "text": "yo voy de dps" },
+        { "who": "Zorak", "text": "¿me esperan? 🏃" },
+        { "who": "Caller", "text": "ya no caben 😩" }
+      ] },
+      "turn": "Para eso está *la banca*",
+      "payoff": ["roster"],
+      "tagline": "Banca *automática* cuando se llena.",
+      "chips": ["Cupos por rol", "Gratis"]
+    },
+    "caption": "El drama de decirle «no cabes» a un amigo 😅\n\nCon MassUp, cuando se llenan los cupos de un rol, los que llegan entran a la banca automáticamente. Si alguien se baja, sube el siguiente.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#Gankeo"],
+    "comment": "¿Eres de los que llegan tarde o de los que esperan? 👇"
+  },
+  {
+    "id": "caller-por-dm",
+    "cover": "Tipos de Caller: el que avisa por DM a cada uno",
+    "props": {
+      "hook": { "kicker": "Tipos de Caller", "title": "El que avisa *por DM* a cada uno", "channel": "mensajes directos", "chat": [
+        { "who": "Caller", "text": "@Bruno ven, gank" },
+        { "who": "Caller", "text": "@Nyx ven, gank" },
+        { "who": "Caller", "text": "@Kael ven, gank" },
+        { "who": "Caller", "text": "@Lyra ven… 😮‍💨" }
+      ] },
+      "turn": "Un ping. *Todos avisados.*",
+      "payoff": ["ping"],
+      "tagline": "Un ping en *segundos*.",
+      "chips": ["Gratis", "En español"]
+    },
+    "caption": "Todos conocemos a este Caller 😂\n\nCon MassUp escribes /ping, eliges contenido y hora, y el bot avisa al rol que toca. Sin DMs uno por uno.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Caller", "#Gremio"],
+    "comment": "¿Qué tipo de Caller tiene tu gremio? Etiquétalo 👇"
+  },
+  {
+    "id": "voy-de-que",
+    "cover": "«Voy» … ¿pero DE QUÉ? 😤",
+    "props": {
+      "hook": { "title": "Cuando nadie dice *de qué va*", "channel": "pings", "chat": [
+        { "who": "Bruno", "text": "voy" },
+        { "who": "Nyx", "text": "voy" },
+        { "who": "Kael", "text": "voy también" },
+        { "who": "Caller", "text": "¿pero DE QUÉ? 😤" }
+      ] },
+      "turn": "Cada uno en *su rol*",
+      "payoff": ["roster"],
+      "tagline": "Elige rol y *a jugar*.",
+      "chips": ["Cupos por rol", "Gratis"]
+    },
+    "caption": "5 «voy» y ningún healer 💀\n\nCon MassUp cada uno se anota en su rol desde el ping, con cupos por rol. El Caller ve la compo completa de un vistazo.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#Gankeo"],
+    "comment": "¿Qué rol es el que siempre falta en tu gremio? 👇"
+  },
+  {
+    "id": "sesion-caducada",
+    "cover": "Configurar el bot 1 hora y que se cierre la sesión 😭",
+    "props": {
+      "hook": { "title": "1 hora configurando y *se cierra la sesión*", "channel": "staff", "chat": [
+        { "who": "Oficial", "text": "perdí todas las builds 😭" },
+        { "who": "Líder", "text": "¿no guardaste?" },
+        { "who": "Oficial", "text": "me botó antes 💀" }
+      ] },
+      "turn": "Con *borradores*, no se pierde nada",
+      "payoff": ["panel"],
+      "tagline": "Panel nuevo, *claro u oscuro*.",
+      "chips": ["Borradores", "Por secciones"]
+    },
+    "caption": "El dolor de perder una hora de configuración 😭\n\nEl panel web de MassUp guarda borradores: si caduca la sesión, al volver pulsas Recuperar y sigues donde ibas. Y ahora con tema oscuro.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "¿Qué es lo peor que has perdido por no guardar? 👇"
+  },
+  {
+    "id": "nadie-quiere-vender",
+    "cover": "Nadie quiere vender el loot 🙄",
+    "props": {
+      "hook": { "title": "Nadie quiere *vender el loot*", "chat": [
+        { "who": "Caller", "text": "¿quién vende?" },
+        { "who": "Bruno", "text": "véndelo tú" },
+        { "who": "Nyx", "text": "me da pereza el mercado 🙄" },
+        { "who": "Draven", "text": "¿y yo qué gano?" }
+      ] },
+      "turn": "Ahora el vendedor *cobra*",
+      "payoff": ["plata"],
+      "tagline": "El vendedor *se lleva su %*.",
+      "chips": ["Reparto gratis", "En español"]
+    },
+    "caption": "Vender el loot es un trabajo, y se paga 💰\n\nEn el reparto de MassUp pones el % para el vendedor y se lo suma a su parte. Así siempre hay voluntarios 😂\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Cuánto % le dan al vendedor en tu gremio? 👇"
+  },
+  {
+    "id": "recargo-gremio",
+    "cover": "¿Y el recargo del gremio? 🤯",
+    "props": {
+      "hook": { "title": "¿Y el *recargo del gremio*?", "chat": [
+        { "who": "Líder", "text": "el gremio pone las monturas" },
+        { "who": "Bruno", "text": "¿10 %? ¿de qué total?" },
+        { "who": "Kael", "text": "nadie sabe calcularlo 🤯" }
+      ] },
+      "turn": "*MassUp* hace las cuentas",
+      "payoff": ["lootcorto"],
+      "tagline": "Recargo del gremio *calculado solo*.",
+      "chips": ["Reparto gratis", "Sobrante al gremio"]
+    },
+    "caption": "El gremio también come 😅\n\nEn el reparto de MassUp pones el % de recargo del gremio y el bot lo descuenta. Lo que sobra por el redondeo, también va al gremio.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Tu gremio cobra recargo del loot? ¿Cuánto? 👇"
+  },
+  {
+    "id": "calculadora-movil",
+    "cover": "Repartiendo 12 M entre 7 con la calculadora del móvil 😵",
+    "props": {
+      "hook": { "title": "Repartiendo 12 M *con la calculadora*", "chat": [
+        { "who": "Draven", "text": "12.500.000 / 7…" },
+        { "who": "Draven", "text": "menos repas… menos el 10 %…" },
+        { "who": "Draven", "text": "¿y el sobrante? 😵" },
+        { "who": "Nyx", "text": "llevas 20 min 🙄" }
+      ] },
+      "turn": "O pulsas *un botón*",
+      "payoff": ["reparto"],
+      "tagline": "Las cuentas, *hechas por el bot*.",
+      "chips": ["Reparto gratis", "En español"]
+    },
+    "caption": "El que reparte el loot sufriendo con la calculadora 😵\n\nMassUp lo calcula solo: total, repas, recargo, vendedor y cuánto le toca a cada uno. Después marcas quién ya cobró.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Quién reparte el loot en tu gremio? Etiquétalo 👇"
+  },
+  {
+    "id": "luego-te-pago",
+    "cover": "«Luego te pago»… hace 3 semanas 💀",
+    "props": {
+      "hook": { "title": "«Luego te pago» *hace 3 semanas*", "chat": [
+        { "who": "Lyra", "text": "@Draven ¿y lo mío? 👀" },
+        { "who": "Draven", "text": "mañana sin falta 🙏" },
+        { "who": "Lyra", "text": "eso dijiste el lunes" }
+      ] },
+      "turn": "Ahora queda *registrado*",
+      "payoff": ["reparto"],
+      "tagline": "Marca *quién ya cobró*.",
+      "chips": ["Reparto gratis", "/loot pendientes"]
+    },
+    "caption": "Todos tenemos un «luego te pago» pendiente 💀\n\nEn MassUp marcas quién ya cobró, y con /loot pendientes cada uno ve lo que todavía le deben.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Cuánta plata te deben en tu gremio? 💸👇"
+  },
+  {
+    "id": "nadie-se-entera",
+    "cover": "La party se cancela y nadie se entera 🧍",
+    "props": {
+      "hook": { "title": "La party se cancela y *nadie se entera*", "chat": [
+        { "who": "Kael", "text": "¿dónde están todos?" },
+        { "who": "Kael", "text": "llevo 20 min en el punto 🧍" },
+        { "who": "Bruno", "text": "se canceló hace rato…" }
+      ] },
+      "turn": "Tú *mandas* la party",
+      "payoff": ["mando"],
+      "tagline": "En ruta, ¡A voz!, GG o *Cancelar*.",
+      "chips": ["Mando del Caller", "Gratis"]
+    },
+    "caption": "Ese que se queda esperando solo en el punto de encuentro 🧍\n\nCon el Mando del Caller de MassUp marcas En ruta, ¡A voz!, GG o Cancelar, y todos se enteran al momento.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Caller", "#Gremio"],
+    "comment": "¿Te ha pasado? Cuenta tu historia 👇"
+  },
+  {
+    "id": "en-que-canal",
+    "cover": "«¿En qué canal están?» 😂",
+    "props": {
+      "hook": { "title": "Todos en voz menos *el que se perdió*", "chat": [
+        { "who": "Nyx", "text": "¿en qué canal están?" },
+        { "who": "Bruno", "text": "Gank 2" },
+        { "who": "Kael", "text": "no, Gank 3 😂" },
+        { "who": "Nyx", "text": "estoy solo en Gank 1 🥲" }
+      ] },
+      "turn": "*¡A voz!* y todos juntos",
+      "payoff": ["mando"],
+      "tagline": "Una voz *por salida*.",
+      "chips": ["Voz temporal", "Gratis"]
+    },
+    "caption": "Siempre hay uno solo en el canal equivocado 🥲\n\nCon MassUp cada salida tiene su propia voz temporal. El Caller pulsa ¡A voz! y todos saben dónde entrar. Al dar GG, se borra.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordServer"],
+    "comment": "¿Eres el que se pierde o el que se ríe? 😂👇"
+  },
+  {
+    "id": "gremio-nuevo",
+    "cover": "Tu gremio de Albion recién creado necesita esto",
+    "props": {
+      "hook": { "title": "Tu gremio de Albion *recién creado*", "channel": "staff", "chat": [
+        { "who": "Líder", "text": "¿qué bot ponemos?" },
+        { "who": "Oficial", "text": "todos están en inglés 😩" },
+        { "who": "Líder", "text": "y piden permisos de admin…" }
+      ] },
+      "turn": "Prueba *MassUp*",
+      "payoff": ["ping"],
+      "tagline": "Gratis, en español y *sin admin*.",
+      "chips": ["Gratis", "En español", "Sin permisos de admin"]
+    },
+    "caption": "¿Gremio nuevo? Esto es lo primero que tienes que instalar ⚔️\n\nMassUp: pings con roster por roles, banca, voz temporal, reparto de loot y tickets de reclutamiento. Gratis, en español y sin pedir permisos de admin.\n\nLink en el perfil 👆",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "¿Cómo se llama tu gremio? Déjalo aquí para que otros lo encuentren 👇"
+  },
+  {
+    "id": "avalon-7-roles",
+    "cover": "Caminos de Avalon: 7 personas, 7 roles 🤔",
+    "props": {
+      "hook": { "title": "Avalon: 7 personas, *7 roles*", "channel": "pings", "chat": [
+        { "who": "Caller", "text": "faltan healer y tanque" },
+        { "who": "Vortex", "text": "yo voy de tanque… creo" },
+        { "who": "Lyra", "text": "¿quién falta al final? 🤔" }
+      ] },
+      "turn": "El roster *se arma solo*",
+      "payoff": ["roster"],
+      "tagline": "Cupos por rol y *banca automática*.",
+      "chips": ["Compo por contenido", "Gratis"]
+    },
+    "caption": "Armar la compo de Avalon por chat es un caos 🤔\n\nCon MassUp cada contenido tiene su compo: cada uno elige su rol, los cupos se llenan y el resto va a la banca.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Avalon", "#Gankeo"],
+    "comment": "¿Cuál es la compo de gank favorita de tu gremio? 👇"
+  },
+  {
+    "id": "oficial-segundo-trabajo",
+    "cover": "Ser oficial de gremio es un segundo trabajo 🥲",
+    "props": {
+      "hook": { "title": "Ser oficial es *un segundo trabajo*", "channel": "staff", "chat": [
+        { "who": "Oficial", "text": "pings, roster, loot, tickets…" },
+        { "who": "Oficial", "text": "y nadie lo agradece 🥲" },
+        { "who": "Líder", "text": "gracias 👍" }
+      ] },
+      "turn": "Deja que *el bot* lo haga",
+      "payoff": ["ping", "gg"],
+      "tagline": "Tú juegas, *MassUp* organiza.",
+      "chips": ["Gratis", "En español"]
+    },
+    "caption": "Un homenaje a los oficiales de gremio 🫡\n\nMassUp hace la parte aburrida: pings, roster por roles, voz e hilo de cada salida y reparto del loot al dar GG.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "Etiqueta al oficial que más trabaja en tu gremio 🫡👇"
+  },
+  {
+    "id": "solicitudes-por-dm",
+    "cover": "Solicitudes de ingreso por DM 😵",
+    "props": {
+      "hook": { "title": "Solicitudes de ingreso *por DM*", "chat": [
+        { "who": "Zorak", "text": "te escribí ayer 👀" },
+        { "who": "Oficial", "text": "¿quién lleva el reclutamiento?" },
+        { "who": "Líder", "text": "perdí el mensaje 😅" }
+      ] },
+      "turn": "Ahora llegan *por ticket*",
+      "payoff": ["tickets"],
+      "tagline": "Tickets con *ficha de Albion*.",
+      "chips": ["Aceptar o rechazar", "Roles y apodo"]
+    },
+    "caption": "Reclutar por DM es perder gente 😵\n\nCon MassUp el candidato abre un ticket con su personaje, el bot trae su ficha de Albion y el staff acepta o rechaza en un clic.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Reclutamiento", "#Gremio"],
+    "comment": "¿Tu gremio está reclutando? Déjalo aquí 👇"
+  },
+  {
+    "id": "precio-en-pesos",
+    "cover": "Un bot para tu gremio que puedes pagar en pesos 🇨🇴",
+    "props": {
+      "hook": { "title": "¿Bot de pago *en dólares*?", "channel": "staff", "chat": [
+        { "who": "Líder", "text": "este bot cobra en USD 😩" },
+        { "who": "Oficial", "text": "y solo con tarjeta internacional" },
+        { "who": "Líder", "text": "paso 🙃" }
+      ] },
+      "turn": "*MassUp* es gratis",
+      "payoff": ["log"],
+      "tagline": "Premium desde *$15.000 COP*.",
+      "chips": ["Mercado Pago", "Tarjeta, PSE o Efecty"]
+    },
+    "caption": "Por fin un bot para gremios pensado para LATAM 🌎\n\nMassUp es gratis. Y si quieres Premium (log de AO Loot Logger y más), cuesta desde $15.000 COP con Mercado Pago: tarjeta, PSE o Efecty.\n\nLink en el perfil 👆",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "¿Desde qué país juegas Albion? 🌎👇"
+  },
+  {
+    "id": "panel-3am",
+    "cover": "Configurando el bot a las 3 am 😵",
+    "props": {
+      "hook": { "title": "Configurando el bot *a las 3 am*", "channel": "staff", "chat": [
+        { "who": "Oficial", "text": "me quemo los ojos 😵" },
+        { "who": "Líder", "text": "baja el brillo" },
+        { "who": "Oficial", "text": "ya está al 0 🫠" }
+      ] },
+      "turn": "Ahora hay *modo oscuro*",
+      "payoff": ["panel"],
+      "tagline": "Panel *claro u oscuro*.",
+      "chips": ["Por secciones", "Borradores"]
+    },
+    "caption": "Los que configuran el gremio de madrugada lo entienden 🫠\n\nEl panel web de MassUp ahora tiene tema oscuro, secciones nuevas y borradores para no perder cambios.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "¿Modo claro u oscuro? Defiende tu respuesta 👇"
+  },
+  {
+    "id": "que-build-llevo",
+    "cover": "«¿Qué build llevo?» por 20.ª vez 😑",
+    "props": {
+      "hook": { "title": "«¿Qué build llevo?» *por 20.ª vez*", "chat": [
+        { "who": "Bruno", "text": "¿qué build llevo?" },
+        { "who": "Nyx", "text": "¿y yo de healer?" },
+        { "who": "Kael", "text": "¿qué capa? 🤔" },
+        { "who": "Caller", "text": "😑" }
+      ] },
+      "turn": "Está *en el hilo*",
+      "payoff": ["swaps"],
+      "tagline": "Builds por rol, *en el hilo*.",
+      "chips": ["Iconos oficiales", "Swaps"]
+    },
+    "caption": "El Caller respondiendo lo mismo por 20.ª vez 😑\n\nCon MassUp cada salida abre un hilo con la tarjeta de builds de cada rol, con iconos del juego y sus swaps.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Builds", "#Gremio"],
+    "comment": "¿Qué build de gank recomiendas? 👇"
+  },
+  {
+    "id": "los-2000-que-sobran",
+    "cover": "¿Y los 2.000 que sobran? 😤",
+    "props": {
+      "hook": { "title": "¿Y los 2.000 que *sobran*?", "chat": [
+        { "who": "Bruno", "text": "pa mí" },
+        { "who": "Kael", "text": "no, pa mí 😤" },
+        { "who": "Líder", "text": "pa la caja del gremio 🙃" }
+      ] },
+      "turn": "*MassUp* lo decide",
+      "payoff": ["reparto"],
+      "tagline": "El sobrante, *al gremio*.",
+      "chips": ["Reparto gratis", "En español"]
+    },
+    "caption": "Albion: el único juego donde se pelea por 2.000 de plata 😂\n\nEl reparto de MassUp redondea las partes y lo que sobra va al gremio. Sin discusiones.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Loot", "#Gremio"],
+    "comment": "¿Te has peleado por menos de 10k de plata? Confiesa 👇"
+  },
+  {
+    "id": "caller-tarde",
+    "cover": "El Caller llega tarde a su propia party 😑",
+    "props": {
+      "hook": { "title": "El Caller llega tarde *a su propia party*", "chat": [
+        { "who": "Lyra", "text": "¿y el Caller?" },
+        { "who": "Bruno", "text": "dijo 21:15…" },
+        { "who": "Nyx", "text": "son 21:30 😑" }
+      ] },
+      "turn": "Cambia la hora *y avisa*",
+      "payoff": ["hora"],
+      "tagline": "Mueve la salida *sin cerrar el ping*.",
+      "chips": ["Mando del Caller", "Gratis"]
+    },
+    "caption": "Etiqueta a ese Caller 😑\n\nCon MassUp el Caller cambia la hora desde el Mando y el bot avisa a todos en el hilo. Nadie pierde su sitio.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Caller", "#Gremio"],
+    "comment": "Etiqueta al Caller que siempre llega tarde ⏰👇"
+  },
+  {
+    "id": "tres-pasos",
+    "cover": "Arma party en Albion en 3 pasos ⚔️",
+    "props": {
+      "hook": { "kicker": "Tutorial", "title": "Arma party en *3 pasos*", "channel": "callers", "chat": [
+        { "who": "Kael", "text": "¿cómo arman party tan rápido? 🤔" },
+        { "who": "Caller", "text": "mira 👇" }
+      ] },
+      "turn": "1. */ping*",
+      "payoff": ["ping", "roster"],
+      "tagline": "/ping, se anotan, *a jugar*.",
+      "chips": ["Gratis", "En español"]
+    },
+    "caption": "Tutorial rápido para Callers ⚔️\n\n1. /ping y eliges contenido y hora\n2. El bot avisa al rol que toca\n3. Cada uno se anota en su rol\n\nMassUp, gratis y en español 👉 link en el perfil",
+    "hashtags": ["#Tutorial", "#Caller"],
+    "comment": "¿Qué quieres que te enseñe en el próximo tutorial? 👇"
+  },
+  {
+    "id": "menos-drama",
+    "cover": "Gremios con MassUp vs gremios sin MassUp",
+    "props": {
+      "hook": { "kicker": "Gremios sin MassUp", "title": "El *drama* de cada salida", "chat": [
+        { "who": "Nyx", "text": "¿y mi parte? 👀" },
+        { "who": "Bruno", "text": "¿a qué hora era?" },
+        { "who": "Kael", "text": "¿en qué canal están?" },
+        { "who": "Lyra", "text": "¿quién lleva el tanque? 😩" }
+      ] },
+      "turn": "Gremios *con MassUp*",
+      "payoff": ["lootcorto"],
+      "tagline": "*Menos drama*, más contenido.",
+      "chips": ["Gratis", "En español"]
+    },
+    "caption": "¿En qué lado está tu gremio? 👀\n\nMassUp organiza pings, roster por roles, voz de cada salida y reparto del loot. Tu gremio solo tiene que jugar.\n\nGratis y en español 👉 link en el perfil",
+    "hashtags": ["#Gremio", "#DiscordBot"],
+    "comment": "Del 1 al 10, ¿cuánto drama hay en tu gremio? 👇"
+  }
+]

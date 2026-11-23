@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { C, FONT_BODY, FONT_DISPLAY, FONT_EMOJI } from './theme';
 
@@ -65,6 +65,9 @@ export const Stage: React.FC<{ caption: React.ReactNode; children: React.ReactNo
   );
 };
 
+/** En los videos cortos se ocultan los «Paso N» / «Novedad N» de las escenas reutilizadas */
+export const HideSteps = createContext(false);
+
 /** Texto en pantalla: número de paso, título en Cinzel con palabra dorada y subtítulo */
 export const Caption: React.FC<{ step?: string; title: React.ReactNode; sub?: React.ReactNode; delay?: number }> = ({
   step,
@@ -75,11 +78,12 @@ export const Caption: React.FC<{ step?: string; title: React.ReactNode; sub?: Re
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const vertical = useVertical();
+  const hideSteps = useContext(HideSteps);
   const s = spring({ frame: frame - delay, fps, config: { damping: 200 } });
   const s2 = spring({ frame: frame - delay - 8, fps, config: { damping: 200 } });
   return (
     <div style={{ fontFamily: FONT_BODY, color: C.text }}>
-      {step && (
+      {step && !hideSteps && (
         <div
           style={{
             opacity: s,

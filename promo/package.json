@@ -5,10 +5,14 @@
   "description": "Videos promocionales de MassUp (Remotion)",
   "scripts": {
     "studio": "remotion studio",
-    "render:video": "remotion render PartyEn15s out/massup-party-15s-9x16-sin-audio.mp4 && remotion render PartyEn15sHorizontal out/massup-party-15s-16x9-sin-audio.mp4",
-    "audio": "node scripts/synthAudio.js",
-    "mux": "remotion ffmpeg -v error -i out/massup-party-15s-9x16-sin-audio.mp4 -i public/audio.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart -y out/massup-party-15s-9x16-con-audio.mp4 && remotion ffmpeg -v error -i out/massup-party-15s-16x9-sin-audio.mp4 -i public/audio.wav -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart -y out/massup-party-15s-16x9-con-audio.mp4",
-    "render:all": "npm run render:video && npm run audio && npm run mux"
+    "render:party": "remotion render PartyEn15s out/massup-party-15s-9x16-sin-audio.mp4 && remotion render PartyEn15sHorizontal out/massup-party-15s-16x9-sin-audio.mp4",
+    "render:novedades": "remotion render NovedadesVertical out/massup-novedades-9x16-sin-audio.mp4 && remotion render NovedadesHorizontal out/massup-novedades-16x9-sin-audio.mp4",
+    "render:loot": "remotion render LootVertical out/massup-loot-9x16-sin-audio.mp4 && remotion render LootHorizontal out/massup-loot-16x9-sin-audio.mp4",
+    "render:video": "npm run render:party && npm run render:novedades && npm run render:loot",
+    "audio": "node scripts/synthAudio.js party && node scripts/synthAudio.js novedades && node scripts/synthAudio.js loot",
+    "mux": "node scripts/mux.js",
+    "render:all": "npm run render:video && npm run audio && npm run mux",
+    "daily": "node ../node_modules/tsx/dist/cli.mjs scripts/daily.ts"
   },
   "dependencies": {
     "@remotion/cli": "4.0.543",
