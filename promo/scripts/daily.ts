@@ -11,6 +11,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ShortProps, TURN_DUR, shortTimeline } from '../src/shorts/timeline';
+import { renderCover } from './portada';
 
 type Idea = {
   id: string;
@@ -83,10 +84,9 @@ const q = (p: string) => (process.platform === 'win32' ? `"${p}"` : p);
 const silent = path.join(dir, 'video-sin-audio.mp4');
 const withAudio = path.join(dir, 'video-con-audio.mp4');
 const audio = path.join(dir, 'audio.wav');
-const cover = path.join(dir, 'portada.png');
 
 run('npx', ['remotion', 'render', 'Short', q(silent), `--props=${q(propsFile)}`, '--log=error']);
-run('npx', ['remotion', 'still', 'Short', q(cover), `--props=${q(propsFile)}`, `--frame=${tl.hookDur - 8}`, '--log=error']);
+renderCover(dir, idea.cover, idea.props.hook);
 run('node', ['scripts/synthAudio.js', 'short', q(timingFile), q(audio)]);
 run('npx', ['remotion', 'ffmpeg', '-v', 'error', '-i', q(silent), '-i', q(audio), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', '-y', q(withAudio)]);
 fs.rmSync(audio, { force: true });
@@ -102,10 +102,10 @@ const md = `# Video del ${today} · ${idea.id}
 
 ## Texto de portada
 
-Ponlo con el editor de texto de TikTok, arriba y con fondo negro. Como portada usa un fotograma del gancho (\`portada.png\`).
+Portada personalizada: \`portada.png\` (misma plantilla en todos los videos). En TikTok: **Editar portada → Subir / Galería** y elige \`portada.png\`. Si tu versión de la app no deja subir imagen, súbelo desde TikTok Studio en la computadora, o elige el primer fotograma del video. Texto de la portada, por si lo necesitas:
 
 \`\`\`
-${idea.cover}
+${idea.cover.replace(/\*/g, '')}
 \`\`\`
 
 ## Descripción

@@ -12,7 +12,8 @@
     "audio": "node scripts/synthAudio.js party && node scripts/synthAudio.js novedades && node scripts/synthAudio.js loot",
     "mux": "node scripts/mux.js",
     "render:all": "npm run render:video && npm run audio && npm run mux",
-    "daily": "node ../node_modules/tsx/dist/cli.mjs scripts/daily.ts"
+    "daily": "node ../node_modules/tsx/dist/cli.mjs scripts/daily.ts",
+    "portada": "node ../node_modules/tsx/dist/cli.mjs scripts/portada.ts"
   },
   "dependencies": {
     "@remotion/cli": "4.0.543",

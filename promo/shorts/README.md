@@ -7,12 +7,13 @@ cd promo
 npm run daily                 # video de hoy (si ya existe, no hace nada)
 npm run daily -- <id>         # una idea concreta (si es de hoy, la vuelve a generar)
 npm run daily -- --force      # otro video más hoy
+npm run portada               # rehace las portadas de los videos ya generados
 ```
 
 Sale en `out/diario/<fecha>-<id>/`:
 - `video-con-audio.mp4`: con pista propia, sin derechos de terceros.
 - `video-sin-audio.mp4`: para ponerle un sonido en tendencia desde TikTok.
-- `portada.png`.
+- `portada.png`: portada personalizada con la misma plantilla en todos los videos (etiqueta «Albion Online», texto de `cover` con lo destacado en dorado, dos mensajes del chat y el logo). Todo cabe en el recorte 3:4 de la cuadrícula del perfil.
 - `publicacion.md`: texto de portada, descripción con CTA y hashtags, comentario para fijar y ajustes.
 
 Lo ya publicado queda en `historial.json`.
@@ -63,6 +64,6 @@ Escenas disponibles para `payoff` (duración en fotogramas a 30 fps; conviene qu
   - Al final, el CTA: «Gratis y en español 👉 link en el perfil».
   - Sin hashtags: van en `hashtags`, 2 o 3 específicos; los generales (#AlbionOnline #AlbionLatam #MMORPG #Discord) y la línea de búsqueda 🔎 se añaden solos. Máximo 6 en total.
 - **`comment`:** una pregunta que invite a comentar o a etiquetar a alguien.
-- **`cover`:** texto de portada de 30–55 caracteres.
+- **`cover`:** texto de portada de 30–55 caracteres. Marca con `*…*` lo que va en dorado; si no marcas nada, se destacan las dos últimas palabras.
 - **Variedad:** no repitas la misma escena de `payoff` dos días seguidos y alterna temas (party, loot, Caller, reclutamiento, panel).
 - **`id`:** en kebab-case y único. No borres ideas ya usadas, porque el historial apunta a ellas.

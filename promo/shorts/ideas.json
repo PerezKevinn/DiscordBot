@@ -115,7 +115,7 @@
   },
   {
     "id": "build-de-clear",
-    "cover": "El tanque llegando al boss con la build de clear 💀",
+    "cover": "El tanque llegando al boss con la *build de clear* 💀",
     "props": {
       "hook": { "title": "El tanque llegando al boss con *la build de clear*", "chat": [
         { "who": "Caller", "text": "¿no cambiaste el arma? 😐" },

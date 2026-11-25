@@ -39,13 +39,13 @@ export const Rich: React.FC<{ text: string }> = ({ text }) => (
 );
 
 const PALETTE = ['#c084fc', '#60a5fa', '#f87171', '#34d399', '#fbbf24', '#f472b6', '#22d3ee', '#a3e635'];
-const colorFor = (name: string) => PALETTE[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % PALETTE.length];
+export const colorFor = (name: string) => PALETTE[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % PALETTE.length];
 
 /**
  * Texto al estilo TikTok: Inter Black blanco con contorno negro grueso; las *palabras* van en
  * recuadro dorado. Se lee en el móvil sin sonido y de un vistazo.
  */
-const TikTokText: React.FC<{ text: string; size: number; words?: (i: number) => React.CSSProperties }> = ({ text, size, words }) => {
+export const TikTokText: React.FC<{ text: string; size: number; words?: (i: number) => React.CSSProperties }> = ({ text, size, words }) => {
   let i = 0;
   const parts = text.split(/(\*[^*]+\*)/);
   return (
@@ -67,6 +67,13 @@ const TikTokText: React.FC<{ text: string; size: number; words?: (i: number) => 
         const hl = part.startsWith('*') && part.endsWith('*') && part.length > 2;
         const body = hl ? part.slice(1, -1) : part;
         const tokens = body.split(/(\s+)/);
+        // sin animación por palabra, la frase destacada va en un solo recuadro
+        if (hl && !words)
+          return (
+            <span key={pi} style={{ display: 'inline-block', background: C.gold, color: '#111', WebkitTextStroke: 0, textShadow: 'none', padding: '0 14px', borderRadius: 14, boxShadow: '0 8px 0 #000' }}>
+              <Rich text={body} />
+            </span>
+          );
         return tokens.map((tok, ti) => {
           if (!tok.trim()) return <React.Fragment key={`${pi}-${ti}`}>{tok}</React.Fragment>;
           const st = words?.(i++) ?? {};
