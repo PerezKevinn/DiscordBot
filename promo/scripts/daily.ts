@@ -24,7 +24,15 @@ type Idea = {
   comment: string;
 };
 
-const BASE_TAGS = ['#AlbionOnline', '#Albion', '#AlbionLatam', '#Discord'];
+/**
+ * Hashtags: TikTok recomienda 3–5 y pesa más que sean del nicho que el volumen. Mezcla:
+ * 2 del juego (quien busca Albion) + 1 de comunidad latina + 1 de Discord + los 2–3 de la idea.
+ */
+const BASE_TAGS = ['#AlbionOnline', '#AlbionLatam', '#MMORPG', '#Discord'];
+/** Para rotar a mano en la segunda publicación del día o en Reels / Shorts */
+const ALT_TAGS = ['#Albion', '#AlbionOnlineMexico', '#AlbionColombia', '#BotDeDiscord', '#GamingEnEspañol', '#Gremios'];
+/** Línea de búsqueda: TikTok indexa el texto de la descripción como en un buscador */
+const SEO_LINE = '🔎 Bot de Discord para gremios de Albion Online · party, roster y reparto de loot';
 const root = path.join(__dirname, '..');
 const ideasFile = path.join(root, 'shorts', 'ideas.json');
 const histFile = path.join(root, 'shorts', 'historial.json');
@@ -83,7 +91,8 @@ run('node', ['scripts/synthAudio.js', 'short', q(timingFile), q(audio)]);
 run('npx', ['remotion', 'ffmpeg', '-v', 'error', '-i', q(silent), '-i', q(audio), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', '-y', q(withAudio)]);
 fs.rmSync(audio, { force: true });
 
-const tags = [...new Set([...BASE_TAGS, ...idea.hashtags])].slice(0, 7).join(' ');
+const tags = [...new Set([...BASE_TAGS, ...idea.hashtags])].slice(0, 6).join(' ');
+const altTags = ALT_TAGS.filter((t) => !tags.includes(t)).slice(0, 4).join(' ');
 const secs = (tl.total / 30).toFixed(1).replace('.', ',');
 const md = `# Video del ${today} · ${idea.id}
 
@@ -104,8 +113,12 @@ ${idea.cover}
 \`\`\`
 ${idea.caption}
 
+${SEO_LINE}
+
 ${tags}
 \`\`\`
+
+Hashtags para rotar (segunda publicación, Reels o Shorts): \`${altTags}\`
 
 ## Comentario para fijar
 
@@ -117,7 +130,14 @@ ${idea.comment}
 
 - **Contenido promocional → Tu marca:** activado
 - **Comentarios, Dúo y Stitch:** activados
-- Responde todos los comentarios de la primera hora
+
+## Para que se mueva
+
+- **Primeros 60 min:** responde todos los comentarios; los mejores, con un video de respuesta (otro corto gratis).
+- **Sonido:** si el de \`video-sin-audio.mp4\` con un sonido en tendencia (volumen 20–30 %) supera al otro en 2 h, sigue con ese formato.
+- **Repite el gancho:** si un video pasa de 2× tus vistas medias, sube otra idea con el mismo formato de gancho al día siguiente.
+- **No lo borres** aunque arranque lento: TikTok vuelve a mover videos días después.
+- Comparte el video en el Discord de tu gremio y en grupos de Albion (las primeras vistas de jugadores reales le enseñan a TikTok a quién mostrarlo).
 `;
 fs.writeFileSync(path.join(dir, 'publicacion.md'), md);
 

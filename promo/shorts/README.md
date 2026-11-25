@@ -19,10 +19,16 @@ Lo ya publicado queda en `historial.json`.
 
 ## Estructura del video
 
-1. **Gancho (2,5–3 s):** frase grande arriba (`hook.title`, con `*palabra*` en oro) y un chat de Discord con el problema (`hook.chat`, de 2 a 5 mensajes cortos). Al final, el chat tiembla.
-2. **Giro (1,1 s):** frase a pantalla completa con destello (`turn`).
-3. **Demostración:** escenas reales del bot (`payoff`). Se ocultan los «Paso N».
-4. **Cierre (4 s):** logo, `tagline`, `chips`, botón massup.shop y «Link en el perfil 👆».
+Ritmo TikTok: nada sale en negro, hay un corte cada 1–4 s y una barra de progreso dorada arriba.
+
+1. **Gancho (2,5–3 s):** titular estilo TikTok (Inter Black blanco con contorno; `*palabra*` en recuadro dorado) visible **desde el fotograma 0**, `kicker` como etiqueta roja («POV», «Nadie:»), y chat de Discord con el problema (`hook.chat`, de 2 a 5 mensajes cortos) que se acerca, suma menciones sin leer y al final tiembla con un destello rojo.
+2. **Giro (1,1 s):** destello blanco, sacudida y las palabras de `turn` caen una a una.
+3. **Demostración:** escenas reales del bot (`payoff`), cada una entra con golpe de zoom y destello. Se ocultan los «Paso N».
+4. **Cierre (3 s):** logo, `tagline`, `chips`, botón massup.shop y «Link en el perfil 👆». Los últimos 8 fotogramas funden con el primero: el video se repite sin corte y suma tiempo de visualización.
+
+Audio: golpe en el primer fotograma, avisos de Discord con cada mensaje, «rayón» y golpe en el giro y golpe seco en cada corte.
+
+Si Remotion no puede descargar su Chrome, usa otro con `REMOTION_BROWSER=/ruta/al/chrome npm run daily`.
 
 Escenas disponibles para `payoff` (duración en fotogramas a 30 fps; conviene que sumen 10 s o menos):
 
@@ -55,7 +61,7 @@ Escenas disponibles para `payoff` (duración en fotogramas a 30 fps; conviene qu
   - Primera línea: el gancho, con humor y un emoji.
   - Después, qué hace MassUp en 1–2 frases.
   - Al final, el CTA: «Gratis y en español 👉 link en el perfil».
-  - Sin hashtags: van en `hashtags`, 2 o 3 específicos; los generales se añaden solos.
+  - Sin hashtags: van en `hashtags`, 2 o 3 específicos; los generales (#AlbionOnline #AlbionLatam #MMORPG #Discord) y la línea de búsqueda 🔎 se añaden solos. Máximo 6 en total.
 - **`comment`:** una pregunta que invite a comentar o a etiquetar a alguien.
 - **`cover`:** texto de portada de 30–55 caracteres.
 - **Variedad:** no repitas la misma escena de `payoff` dos días seguidos y alterna temas (party, loot, Caller, reclutamiento, panel).

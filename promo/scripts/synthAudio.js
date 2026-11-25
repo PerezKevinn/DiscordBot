@@ -289,6 +289,15 @@ const VIDEOS = {
   short() {
     const S = SHORT;
     const turn = f(S.turn);
+    // golpe en el fotograma 0: el sonido también engancha desde el primer instante
+    kick(0, 0.7);
+    add(0, 0.35, noise(0.3), expEnv(0.001, 0.09), 0.35);
+    // golpe seco en cada corte con zoom
+    S.scenes.forEach((fr) => {
+      kick(f(fr), 0.6);
+      add(f(fr), 0.12, noise(0.7), expEnv(0.0005, 0.03), 0.22);
+    });
+    add(turn - 0.25, 0.25, sweep(1400, 300, 0.25), expEnv(0.002, 0.12), 0.12); // «rayón» antes del giro
     add(0, turn + 0.1, (x) => sin(D2 / 2)(x) + 0.4 * sin(Bb1)(x), (x) => Math.min(1, x / 0.3) * Math.min(1, (turn + 0.1 - x) / 0.2), 0.15);
     S.chat.forEach((at, i) => {
       add(f(at), 0.15, sin(880 + i * 40), expEnv(0.002, 0.05), 0.14, -0.3 + (i % 5) * 0.15);

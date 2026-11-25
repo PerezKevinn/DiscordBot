@@ -2,7 +2,7 @@ import { loadFont as loadCinzel } from '@remotion/google-fonts/Cinzel';
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 
 const cinzel = loadCinzel('normal', { weights: ['600', '700', '800'], subsets: ['latin', 'latin-ext'] });
-const inter = loadInter('normal', { weights: ['400', '500', '600', '700', '800'], subsets: ['latin', 'latin-ext'] });
+const inter = loadInter('normal', { weights: ['400', '500', '600', '700', '800', '900'], subsets: ['latin', 'latin-ext'] });
 
 export const FONT_DISPLAY = `${cinzel.fontFamily}, Georgia, serif`;
 export const FONT_BODY = `${inter.fontFamily}, 'Segoe UI', system-ui, sans-serif`;

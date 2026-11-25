@@ -35,10 +35,11 @@ export const SceneFade: React.FC<{ dur: number; children: React.ReactNode; fadeI
   fadeOut = 8,
 }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(frame, [0, fadeIn, dur - fadeOut, dur], [0, 1, 1, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  // fadeIn = 0: visible desde el primer fotograma (el primer fotograma de un video corto no puede salir en negro)
+  const opacity =
+    fadeIn > 0
+      ? interpolate(frame, [0, fadeIn, dur - fadeOut, dur], [0, 1, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+      : interpolate(frame, [dur - fadeOut, dur], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   return <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>;
 };
 

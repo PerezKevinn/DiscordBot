@@ -36,10 +36,14 @@ export type ShortProps = {
   footer?: string;
 };
 
-export const HOOK_CHAT_START = 14;
-export const HOOK_CHAT_STEP = 10;
+// Ritmo TikTok: el primer mensaje entra a los 0,27 s y el cierre dura 3 s (se ve completo y enlaza
+// con el inicio para que el video se repita sin corte).
+export const HOOK_CHAT_START = 8;
+export const HOOK_CHAT_STEP = 9;
 export const TURN_DUR = 34;
-export const OUTRO_DUR = 120;
+export const OUTRO_DUR = 90;
+/** Fotogramas finales que funden con el primer fotograma (bucle) */
+export const LOOP_DUR = 8;
 
 export function shortTimeline(p: Pick<ShortProps, 'hook' | 'payoff'>) {
   const chat = p.hook.chat.map((_, i) => HOOK_CHAT_START + i * HOOK_CHAT_STEP);

@@ -4,12 +4,13 @@ import { useVertical } from '../common';
 import { C, FONT_BODY, FONT_DISPLAY } from '../theme';
 
 /** 19,3–25 s · Cierre: logo, lema y llamada a la acción */
-export const Outro: React.FC<{ chips?: string[]; tagline?: React.ReactNode; footer?: React.ReactNode }> = ({
+export const Outro: React.FC<{ chips?: string[]; tagline?: React.ReactNode; footer?: React.ReactNode; speed?: number }> = ({
   chips: chipList = ['Gratis', 'En español', 'Sin permisos de admin'],
   tagline,
   footer = 'Bot de Discord para gremios de Albion Online',
+  speed = 1, // >1 acelera las animaciones (videos cortos)
 }) => {
-  const frame = useCurrentFrame();
+  const frame = useCurrentFrame() * speed;
   const { fps } = useVideoConfig();
   const vertical = useVertical();
 

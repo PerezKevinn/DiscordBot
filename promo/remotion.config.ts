@@ -8,3 +8,5 @@ Config.setOverwriteOutput(true);
 // interpretan mal: el video se ve más saturado y con más contraste que el diseño.
 Config.setColorSpace('bt709');
 Config.setPixelFormat('yuv420p');
+// Navegador propio opcional (p. ej. en servidores sin el Chrome que descarga Remotion)
+if (process.env.REMOTION_BROWSER) Config.setBrowserExecutable(process.env.REMOTION_BROWSER);
