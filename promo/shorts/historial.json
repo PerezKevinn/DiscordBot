@@ -3,5 +3,10 @@
     "date": "2026-11-23",
     "id": "caller-a-mano",
     "dir": "out/diario/2026-11-23-caller-a-mano"
+  },
+  {
+    "date": "2026-11-25",
+    "id": "loot-peleas",
+    "dir": "out/diario/2026-11-25-loot-peleas"
   }
 ]
